@@ -1,0 +1,47 @@
+{
+  "name": "es-toolkit-eslint-plugin",
+  "version": "1.0.0",
+  "description": "ESLint plugin that suggests es-toolkit utilities in place of verbose JS/TS",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "docs",
+    "README.md"
+  ],
+  "keywords": [
+    "eslint",
+    "eslintplugin",
+    "eslint-plugin",
+    "es-toolkit"
+  ],
+  "license": "MIT",
+  "author": "Aliaksandr Zasim",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "pnpm run build"
+  },
+  "dependencies": {
+    "@typescript-eslint/utils": "^8.61.1"
+  },
+  "peerDependencies": {
+    "eslint": ">=10"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "@typescript-eslint/rule-tester": "^8.0.0",
+    "eslint": "^10.0.0",
+    "typescript": "^6.0.3",
+    "vitest": "^3.0.0"
+  }
+}
