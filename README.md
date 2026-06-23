@@ -26,7 +26,7 @@ export default [
     files: ['**/*.{js,ts}'],
     plugins: { 'es-toolkit': esToolkit },
     rules: {
-      'es-toolkit/prefer-clamp': 'warn',
+      'es-toolkit/prefer-clamp': 'error',
     },
   },
 ];
@@ -42,15 +42,9 @@ export default [esToolkit.configs.recommended];
 
 ## Rules
 
-| Rule | Description | Fixable |
-| --- | --- | --- |
-| [`prefer-clamp`](docs/rules/prefer-clamp.md) | Prefer `clamp` over nested `Math.min`/`Math.max`. | — |
-
-## Roadmap
-
-More `prefer-*` rules mapping common idioms to es-toolkit utilities (e.g. `prefer-uniq`,
-`prefer-group-by`, `prefer-debounce`). New rules reuse the shared `createRule` factory
-(`src/utils/create-rule.ts`) and the same esquery-driven detection style.
+| Rule                                         | Description                                       |
+| -------------------------------------------- | ------------------------------------------------- |
+| [`prefer-clamp`](docs/rules/prefer-clamp.md) | Prefer `clamp` over nested `Math.min`/`Math.max`. |
 
 ## Development
 

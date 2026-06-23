@@ -16,14 +16,15 @@ export const preferClamp = createRule({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Prefer `clamp` from es-toolkit over nested `Math.min`/`Math.max`.',
+      description:
+        'Prefer `clamp` from es-toolkit over nested `Math.min`/`Math.max`.',
     },
     schema: [],
     messages: {
-      preferClamp: 'Prefer `clamp` from es-toolkit instead of nesting `Math.min`/`Math.max`.',
+      preferClamp:
+        'Prefer `clamp` from es-toolkit instead of nesting `Math.min`/`Math.max`.',
     },
   },
-  defaultOptions: [],
   create(context) {
     const report = (node: TSESTree.CallExpression) =>
       context.report({ node, messageId: 'preferClamp' });

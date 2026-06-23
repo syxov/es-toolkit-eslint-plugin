@@ -2,6 +2,7 @@
 /out-tsc
 /dist
 .idea
+.DS_Store
 
 /node_modules
 npm-debug.log*

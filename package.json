@@ -28,6 +28,7 @@
     "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
+    "format": "prettier --write . --experimental-cli --log-level=error",
     "prepublishOnly": "pnpm run build"
   },
   "dependencies": {
@@ -41,6 +42,7 @@
     "@typescript-eslint/parser": "^8.0.0",
     "@typescript-eslint/rule-tester": "^8.0.0",
     "eslint": "^10.0.0",
+    "prettier": "^3.8.4",
     "typescript": "^6.0.3",
     "vitest": "^3.0.0"
   }

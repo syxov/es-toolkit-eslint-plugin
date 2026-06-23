@@ -14,7 +14,7 @@ Core principles (apply to every rule):
 - **esquery-first.** Push detection into the selector string; keep the `create()` body
   minimal. A typical rule body is ~3 lines.
 - **Self-documenting code.** Minimal comments, in English only, and only where the
-  *why* is non-obvious.
+  _why_ is non-obvious.
 - **ESLint 10, flat-config only.** No legacy `.eslintrc` support.
 
 ## Commands (pnpm)
@@ -24,6 +24,8 @@ pnpm install      # also runs esbuild's approved build script
 pnpm test         # vitest run — RuleTester suites
 pnpm test:watch   # vitest watch
 pnpm build        # tsc -> dist/ (with .d.ts)
+pnpm format       # prettier --write .
+pnpm format:check # prettier --check .
 ```
 
 ## Layout
@@ -43,6 +45,7 @@ Naming: `prefer-<utility>` (e.g. `prefer-clamp`, `prefer-uniq`, `prefer-debounce
 used as `es-toolkit/<name>`.
 
 1. **`src/rules/<name>.ts`** — build the rule with the shared factory:
+
    ```ts
    import type { TSESTree } from '@typescript-eslint/utils';
    import { createRule } from '../utils/create-rule.js'; // .js extension required (NodeNext ESM)
@@ -63,6 +66,7 @@ used as `es-toolkit/<name>`.
      },
    });
    ```
+
 2. **Register** in `src/index.ts`: add to `rules` and to `configs.recommended.rules`
    (recommended severity is `'error'`).
 3. **`tests/rules/<name>.test.ts`** — `RuleTester` from `@typescript-eslint/rule-tester`,
@@ -103,8 +107,9 @@ of adding scope analysis (keep the rule minimal).
 - **pnpm 11**: esbuild's build script is approved via `pnpm-workspace.yaml` (`allowBuilds`).
 - `dist/` is git-ignored and rebuilt on publish (`prepublishOnly`); it's shipped via
   `package.json` `files`.
+- **Style is enforced by Prettier** (`.prettierrc.json`: single quotes, `printWidth: 100`).
+  Run `pnpm format` before committing.
 
 ## Before publishing
 
-- Replace the `OWNER` placeholder in `src/utils/create-rule.ts` (rule docs URL) and add a
-  `repository` field to `package.json`.
+- Add a `repository` field to `package.json`.
