@@ -7,6 +7,11 @@ Rules are **report-only** (no auto-fix) and lean on
 [esquery](https://eslint.org/docs/latest/extend/selectors) selectors to keep detection
 declarative and minimal.
 
+> [!WARNING]
+> **Early stage.** This project is at a very early stage and under active development.
+> False positives are possible.
+> Try it out and [file issues](https://github.com/syxov/es-toolkit-eslint-plugin/issues).
+
 > Requires **ESLint 10** (flat config).
 
 ## Install
