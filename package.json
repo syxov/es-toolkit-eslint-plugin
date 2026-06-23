@@ -1,6 +1,6 @@
 {
   "name": "es-toolkit-eslint-plugin",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "ESLint plugin that suggests es-toolkit utilities in place of verbose JS/TS",
   "type": "module",
   "main": "./dist/index.js",
@@ -24,12 +24,21 @@
   ],
   "license": "MIT",
   "author": "Aliaksandr Zasim",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syxov/es-toolkit-eslint-plugin.git"
+  },
+  "bugs": {
+    "url": "https://github.com/syxov/es-toolkit-eslint-plugin/issues"
+  },
+  "homepage": "https://github.com/syxov/es-toolkit-eslint-plugin#readme",
   "scripts": {
     "build": "tsc",
     "test": "vitest run",
     "test:watch": "vitest",
     "format": "prettier --write . --experimental-cli --log-level=error",
-    "prepublishOnly": "pnpm run build"
+    "prepublishOnly": "pnpm run test && pnpm run build",
+    "release": "pnpm publish --access public"
   },
   "dependencies": {
     "@typescript-eslint/utils": "^8.61.1"
