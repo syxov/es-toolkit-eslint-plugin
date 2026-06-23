@@ -42,9 +42,18 @@ export default [esToolkit.configs.recommended];
 
 ## Rules
 
-| Rule                                         | Description                                       |
-| -------------------------------------------- | ------------------------------------------------- |
-| [`prefer-clamp`](docs/rules/prefer-clamp.md) | Prefer `clamp` over nested `Math.min`/`Math.max`. |
+| Rule                                                   | Description                                              |
+| ------------------------------------------------------ | -------------------------------------------------------- |
+| [`prefer-clamp`](docs/rules/prefer-clamp.md)           | Prefer `clamp` over nested `Math.min`/`Math.max`.        |
+| [`prefer-compact`](docs/rules/prefer-compact.md)       | Prefer `compact` over `.filter(Boolean)`.                |
+| [`prefer-delay`](docs/rules/prefer-delay.md)           | Prefer `delay` over `new Promise` + `setTimeout`.        |
+| [`prefer-is-empty`](docs/rules/prefer-is-empty.md)     | Prefer `isEmpty` over `Object.keys(obj).length === 0`.   |
+| [`prefer-is-equal`](docs/rules/prefer-is-equal.md)     | Prefer `isEqual` over comparing `JSON.stringify` output. |
+| [`prefer-last`](docs/rules/prefer-last.md)             | Prefer `last` over `arr[arr.length - 1]`.                |
+| [`prefer-random-int`](docs/rules/prefer-random-int.md) | Prefer `randomInt` over `Math.floor(Math.random() * …)`. |
+| [`prefer-range`](docs/rules/prefer-range.md)           | Prefer `range` over manual index-array construction.     |
+| [`prefer-sample`](docs/rules/prefer-sample.md)         | Prefer `sample` over random-index array access.          |
+| [`prefer-uniq`](docs/rules/prefer-uniq.md)             | Prefer `uniq` over `new Set` round-trips.                |
 
 ## Development
 
