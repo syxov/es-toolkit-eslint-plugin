@@ -8,13 +8,18 @@ ruleTester.run('prefer-delay', preferDelay, {
     'delay(1000);',
     'new Promise((resolve) => setTimeout(doWork, 1000));',
     'new Promise((resolve, reject) => setTimeout(resolve, ms));',
-    'new Promise((resolve) => { setTimeout(resolve, ms); });',
+    'new Promise((resolve) => { setTimeout(doWork, ms); });',
+    'new Promise((resolve) => { doWork(); setTimeout(resolve, ms); });',
     'setTimeout(fn, 1000);',
     'new Promise((resolve) => resolve(42));',
   ],
   invalid: [
     {
       code: 'new Promise((resolve) => setTimeout(resolve, 1000));',
+      errors: [{ messageId: 'preferDelay' }],
+    },
+    {
+      code: 'new Promise((resolve) => { setTimeout(resolve, ms); });',
       errors: [{ messageId: 'preferDelay' }],
     },
     {
@@ -26,7 +31,7 @@ ruleTester.run('prefer-delay', preferDelay, {
       errors: [{ messageId: 'preferDelay' }],
     },
     {
-      code: 'new Promise<void>((resolve) => setTimeout(resolve, 300));',
+      code: 'new Promise<void>((resolve) => { setTimeout(resolve, 300); });',
       errors: [{ messageId: 'preferDelay' }],
     },
   ],

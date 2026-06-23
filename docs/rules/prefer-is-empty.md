@@ -8,14 +8,15 @@ allocating an intermediate keys array.
 
 ## Rule details
 
-This rule reports — it does **not** auto-fix — an equality comparison of
-`Object.keys(...).length` against `0`, in either operand order.
+This rule reports — it does **not** auto-fix — a check that `Object.keys(...).length` is
+zero: an equality comparison against `0` in either operand order, or the `!`-negated length.
 
 ### ❌ Incorrect
 
 ```js
 Object.keys(obj).length === 0;
 0 === Object.keys(obj).length;
+!Object.keys(obj).length;
 ```
 
 ### ✅ Correct

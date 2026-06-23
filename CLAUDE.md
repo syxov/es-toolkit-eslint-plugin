@@ -25,7 +25,6 @@ pnpm test         # vitest run — RuleTester suites
 pnpm test:watch   # vitest watch
 pnpm build        # tsc -> dist/ (with .d.ts)
 pnpm format       # prettier --write .
-pnpm format:check # prettier --check .
 ```
 
 ## Layout
@@ -107,7 +106,7 @@ of adding scope analysis (keep the rule minimal).
 - **pnpm 11**: esbuild's build script is approved via `pnpm-workspace.yaml` (`allowBuilds`).
 - `dist/` is git-ignored and rebuilt on publish (`prepublishOnly`); it's shipped via
   `package.json` `files`.
-- **Style is enforced by Prettier** (`.prettierrc.json`: single quotes, `printWidth: 100`).
+- **Style is enforced by Prettier**
   Run `pnpm format` before committing.
 
 ## Before publishing

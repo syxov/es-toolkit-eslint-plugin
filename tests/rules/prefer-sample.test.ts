@@ -7,6 +7,7 @@ ruleTester.run('prefer-sample', preferSample, {
   valid: [
     'sample(arr);',
     'arr[Math.floor(Math.random() * 3)];',
+    'arr[~~(Math.random() * 3)];',
     'arr[i];',
     'arr[Math.floor(x)];',
   ],
@@ -17,6 +18,18 @@ ruleTester.run('prefer-sample', preferSample, {
     },
     {
       code: 'items[Math.floor(Math.random() * items.length)];',
+      errors: [{ messageId: 'preferSample' }],
+    },
+    {
+      code: 'arr[Math.trunc(Math.random() * arr.length)];',
+      errors: [{ messageId: 'preferSample' }],
+    },
+    {
+      code: 'arr[~~(Math.random() * arr.length)];',
+      errors: [{ messageId: 'preferSample' }],
+    },
+    {
+      code: 'arr[(Math.random() * arr.length) | 0];',
       errors: [{ messageId: 'preferSample' }],
     },
     {

@@ -10,7 +10,11 @@ ruleTester.run('prefer-random-int', preferRandomInt, {
     'Math.random();',
     'Math.floor(x / 2);',
     'Math.round(Math.random() * n);',
+    'Math.ceil(Math.random() * n);',
+    '~(Math.random() * n);',
+    '(Math.random() * 6) | 1;',
     'arr[Math.floor(Math.random() * arr.length)];',
+    'arr[~~(Math.random() * arr.length)];',
   ],
   invalid: [
     {
@@ -23,6 +27,18 @@ ruleTester.run('prefer-random-int', preferRandomInt, {
     },
     {
       code: 'Math.floor(n * Math.random());',
+      errors: [{ messageId: 'preferRandomInt' }],
+    },
+    {
+      code: 'Math.trunc(Math.random() * 6);',
+      errors: [{ messageId: 'preferRandomInt' }],
+    },
+    {
+      code: '~~(Math.random() * 6);',
+      errors: [{ messageId: 'preferRandomInt' }],
+    },
+    {
+      code: '(Math.random() * 6) | 0;',
       errors: [{ messageId: 'preferRandomInt' }],
     },
     {

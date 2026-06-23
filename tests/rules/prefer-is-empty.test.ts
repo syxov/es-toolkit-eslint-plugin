@@ -9,6 +9,8 @@ ruleTester.run('prefer-is-empty', preferIsEmpty, {
     'Object.keys(obj).length === 1;',
     'arr.length === 0;',
     'Object.values(obj).length === 0;',
+    '!Object.values(obj).length;',
+    '!Object.keys(obj).size;',
     'Object.keys(obj);',
   ],
   invalid: [
@@ -25,7 +27,15 @@ ruleTester.run('prefer-is-empty', preferIsEmpty, {
       errors: [{ messageId: 'preferIsEmpty' }],
     },
     {
+      code: '!Object.keys(obj).length;',
+      errors: [{ messageId: 'preferIsEmpty' }],
+    },
+    {
       code: 'const empty: boolean = Object.keys(record as object).length === 0;',
+      errors: [{ messageId: 'preferIsEmpty' }],
+    },
+    {
+      code: 'const empty: boolean = !Object.keys(record as object).length;',
       errors: [{ messageId: 'preferIsEmpty' }],
     },
   ],

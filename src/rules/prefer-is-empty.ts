@@ -1,12 +1,15 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
 
-const objectKeysLength = (side: 'left' | 'right') =>
-  `[${side}.property.name="length"][${side}.object.callee.object.name="Object"][${side}.object.callee.property.name="keys"]`;
+const objectKeysLength = (path: string) =>
+  `[${path}.property.name="length"][${path}.object.callee.object.name="Object"][${path}.object.callee.property.name="keys"]`;
 
 // `Object.keys(obj).length === 0`, in either operand order.
 const keysLengthZero = (zero: 'left' | 'right', keys: 'left' | 'right') =>
   `BinaryExpression[operator=/^===?$/][${zero}.value=0]${objectKeysLength(keys)}`;
+
+// `!Object.keys(obj).length` — a falsy length means no keys.
+const notKeysLength = `UnaryExpression[operator="!"]${objectKeysLength('argument')}`;
 
 export const preferIsEmpty = createRule({
   name: 'prefer-is-empty',
@@ -29,6 +32,7 @@ export const preferIsEmpty = createRule({
     return {
       [keysLengthZero('right', 'left')]: report,
       [keysLengthZero('left', 'right')]: report,
+      [notKeysLength]: report,
     };
   },
 });
