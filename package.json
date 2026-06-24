@@ -1,6 +1,6 @@
 {
   "name": "es-toolkit-eslint-plugin",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "ESLint plugin that suggests es-toolkit utilities in place of verbose JS/TS",
   "type": "module",
   "main": "./dist/index.js",

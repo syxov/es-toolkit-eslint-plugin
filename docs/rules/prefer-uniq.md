@@ -36,6 +36,8 @@ Array.from(new Set(arr), x => x * 2); // a map, not plain uniq
 - **Syntactic match.** `Set`/`Array` are matched by name, so shadowed locals could produce
   a false positive. This is rare in practice.
 - **Single-argument `Set` only.** `[...new Set()]` (empty) is not reported.
+- **Spread-concatenation is a union.** `[...new Set([...a, ...b])]` is reported by
+  [`prefer-union`](prefer-union.md), not here.
 - **`Array.from(set, mapFn)`** is intentionally skipped — the second argument transforms
   the result, so it is not a plain `uniq`.
 - **No auto-fix by design.** The fix requires adding an `import { uniq } from 'es-toolkit'`.

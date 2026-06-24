@@ -47,18 +47,26 @@ export default [esToolkit.configs.recommended];
 
 ## Rules
 
-| Rule                                                   | Description                                              |
-| ------------------------------------------------------ | -------------------------------------------------------- |
-| [`prefer-clamp`](docs/rules/prefer-clamp.md)           | Prefer `clamp` over nested `Math.min`/`Math.max`.        |
-| [`prefer-compact`](docs/rules/prefer-compact.md)       | Prefer `compact` over `.filter(Boolean)`.                |
-| [`prefer-delay`](docs/rules/prefer-delay.md)           | Prefer `delay` over `new Promise` + `setTimeout`.        |
-| [`prefer-is-empty`](docs/rules/prefer-is-empty.md)     | Prefer `isEmpty` over `Object.keys(obj).length === 0`.   |
-| [`prefer-is-equal`](docs/rules/prefer-is-equal.md)     | Prefer `isEqual` over comparing `JSON.stringify` output. |
-| [`prefer-last`](docs/rules/prefer-last.md)             | Prefer `last` over `arr[arr.length - 1]`.                |
-| [`prefer-random-int`](docs/rules/prefer-random-int.md) | Prefer `randomInt` over `Math.floor(Math.random() * …)`. |
-| [`prefer-range`](docs/rules/prefer-range.md)           | Prefer `range` over manual index-array construction.     |
-| [`prefer-sample`](docs/rules/prefer-sample.md)         | Prefer `sample` over random-index array access.          |
-| [`prefer-uniq`](docs/rules/prefer-uniq.md)             | Prefer `uniq` over `new Set` round-trips.                |
+| Rule                                                       | Description                                                          |
+| ---------------------------------------------------------- | -------------------------------------------------------------------- |
+| [`prefer-capitalize`](docs/rules/prefer-capitalize.md)     | Prefer `capitalize` over upper-casing the first char by hand.        |
+| [`prefer-clamp`](docs/rules/prefer-clamp.md)               | Prefer `clamp` over nested `Math.min`/`Math.max`.                    |
+| [`prefer-compact`](docs/rules/prefer-compact.md)           | Prefer `compact` over `.filter(Boolean)`.                            |
+| [`prefer-delay`](docs/rules/prefer-delay.md)               | Prefer `delay` over `new Promise` + `setTimeout`.                    |
+| [`prefer-difference`](docs/rules/prefer-difference.md)     | Prefer `difference` over `a.filter(x => !b.includes(x))`.            |
+| [`prefer-intersection`](docs/rules/prefer-intersection.md) | Prefer `intersection` over `a.filter(x => b.includes(x))`.           |
+| [`prefer-is-empty`](docs/rules/prefer-is-empty.md)         | Prefer `isEmpty` over `Object.keys(obj).length === 0`.               |
+| [`prefer-is-equal`](docs/rules/prefer-is-equal.md)         | Prefer `isEqual` over comparing `JSON.stringify` output.             |
+| [`prefer-last`](docs/rules/prefer-last.md)                 | Prefer `last` over `arr[arr.length - 1]`.                            |
+| [`prefer-mean`](docs/rules/prefer-mean.md)                 | Prefer `mean` over a `reduce` sum divided by `.length`.              |
+| [`prefer-random-int`](docs/rules/prefer-random-int.md)     | Prefer `randomInt` over `Math.floor(Math.random() * …)`.             |
+| [`prefer-range`](docs/rules/prefer-range.md)               | Prefer `range` over manual index-array construction.                 |
+| [`prefer-sample`](docs/rules/prefer-sample.md)             | Prefer `sample` over random-index array access.                      |
+| [`prefer-sum`](docs/rules/prefer-sum.md)                   | Prefer `sum` over `reduce((a, b) => a + b, 0)`.                      |
+| [`prefer-union`](docs/rules/prefer-union.md)               | Prefer `union` over deduplicating concatenated arrays via `new Set`. |
+| [`prefer-uniq`](docs/rules/prefer-uniq.md)                 | Prefer `uniq` over `new Set` round-trips.                            |
+| [`prefer-upper-first`](docs/rules/prefer-upper-first.md)   | Prefer `upperFirst` over `s.charAt(0).toUpperCase() + s.slice(1)`.   |
+| [`prefer-without`](docs/rules/prefer-without.md)           | Prefer `without` over `arr.filter(x => x !== value)`.                |
 
 ## Development
 

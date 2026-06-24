@@ -12,6 +12,9 @@ ruleTester.run('prefer-uniq', preferUniq, {
     'Array.from(new Set(arr), (x) => x * 2);',
     '[...new Set()];',
     '[...new Map(entries)];',
+    // A spread-concat of arrays is a union, owned by prefer-union.
+    '[...new Set([...a, ...b])];',
+    'Array.from(new Set([...a, ...b]));',
   ],
   invalid: [
     {
