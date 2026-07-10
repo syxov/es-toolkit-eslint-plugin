@@ -1,4 +1,9 @@
 import type { TSESTree } from '@typescript-eslint/utils';
+import {
+  chainPositions,
+  shouldReportArrayMethodReplacement,
+  type ArrayMethodRuleOptions,
+} from '../utils/array-method-chain.js';
 import { createRule } from '../utils/create-rule.js';
 
 // `.filter(x => …)` with a single single-parameter arrow predicate; its body is checked below.
@@ -25,12 +30,21 @@ export const preferIntersection = createRule({
       description:
         'Prefer `intersection` from es-toolkit over `a.filter(x => b.includes(x))`.',
     },
-    schema: [],
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          chainPosition: { type: 'string', enum: [...chainPositions] },
+        },
+        additionalProperties: false,
+      },
+    ],
     messages: {
       preferIntersection:
         'Prefer `intersection` from es-toolkit instead of filtering for members of another array.',
     },
   },
+  defaultOptions: [{}] satisfies ArrayMethodRuleOptions,
   create(context) {
     return {
       [filterArrow](node: TSESTree.CallExpression) {
@@ -40,7 +54,14 @@ export const preferIntersection = createRule({
         if (param.type !== 'Identifier') return;
 
         // `x => b.includes(x)` — bare `.includes`, not the negated `difference` form.
-        if (isIncludesOfParam(arrow.body, param.name))
+        if (
+          isIncludesOfParam(arrow.body, param.name)
+          && shouldReportArrayMethodReplacement(
+            node,
+            context.options,
+            context.settings,
+          )
+        )
           context.report({ node, messageId: 'preferIntersection' });
       },
     };

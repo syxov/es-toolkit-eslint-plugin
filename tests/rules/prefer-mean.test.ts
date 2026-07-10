@@ -10,6 +10,7 @@ ruleTester.run('prefer-mean', preferMean, {
     'arr.reduce((a, b) => a * b, 0) / arr.length;',
     'arr.reduce((a, b) => a + b, 0) / count;',
     'arr.reduce((a, b) => a + b) / arr.length;',
+    'arr.map((x) => x.value).reduce((a, b) => a + b, 0) / arr.length;',
   ],
   invalid: [
     {

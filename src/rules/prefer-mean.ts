@@ -1,4 +1,9 @@
 import type { TSESTree } from '@typescript-eslint/utils';
+import {
+  chainPositions,
+  shouldReportArrayMethodReplacement,
+  type ArrayMethodRuleOptions,
+} from '../utils/array-method-chain.js';
 import { createRule } from '../utils/create-rule.js';
 
 // `<reduce-call> / <…>.length`.
@@ -22,12 +27,21 @@ export const preferMean = createRule({
       description:
         'Prefer `mean` from es-toolkit over dividing a `reduce` sum by `.length`.',
     },
-    schema: [],
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          chainPosition: { type: 'string', enum: [...chainPositions] },
+        },
+        additionalProperties: false,
+      },
+    ],
     messages: {
       preferMean:
         'Prefer `mean` from es-toolkit instead of dividing a `reduce` sum by `length`.',
     },
   },
+  defaultOptions: [{}] satisfies ArrayMethodRuleOptions,
   create(context) {
     return {
       [division](node: TSESTree.BinaryExpression) {
@@ -43,7 +57,14 @@ export const preferMean = createRule({
           return;
         if (!addsParams(arrow.body, first.name, second.name)) return;
 
-        context.report({ node, messageId: 'preferMean' });
+        if (
+          shouldReportArrayMethodReplacement(
+            reduce,
+            context.options,
+            context.settings,
+          )
+        )
+          context.report({ node, messageId: 'preferMean' });
       },
     };
   },

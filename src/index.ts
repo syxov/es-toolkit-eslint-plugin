@@ -43,26 +43,31 @@ const plugin = {
 };
 
 plugin.configs = {
-  recommended: {
+  utilities: {
     plugins: { 'es-toolkit': plugin },
     rules: {
       'es-toolkit/prefer-capitalize': 'error',
       'es-toolkit/prefer-clamp': 'error',
-      'es-toolkit/prefer-compact': 'error',
       'es-toolkit/prefer-delay': 'error',
-      'es-toolkit/prefer-difference': 'error',
-      'es-toolkit/prefer-intersection': 'error',
       'es-toolkit/prefer-is-empty': 'error',
       'es-toolkit/prefer-is-equal': 'error',
       'es-toolkit/prefer-last': 'error',
-      'es-toolkit/prefer-mean': 'error',
       'es-toolkit/prefer-random-int': 'error',
       'es-toolkit/prefer-range': 'error',
       'es-toolkit/prefer-sample': 'error',
-      'es-toolkit/prefer-sum': 'error',
       'es-toolkit/prefer-union': 'error',
       'es-toolkit/prefer-uniq': 'error',
       'es-toolkit/prefer-upper-first': 'error',
+    },
+  },
+  'array-methods': {
+    plugins: { 'es-toolkit': plugin },
+    rules: {
+      'es-toolkit/prefer-compact': 'error',
+      'es-toolkit/prefer-difference': 'error',
+      'es-toolkit/prefer-intersection': 'error',
+      'es-toolkit/prefer-mean': 'error',
+      'es-toolkit/prefer-sum': 'error',
       'es-toolkit/prefer-without': 'error',
     },
   },

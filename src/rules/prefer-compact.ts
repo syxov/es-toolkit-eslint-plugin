@@ -1,4 +1,9 @@
 import type { TSESTree } from '@typescript-eslint/utils';
+import {
+  chainPositions,
+  shouldReportArrayMethodReplacement,
+  type ArrayMethodRuleOptions,
+} from '../utils/array-method-chain.js';
 import { createRule } from '../utils/create-rule.js';
 
 const filterBoolean =
@@ -18,15 +23,30 @@ export const preferCompact = createRule({
     docs: {
       description: 'Prefer `compact` from es-toolkit over a truthiness filter.',
     },
-    schema: [],
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          chainPosition: { type: 'string', enum: [...chainPositions] },
+        },
+        additionalProperties: false,
+      },
+    ],
     messages: {
       preferCompact:
         'Prefer `compact` from es-toolkit instead of filtering by truthiness.',
     },
   },
+  defaultOptions: [{}] satisfies ArrayMethodRuleOptions,
   create(context) {
     const report = (node: TSESTree.Node) =>
-      context.report({ node, messageId: 'preferCompact' });
+      node.type === 'CallExpression'
+      && shouldReportArrayMethodReplacement(
+        node,
+        context.options,
+        context.settings,
+      )
+      && context.report({ node, messageId: 'preferCompact' });
 
     return {
       [filterBoolean]: report,

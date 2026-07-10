@@ -9,6 +9,7 @@ ruleTester.run('prefer-intersection', preferIntersection, {
     'a.filter((x) => !b.includes(x));',
     'a.filter((x) => b.includes(x.id));',
     'a.filter((x) => b.has(x));',
+    'a.filter((x) => b.includes(x)).map((x) => x.id);',
   ],
   invalid: [
     {

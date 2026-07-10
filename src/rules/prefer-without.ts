@@ -1,5 +1,14 @@
 import type { TSESTree } from '@typescript-eslint/utils';
+import {
+  chainPositions,
+  shouldReportArrayMethodReplacement,
+  type ChainPosition,
+} from '../utils/array-method-chain.js';
 import { createRule } from '../utils/create-rule.js';
+
+type PreferWithoutOptions = [
+  { chainPosition?: ChainPosition; skipTypePredicate?: boolean },
+];
 
 // `.filter(x => …)` with a single single-parameter arrow predicate; its body is checked below.
 const filterArrow =
@@ -8,7 +17,7 @@ const filterArrow =
 const isParam = (node: TSESTree.Node, name: string) =>
   node.type === 'Identifier' && node.name === name;
 
-export const preferWithout = createRule({
+export const preferWithout = createRule<PreferWithoutOptions, 'preferWithout'>({
   name: 'prefer-without',
   meta: {
     type: 'suggestion',
@@ -16,12 +25,22 @@ export const preferWithout = createRule({
       description:
         'Prefer `without` from es-toolkit over `arr.filter(x => x !== value)`.',
     },
-    schema: [],
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          chainPosition: { type: 'string', enum: [...chainPositions] },
+          skipTypePredicate: { type: 'boolean' },
+        },
+        additionalProperties: false,
+      },
+    ],
     messages: {
       preferWithout:
         'Prefer `without` from es-toolkit instead of filtering out a specific value.',
     },
   },
+  defaultOptions: [{}] satisfies PreferWithoutOptions,
   create(context) {
     return {
       [filterArrow](node: TSESTree.CallExpression) {
@@ -33,11 +52,28 @@ export const preferWithout = createRule({
         if (body.type !== 'BinaryExpression') return;
         if (body.operator !== '!==' && body.operator !== '!=') return;
 
+        const typeAnnotation = arrow.returnType?.typeAnnotation;
+        if (
+          context.options[0]?.skipTypePredicate
+          && typeAnnotation?.type === 'TSTypePredicate'
+          && typeAnnotation.parameterName.type === 'Identifier'
+          && typeAnnotation.parameterName.name === param.name
+        )
+          return;
+
         // Exactly one side is the bare parameter; the other is the excluded value.
         // `x => x.id !== v` (a property compare) and `x => v !== w` are left alone.
         const left = isParam(body.left, param.name);
         const right = isParam(body.right, param.name);
-        if (left !== right)
+        if (left === right) return;
+
+        if (
+          shouldReportArrayMethodReplacement(
+            node,
+            context.options,
+            context.settings,
+          )
+        )
           context.report({ node, messageId: 'preferWithout' });
       },
     };

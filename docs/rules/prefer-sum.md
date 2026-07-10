@@ -32,6 +32,13 @@ arr.reduce((a, b) => a.x + b, 0); // adds a property, not the element
 arr.reduce((a, b) => a + b, 0) / arr.length; // a mean — see `prefer-mean`
 ```
 
+## Configuring method-call chains
+
+By default this rule reports only outside a method-call chain. Configure all array-method rules
+with `settings['es-toolkit'].arrayMethods.chainPosition`, or override this rule with
+`{ chainPosition: 'always' }`. Values are `always`, `chain-start`, `chain-end`,
+`chain-boundaries`, and `outside-chain`. A standalone call is both the start and end.
+
 ## Limitations
 
 - **Arrow, expression body only.** A block-body reducer (`(a, b) => { return a + b; }`) or

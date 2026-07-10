@@ -12,6 +12,26 @@ ruleTester.run('prefer-compact', preferCompact, {
     'arr.map(Boolean);',
     'Boolean(x);',
     'arr.filter(Boolean, thisArg);',
+    'items.filter(Boolean).map((x) => x.id);',
+    'items.map((x) => x.id).filter(Boolean);',
+    'items.map((x) => x).filter(Boolean).map((x) => x.id);',
+    {
+      code: 'items.filter(Boolean).map((x) => x.id);',
+      options: [{ chainPosition: 'outside-chain' }],
+      settings: { 'es-toolkit': { arrayMethods: { chainPosition: 'always' } } },
+    },
+    {
+      code: 'items.map((x) => x.id).filter(Boolean);',
+      options: [{ chainPosition: 'chain-start' }],
+    },
+    {
+      code: 'items.filter(Boolean).map((x) => x.id);',
+      options: [{ chainPosition: 'chain-end' }],
+    },
+    {
+      code: 'items.map((x) => x).filter(Boolean).map((x) => x.id);',
+      options: [{ chainPosition: 'chain-boundaries' }],
+    },
   ],
   invalid: [
     {
@@ -27,15 +47,36 @@ ruleTester.run('prefer-compact', preferCompact, {
       errors: [{ messageId: 'preferCompact' }],
     },
     {
-      code: 'items.filter(Boolean).map((x) => x.id);',
-      errors: [{ messageId: 'preferCompact' }],
-    },
-    {
       code: 'getList().filter(Boolean);',
       errors: [{ messageId: 'preferCompact' }],
     },
     {
       code: 'const xs = (arr as (string | null)[]).filter((x) => !!x);',
+      errors: [{ messageId: 'preferCompact' }],
+    },
+    {
+      code: 'items.filter(Boolean).map((x) => x.id);',
+      options: [{ chainPosition: 'chain-start' }],
+      errors: [{ messageId: 'preferCompact' }],
+    },
+    {
+      code: 'items.map((x) => x.id).filter(Boolean);',
+      options: [{ chainPosition: 'chain-end' }],
+      errors: [{ messageId: 'preferCompact' }],
+    },
+    {
+      code: 'items.map((x) => x).filter(Boolean).map((x) => x.id);',
+      options: [{ chainPosition: 'always' }],
+      errors: [{ messageId: 'preferCompact' }],
+    },
+    {
+      code: 'arr.filter(Boolean);',
+      options: [{ chainPosition: 'chain-boundaries' }],
+      errors: [{ messageId: 'preferCompact' }],
+    },
+    {
+      code: 'items.filter(Boolean).map((x) => x.id);',
+      settings: { 'es-toolkit': { arrayMethods: { chainPosition: 'always' } } },
       errors: [{ messageId: 'preferCompact' }],
     },
   ],

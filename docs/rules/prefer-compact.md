@@ -34,6 +34,13 @@ arr.filter(x => Boolean(x.foo)); // filters by a property, not the element
 arr.map(Boolean);
 ```
 
+## Configuring method-call chains
+
+By default this rule reports only outside a method-call chain. Configure all array-method rules
+with `settings['es-toolkit'].arrayMethods.chainPosition`, or override this rule with
+`{ chainPosition: 'always' }`. Values are `always`, `chain-start`, `chain-end`,
+`chain-boundaries`, and `outside-chain`. A standalone call is both the start and end.
+
 ## Limitations
 
 - **Arrow predicate is identity-checked.** `x => !!x` and `x => Boolean(x)` are reported only

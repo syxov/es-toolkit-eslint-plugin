@@ -30,6 +30,13 @@ a.filter(x => b.includes(x)); // that is `intersection`
 a.filter(x => !b.includes(x.id)); // compares a property, not the element
 ```
 
+## Configuring method-call chains
+
+By default this rule reports only outside a method-call chain. Configure all array-method rules
+with `settings['es-toolkit'].arrayMethods.chainPosition`, or override this rule with
+`{ chainPosition: 'always' }`. Values are `always`, `chain-start`, `chain-end`,
+`chain-boundaries`, and `outside-chain`. A standalone call is both the start and end.
+
 ## Limitations
 
 - **Predicate is identity-checked.** Only `!b.includes(x)` where `x` is the predicate's

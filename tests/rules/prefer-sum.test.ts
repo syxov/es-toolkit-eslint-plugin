@@ -12,6 +12,7 @@ ruleTester.run('prefer-sum', preferSum, {
     'arr.reduce((a, b) => a + b, 1);',
     // The surrounding mean expression belongs to prefer-mean.
     'arr.reduce((a, b) => a + b, 0) / arr.length;',
+    'arr.map((x) => x.value).reduce((a, b) => a + b, 0);',
   ],
   invalid: [
     {

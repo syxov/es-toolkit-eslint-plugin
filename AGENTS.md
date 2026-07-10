@@ -31,7 +31,8 @@ pnpm format       # prettier --write .
 
 ```
 src/
-  index.ts                  # plugin object: meta, rules, configs.recommended
+  index.ts                  # plugin object: meta, rules, configs.utilities/array-methods
+  utils/array-method-chain.ts # shared array-method chain-position policy
   utils/create-rule.ts      # shared RuleCreator factory — reuse for every rule
   rules/<name>.ts           # one file per rule
 tests/rules/<name>.test.ts  # RuleTester valid/invalid matrix per rule
@@ -66,13 +67,22 @@ used as `es-toolkit/<name>`.
    });
    ```
 
-2. **Register** in `src/index.ts`: add to `rules` and to `configs.recommended.rules`
-   (recommended severity is `'error'`).
+2. **Register** in `src/index.ts`: add to `rules` and exactly one appropriate config
+   (`configs.utilities` or `configs['array-methods']`), with severity `'error'`.
 3. **`tests/rules/<name>.test.ts`** — `RuleTester` from `@typescript-eslint/rule-tester`,
    a `valid`/`invalid` matrix. Assert only `messageId` (no `output` — report-only).
    Include at least one TypeScript sample and the obvious false-positive cases as `valid`.
 4. **`docs/rules/<name>.md`** — what/why, ✅/❌ examples, and a **Limitations** section.
 5. **README.md** — add a row to the rules table.
+
+### Array-method replacement rules
+
+Rules that replace `.filter(...)` or `.reduce(...)` belong in `array-methods` and must use
+`utils/array-method-chain.ts`. They support the global setting
+`settings['es-toolkit'].arrayMethods.chainPosition`, overridden by the rule option
+`{ chainPosition }`. Valid values are `always`, `chain-start`, `chain-end`,
+`chain-boundaries`, and `outside-chain` (the default). Test the default, global setting, local
+override, and chained positions; document the setting in the rule doc and README.
 
 ### Reference rule
 

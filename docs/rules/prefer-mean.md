@@ -31,6 +31,13 @@ arr.reduce((a, b) => a * b, 0) / arr.length; // not addition
 arr.reduce((a, b) => a + b, 0) / count; // denominator is not `.length`
 ```
 
+## Configuring method-call chains
+
+By default this rule reports only outside a method-call chain. Configure all array-method rules
+with `settings['es-toolkit'].arrayMethods.chainPosition`, or override this rule with
+`{ chainPosition: 'always' }`. Values are `always`, `chain-start`, `chain-end`,
+`chain-boundaries`, and `outside-chain`. A standalone call is both the start and end.
+
 ## Limitations
 
 - **The numerator must be the exact sum shape.** Same constraints as

@@ -1,4 +1,9 @@
 import type { TSESTree } from '@typescript-eslint/utils';
+import {
+  chainPositions,
+  shouldReportArrayMethodReplacement,
+  type ArrayMethodRuleOptions,
+} from '../utils/array-method-chain.js';
 import { createRule } from '../utils/create-rule.js';
 
 // `arr.reduce((a, b) => …, 0)`: a two-arg reduce with a two-param arrow and a `0` seed.
@@ -36,12 +41,21 @@ export const preferSum = createRule({
       description:
         'Prefer `sum` from es-toolkit over `reduce((a, b) => a + b, 0)`.',
     },
-    schema: [],
+    schema: [
+      {
+        type: 'object',
+        properties: {
+          chainPosition: { type: 'string', enum: [...chainPositions] },
+        },
+        additionalProperties: false,
+      },
+    ],
     messages: {
       preferSum:
         'Prefer `sum` from es-toolkit instead of summing with `reduce`.',
     },
   },
+  defaultOptions: [{}] satisfies ArrayMethodRuleOptions,
   create(context) {
     return {
       [reduceArrow](node: TSESTree.CallExpression) {
@@ -52,7 +66,14 @@ export const preferSum = createRule({
         if (!addsParams(arrow.body, first.name, second.name)) return;
         if (isMeanNumerator(node)) return;
 
-        context.report({ node, messageId: 'preferSum' });
+        if (
+          shouldReportArrayMethodReplacement(
+            node,
+            context.options,
+            context.settings,
+          )
+        )
+          context.report({ node, messageId: 'preferSum' });
       },
     };
   },
