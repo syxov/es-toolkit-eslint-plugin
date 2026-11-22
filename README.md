@@ -108,6 +108,7 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 | [`prefer-head`](docs/rules/prefer-head.md)                   | Enforce using `head` instead of indexing an array with `0`.                               |
 | [`prefer-initial`](docs/rules/prefer-initial.md)             | Enforce using `initial` instead of `arr.slice(0, -1)`.                                    |
 | [`prefer-intersection`](docs/rules/prefer-intersection.md)   | Enforce using `intersection` instead of `a.filter(x => b.includes(x))`.                   |
+| [`prefer-key-by`](docs/rules/prefer-key-by.md)               | Enforce using `keyBy` instead of `Object.fromEntries(xs.map(x => [key, x]))`.             |
 | [`prefer-last`](docs/rules/prefer-last.md)                   | Enforce using `last` instead of `arr[arr.length - 1]`.                                    |
 | [`prefer-sample`](docs/rules/prefer-sample.md)               | Enforce using `sample` instead of random-index array access.                              |
 | [`prefer-shuffle`](docs/rules/prefer-shuffle.md)             | Enforce using `shuffle` instead of sorting with a random comparator.                      |

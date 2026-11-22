@@ -37,6 +37,7 @@ import { preferIsWeakMap } from './rules/prefer-is-weak-map.js';
 import { preferIsWeakSet } from './rules/prefer-is-weak-set.js';
 import { preferInitial } from './rules/prefer-initial.js';
 import { preferInRange } from './rules/prefer-in-range.js';
+import { preferKeyBy } from './rules/prefer-key-by.js';
 import { preferLast } from './rules/prefer-last.js';
 import { preferLowerFirst } from './rules/prefer-lower-first.js';
 import { preferMean } from './rules/prefer-mean.js';
@@ -98,6 +99,7 @@ const rules = {
   'prefer-is-weak-set': preferIsWeakSet,
   'prefer-initial': preferInitial,
   'prefer-in-range': preferInRange,
+  'prefer-key-by': preferKeyBy,
   'prefer-last': preferLast,
   'prefer-lower-first': preferLowerFirst,
   'prefer-mean': preferMean,
@@ -128,6 +130,7 @@ const arrayRules = {
   'es-toolkit/prefer-head': 'error',
   'es-toolkit/prefer-initial': 'error',
   'es-toolkit/prefer-intersection': 'error',
+  'es-toolkit/prefer-key-by': 'error',
   'es-toolkit/prefer-last': 'error',
   'es-toolkit/prefer-sample': 'error',
   'es-toolkit/prefer-shuffle': 'error',
