@@ -117,6 +117,7 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 | [`prefer-uniq`](docs/rules/prefer-uniq.md)                   | Enforce using `uniq` instead of `new Set` round-trips.                                    |
 | [`prefer-uniq-by`](docs/rules/prefer-uniq-by.md)             | Enforce using `uniqBy` instead of reading the values of `new Map(xs.map(x => [key, x]))`. |
 | [`prefer-without`](docs/rules/prefer-without.md)             | Enforce using `without` instead of `arr.filter(x => x !== value)`.                        |
+| [`prefer-zip`](docs/rules/prefer-zip.md)                     | Enforce using `zip` instead of `a.map((x, i) => [x, b[i]])`.                              |
 
 ## Math rules
 

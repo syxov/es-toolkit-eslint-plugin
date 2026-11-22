@@ -56,6 +56,7 @@ import { preferUniq } from './rules/prefer-uniq.js';
 import { preferUniqBy } from './rules/prefer-uniq-by.js';
 import { preferUpperFirst } from './rules/prefer-upper-first.js';
 import { preferWithout } from './rules/prefer-without.js';
+import { preferZip } from './rules/prefer-zip.js';
 
 // Resolves to the package root from both `src/` (tests) and `dist/` (published build).
 const packageJson = createRequire(import.meta.url)('../package.json') as {
@@ -120,6 +121,7 @@ const rules = {
   'prefer-uniq-by': preferUniqBy,
   'prefer-upper-first': preferUpperFirst,
   'prefer-without': preferWithout,
+  'prefer-zip': preferZip,
 };
 
 // Every rule sits in exactly one category map. A rule registered as 'off' is opt-in: it
@@ -143,6 +145,7 @@ const arrayRules = {
   'es-toolkit/prefer-uniq': 'error',
   'es-toolkit/prefer-uniq-by': 'error',
   'es-toolkit/prefer-without': 'error',
+  'es-toolkit/prefer-zip': 'error',
 } as const;
 
 const functionRules = {} as const;
