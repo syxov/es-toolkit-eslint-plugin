@@ -1,6 +1,6 @@
 {
   "name": "es-toolkit-eslint-plugin",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "ESLint plugin that suggests es-toolkit utilities in place of verbose JS/TS",
   "type": "module",
   "main": "./dist/index.js",
@@ -24,7 +24,7 @@
     "es-toolkit"
   ],
   "license": "MIT",
-  "packageManager": "pnpm@11.4.0",
+  "packageManager": "pnpm@12.21.0",
   "author": "Aliaksandr Zasim",
   "repository": {
     "type": "git",
