@@ -17,3 +17,8 @@ export const stringContext = `${caseConversionReceiver}, BinaryExpression[operat
 // A non-computed `.slice(…)` call outside a string context; `attributes` constrain its arguments.
 export const arraySliceCall = (attributes: string) =>
   `CallExpression[callee.type="MemberExpression"][callee.computed=false][callee.property.name="slice"]${attributes}:not(${stringContext})`;
+
+// The function of a class or object method, constructor, getter or setter: a named member,
+// not an inline function value. For use inside `:not(…)`.
+export const memberFunction =
+  'MethodDefinition > .value, Property[method=true] > .value, Property[kind=/^[gs]et$/] > .value';

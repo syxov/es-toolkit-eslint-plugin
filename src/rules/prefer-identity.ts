@@ -1,14 +1,14 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { isIdentifierNamed } from '../utils/ast.js';
 import { createRule } from '../utils/create-rule.js';
+import { memberFunction } from '../utils/selectors.js';
 
 type IdentityFunction =
   TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression;
 
 // A sole `.filter` argument is a truthiness filter owned by prefer-compact, even when its
-// chain policy keeps it silent. Methods and setters are named members, like declarations.
-const notOwnedElsewhere =
-  ':not(CallExpression[callee.property.name="filter"][arguments.length=1] > .arguments, MethodDefinition > .value, Property[method=true] > .value, Property[kind="set"] > .value)';
+// chain policy keeps it silent.
+const notOwnedElsewhere = `:not(CallExpression[callee.property.name="filter"][arguments.length=1] > .arguments, ${memberFunction})`;
 
 const singleIdentifierParam =
   '[async=false][params.length=1][params.0.type="Identifier"]';

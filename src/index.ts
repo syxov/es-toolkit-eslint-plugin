@@ -44,6 +44,7 @@ import { preferLowerFirst } from './rules/prefer-lower-first.js';
 import { preferMapValues } from './rules/prefer-map-values.js';
 import { preferMean } from './rules/prefer-mean.js';
 import { preferMeanBy } from './rules/prefer-mean-by.js';
+import { preferNoop } from './rules/prefer-noop.js';
 import { preferRandomInt } from './rules/prefer-random-int.js';
 import { preferRange } from './rules/prefer-range.js';
 import { preferRound } from './rules/prefer-round.js';
@@ -112,6 +113,7 @@ const rules = {
   'prefer-map-values': preferMapValues,
   'prefer-mean': preferMean,
   'prefer-mean-by': preferMeanBy,
+  'prefer-noop': preferNoop,
   'prefer-random-int': preferRandomInt,
   'prefer-range': preferRange,
   'prefer-round': preferRound,
@@ -158,6 +160,7 @@ const arrayRules = {
 
 const functionRules = {
   'es-toolkit/prefer-identity': 'off',
+  'es-toolkit/prefer-noop': 'off',
 } as const;
 
 const mathRules = {
