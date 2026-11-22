@@ -56,6 +56,7 @@ const cases: [code: string, rules: string[]][] = [
   ['arr.map(x => x);', ['prefer-identity']],
   ['arr.filter(x => x);', ['prefer-compact']],
   ['promise.catch(() => {});', ['prefer-noop']],
+  ['clearTimeout(t); t = setTimeout(f, 100);', ['prefer-debounce']],
   // math
   ['Math.min(Math.max(x, 0), 10);', ['prefer-clamp']],
   ['x >= 0 && x < 10;', ['prefer-in-range']],

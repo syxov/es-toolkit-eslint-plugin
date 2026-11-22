@@ -4,6 +4,7 @@ import { preferCapitalize } from './rules/prefer-capitalize.js';
 import { preferClamp } from './rules/prefer-clamp.js';
 import { preferCloneDeep } from './rules/prefer-clone-deep.js';
 import { preferCompact } from './rules/prefer-compact.js';
+import { preferDebounce } from './rules/prefer-debounce.js';
 import { preferDelay } from './rules/prefer-delay.js';
 import { preferIsDate } from './rules/prefer-is-date.js';
 import { preferDifference } from './rules/prefer-difference.js';
@@ -73,6 +74,7 @@ const rules = {
   'prefer-clamp': preferClamp,
   'prefer-clone-deep': preferCloneDeep,
   'prefer-compact': preferCompact,
+  'prefer-debounce': preferDebounce,
   'prefer-delay': preferDelay,
   'prefer-is-date': preferIsDate,
   'prefer-difference': preferDifference,
@@ -159,6 +161,7 @@ const arrayRules = {
 } as const;
 
 const functionRules = {
+  'es-toolkit/prefer-debounce': 'off',
   'es-toolkit/prefer-identity': 'off',
   'es-toolkit/prefer-noop': 'off',
 } as const;

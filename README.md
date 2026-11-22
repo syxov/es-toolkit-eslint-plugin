@@ -123,10 +123,11 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 
 ## Function rules
 
-| Rule                                               | Description                                                               |
-| -------------------------------------------------- | ------------------------------------------------------------------------- |
-| [`prefer-identity`](docs/rules/prefer-identity.md) | Enforce using `identity` instead of an inline `x => x` function (opt-in). |
-| [`prefer-noop`](docs/rules/prefer-noop.md)         | Enforce using `noop` instead of an inline `() => {}` function (opt-in).   |
+| Rule                                               | Description                                                                                   |
+| -------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| [`prefer-debounce`](docs/rules/prefer-debounce.md) | Enforce using `debounce` instead of a hand-written `clearTimeout`/`setTimeout` pair (opt-in). |
+| [`prefer-identity`](docs/rules/prefer-identity.md) | Enforce using `identity` instead of an inline `x => x` function (opt-in).                     |
+| [`prefer-noop`](docs/rules/prefer-noop.md)         | Enforce using `noop` instead of an inline `() => {}` function (opt-in).                       |
 
 ## Math rules
 
