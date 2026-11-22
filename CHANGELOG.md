@@ -4,6 +4,14 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org); while it is `0.x`, minor releases may contain
 breaking changes.
 
+## [Unreleased]
+
+### Fixed
+
+- `prefer-clamp` no longer reports a symmetric min/max where both arguments are the opposite
+  call, e.g. the interval-overlap test `Math.max(Math.min(a, b), Math.min(c, d))`. It is not
+  equivalent to `clamp` when the lower bound exceeds the upper one.
+
 ## [0.2.0] - 2026-11-22
 
 ### Breaking changes

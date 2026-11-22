@@ -26,6 +26,10 @@ ruleTester.run('prefer-clamp', preferClamp, {
     'Math.min(other.max(a, b), c);',
     "Math['min'](Math.max(a, b), c);",
     'Math.min(Math.max, c);',
+    // Both arguments are the opposite call: a symmetric min/max (e.g. interval overlap), not a clamp.
+    'Math.max(Math.min(aStart, aEnd), Math.min(bStart, bEnd));',
+    'Math.min(Math.max(aStart, aEnd), Math.max(bStart, bEnd));',
+    'Math.min(Math.max(a, lo), Math.max(b, lo));',
   ],
   invalid: [
     {
@@ -57,11 +61,12 @@ ruleTester.run('prefer-clamp', preferClamp, {
       errors: [{ messageId: 'preferClamp' }],
     },
     {
-      code: 'const clampPct = (n: number): number => Math.max(0, Math.min(n!, 100));',
+      // Only one argument is a two-argument `Math.min`, so this is still a clamp.
+      code: 'Math.max(Math.min(value, upper), Math.min(a, b, c));',
       errors: [{ messageId: 'preferClamp' }],
     },
     {
-      code: 'Math.min(Math.max(a, lo), Math.max(b, lo));',
+      code: 'const clampPct = (n: number): number => Math.max(0, Math.min(n!, 100));',
       errors: [{ messageId: 'preferClamp' }],
     },
   ],

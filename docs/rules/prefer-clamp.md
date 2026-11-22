@@ -29,6 +29,8 @@ clamp(value, lower, upper);
 // Not a clamp — left untouched:
 Math.min(a, b);
 Math.min(Math.min(a, b), c);
+// Both arguments are wrapped: a symmetric min/max, e.g. an interval-overlap test.
+Math.max(Math.min(aStart, aEnd), Math.min(bStart, bEnd));
 ```
 
 ## Limitations
@@ -37,5 +39,9 @@ Math.min(Math.min(a, b), c);
   `Math` could produce a false positive. This is rare in practice.
 - **Two-bound form only.** The single-bound `Math.min(a, b)` / `Math.max(a, b)` form is
   intentionally not reported — it is too common and ambiguous to flag reliably.
+- **Exactly one wrapped argument.** When both arguments of the outer call are the opposite
+  call, the expression is not reported: `Math.max(Math.min(v, upper), lower)` equals
+  `clamp(v, lower, upper)` only while `lower <= upper`, and symmetric forms such as interval
+  overlap rely on the other case.
 - **No auto-fix by design.** The fix requires adding an `import { clamp } from 'es-toolkit'`
   and choosing argument order, so the rule only reports.
