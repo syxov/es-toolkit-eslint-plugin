@@ -50,6 +50,7 @@ const cases: [code: string, rules: string[]][] = [
   ['Object.fromEntries(users.map(u => [u.id, u]));', ['prefer-key-by']],
   ['[...new Map(users.map(u => [u.id, u])).values()];', ['prefer-uniq-by']],
   ['a.map((x, i) => [x, b[i]]);', ['prefer-zip']],
+  ['arr.slice(0, n);', ['prefer-take']],
   // math
   ['Math.min(Math.max(x, 0), 10);', ['prefer-clamp']],
   ['x >= 0 && x < 10;', ['prefer-in-range']],

@@ -13,3 +13,7 @@ export const caseConversionReceiver =
 // Arrays are not case-converted, concatenated with `+` or interpolated, so a `.slice` call in
 // these positions is on a string (`s[0].toUpperCase() + s.slice(1)` belongs to the string rules).
 export const stringContext = `${caseConversionReceiver}, BinaryExpression[operator="+"] > *, TemplateLiteral > *`;
+
+// A non-computed `.slice(…)` call outside a string context; `attributes` constrain its arguments.
+export const arraySliceCall = (attributes: string) =>
+  `CallExpression[callee.type="MemberExpression"][callee.computed=false][callee.property.name="slice"]${attributes}:not(${stringContext})`;
