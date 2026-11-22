@@ -12,6 +12,7 @@ import { preferFlatMap } from './rules/prefer-flat-map.js';
 import { preferFlatMapDeep } from './rules/prefer-flat-map-deep.js';
 import { preferFlatten } from './rules/prefer-flatten.js';
 import { preferFlattenDeep } from './rules/prefer-flatten-deep.js';
+import { preferIdentity } from './rules/prefer-identity.js';
 import { preferIntersection } from './rules/prefer-intersection.js';
 import { preferHead } from './rules/prefer-head.js';
 import { preferIsEmpty } from './rules/prefer-is-empty.js';
@@ -80,6 +81,7 @@ const rules = {
   'prefer-flatten': preferFlatten,
   'prefer-flatten-deep': preferFlattenDeep,
   'prefer-head': preferHead,
+  'prefer-identity': preferIdentity,
   'prefer-intersection': preferIntersection,
   'prefer-is-empty': preferIsEmpty,
   'prefer-is-equal': preferIsEqual,
@@ -154,7 +156,9 @@ const arrayRules = {
   'es-toolkit/prefer-zip': 'error',
 } as const;
 
-const functionRules = {} as const;
+const functionRules = {
+  'es-toolkit/prefer-identity': 'off',
+} as const;
 
 const mathRules = {
   'es-toolkit/prefer-clamp': 'error',

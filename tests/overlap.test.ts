@@ -52,6 +52,9 @@ const cases: [code: string, rules: string[]][] = [
   ['a.map((x, i) => [x, b[i]]);', ['prefer-zip']],
   ['arr.slice(0, n);', ['prefer-take']],
   ['arr.slice(-n);', ['prefer-take-right']],
+  // function
+  ['arr.map(x => x);', ['prefer-identity']],
+  ['arr.filter(x => x);', ['prefer-compact']],
   // math
   ['Math.min(Math.max(x, 0), 10);', ['prefer-clamp']],
   ['x >= 0 && x < 10;', ['prefer-in-range']],

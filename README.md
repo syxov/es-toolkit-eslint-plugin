@@ -121,6 +121,12 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 | [`prefer-without`](docs/rules/prefer-without.md)             | Enforce using `without` instead of `arr.filter(x => x !== value)`.                        |
 | [`prefer-zip`](docs/rules/prefer-zip.md)                     | Enforce using `zip` instead of `a.map((x, i) => [x, b[i]])`.                              |
 
+## Function rules
+
+| Rule                                               | Description                                                               |
+| -------------------------------------------------- | ------------------------------------------------------------------------- |
+| [`prefer-identity`](docs/rules/prefer-identity.md) | Enforce using `identity` instead of an inline `x => x` function (opt-in). |
+
 ## Math rules
 
 | Rule                                                   | Description                                                                             |
