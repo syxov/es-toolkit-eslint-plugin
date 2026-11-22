@@ -47,8 +47,9 @@ Rules that replace `.filter(...)` or `.reduce(...)`:
 1. Import the rule, keeping the import list in the same order style as its neighbours.
 2. Add `'<name>': <camelName>` to `rules`.
 3. Add `'es-toolkit/<name>': 'error'` to exactly one category map: `arrayRules`,
-   `mathRules`, `predicateRules`, `promiseRules` or `stringRules`. Do not edit `configs.all`;
-   it is built from the category maps.
+   `functionRules`, `mathRules`, `objectRules`, `predicateRules`, `promiseRules` or
+   `stringRules`. Use `'off'` instead of `'error'` when the caller says the rule is opt-in.
+   Do not edit `configs.all`; it is built from the category maps.
 
 ## Docs
 
@@ -56,7 +57,11 @@ Rules that replace `.filter(...)` or `.reduce(...)`:
   (title, what and why, ❌ incorrect and ✅ correct examples, a **Limitations** section).
   For chain-aware rules, document `chainPosition` as `docs/rules/prefer-compact.md` does.
 - `README.md`: add a row to the rules table in the matching category, in the same format
-  as the surrounding rows.
+  as the surrounding rows. Create the category's table (heading `## <Category> rules`, in
+  alphabetical order among the others) if it does not exist yet.
+- Opt-in rules: start the doc's rule-details section with a note that the rule is off in
+  every bundled config and how to enable it, and end the README description with
+  ` (opt-in)`.
 
 ## Verify
 

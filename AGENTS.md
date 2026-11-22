@@ -34,7 +34,7 @@ pnpm check        # format:check + lint + typecheck + test; run before committin
 
 ```
 src/
-  index.ts                  # plugin object: meta, rules, configs.array/math/predicate/promise/string/all
+  index.ts                  # plugin object: meta, rules, configs.array/function/math/object/predicate/promise/string/all
   utils/create-rule.ts      # shared RuleCreator factory — reuse for every rule
   utils/ast.ts              # isIdentifierNamed, isLiteralValue, isSameExpression, isWriteTarget, referencesParam
   utils/selectors.ts        # shared esquery fragments (filterArrow, mapReceiver, stringContext)
@@ -46,7 +46,7 @@ src/
   utils/string-case.ts      # first-character / rest helpers for the string rules
   rules/<name>.ts           # one file per rule
 tests/rules/<name>.test.ts  # RuleTester valid/invalid matrix per rule
-tests/overlap.test.ts       # configs.all over snippets: exactly which rules fire on each
+tests/overlap.test.ts       # every rule (opt-in too) over snippets: exactly which rules fire on each
 docs/rules/<name>.md        # one doc per rule
 ```
 
@@ -80,9 +80,15 @@ used as `es-toolkit/<name>`.
    ```
 
 2. **Register** in `src/index.ts`: add to `rules` and to exactly one category map
-   (`arrayRules`, `mathRules`, `predicateRules`, `promiseRules`, `stringRules`) with severity
-   `'error'`. `configs.all` is built from the category maps; `tests/index.test.ts` asserts
-   every rule sits in exactly one category.
+   (`arrayRules`, `functionRules`, `mathRules`, `objectRules`, `predicateRules`,
+   `promiseRules`, `stringRules`) — the es-toolkit category of the suggested utility — with
+   severity `'error'`. `configs.all` is built from the category maps; `tests/index.test.ts`
+   asserts every rule sits in exactly one category.
+
+   **Opt-in rules** match idioms that are often deliberate (`arr.slice(0, n)`, `x => x`,
+   `() => {}`), so they are registered with severity `'off'`: even `configs.all` leaves them
+   disabled. Their doc and README row say so.
+
 3. **`tests/rules/<name>.test.ts`** — `RuleTester` from `@typescript-eslint/rule-tester`,
    a `valid`/`invalid` matrix. Assert only `messageId` (no `output` — report-only).
    Include at least one TypeScript sample and the obvious false-positive cases as `valid`.
@@ -130,7 +136,7 @@ which asks whether a callback's own parameter is read (`x => x !== f(x)` is not 
 
 ### One report per snippet
 
-Under `configs.all` a snippet must be reported by exactly one rule. When two rules can
+With every rule enabled (opt-in ones included) a snippet must be reported by exactly one rule. When two rules can
 match the same code, decide which one owns it and make the other skip it through a shared
 helper in `src/utils/` (e.g. `prefer-flatten` skips `arr.map(f).flat()`, which belongs to
 `prefer-flat-map`; `prefer-head`/`prefer-tail` skip string idioms owned by the string

@@ -3,14 +3,18 @@ import tseslint from 'typescript-eslint';
 import { describe, expect, it } from 'vitest';
 import plugin from '../src/index.js';
 
-// Runs `configs.all` over snippets and asserts the exact set of rules that fire, so two
-// rules never report the same code and a hand-off between rules cannot silently drop it.
+// Runs every rule, opt-in ones included, over snippets and asserts the exact set of rules
+// that fire, so two rules never report the same code and a hand-off between rules cannot
+// silently drop it.
 const linter = new Linter({ configType: 'flat' });
 const config: Linter.Config[] = [
   {
     files: ['**/*.ts'],
     languageOptions: { parser: tseslint.parser },
-    ...plugin.configs.all,
+    plugins: { 'es-toolkit': plugin },
+    rules: Object.fromEntries(
+      Object.keys(plugin.rules).map(name => [`es-toolkit/${name}`, 'error']),
+    ),
   },
 ];
 
@@ -90,7 +94,7 @@ const cases: [code: string, rules: string[]][] = [
   ],
 ];
 
-describe('configs.all overlap', () => {
+describe('rule overlap', () => {
   it.each(cases)('%s', (code, rules) => {
     expect(reportedRules(code)).toEqual(rules);
   });

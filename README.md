@@ -45,11 +45,22 @@ import esToolkit from 'es-toolkit-eslint-plugin';
 export default [esToolkit.configs.array, esToolkit.configs.predicate];
 ```
 
-The bundled category configs are `array`, `math`, `predicate`, `promise`, and `string`. To
-enable every rule, use the combined config:
+The bundled category configs are `array`, `function`, `math`, `object`, `predicate`,
+`promise`, and `string`. To enable every rule, use the combined config:
 
 ```js
 export default [esToolkit.configs.all];
+```
+
+Rules marked **(opt-in)** match idioms that are often written on purpose (for example
+`arr.slice(0, n)` or `() => {}`), so every bundled config, `all` included, leaves them `off`.
+Enable them one by one:
+
+```js
+export default [
+  esToolkit.configs.all,
+  { rules: { 'es-toolkit/prefer-noop': 'error' } },
+];
 ```
 
 Rules that replace `.filter(...)` or `.reduce(...)` are intentionally conservative: by default

@@ -108,6 +108,8 @@ const rules = {
   'prefer-without': preferWithout,
 };
 
+// Every rule sits in exactly one category map. A rule registered as 'off' is opt-in: it
+// matches idioms that are often deliberate, so even `configs.all` leaves it disabled.
 const arrayRules = {
   'es-toolkit/prefer-compact': 'error',
   'es-toolkit/prefer-difference': 'error',
@@ -126,6 +128,8 @@ const arrayRules = {
   'es-toolkit/prefer-without': 'error',
 } as const;
 
+const functionRules = {} as const;
+
 const mathRules = {
   'es-toolkit/prefer-clamp': 'error',
   'es-toolkit/prefer-in-range': 'error',
@@ -136,6 +140,8 @@ const mathRules = {
   'es-toolkit/prefer-sum': 'error',
   'es-toolkit/prefer-sum-by': 'error',
 } as const;
+
+const objectRules = {} as const;
 
 const predicateRules = {
   'es-toolkit/prefer-is-array-buffer': 'error',
@@ -172,7 +178,15 @@ const stringRules = {
   'es-toolkit/prefer-upper-first': 'error',
 } as const;
 
-type ConfigName = 'array' | 'math' | 'predicate' | 'promise' | 'string' | 'all';
+type ConfigName =
+  | 'array'
+  | 'function'
+  | 'math'
+  | 'object'
+  | 'predicate'
+  | 'promise'
+  | 'string'
+  | 'all';
 
 // Typed with ESLint's own `Plugin`/`Config` so `defineConfig([esToolkit.configs.all])`
 // type-checks in an `eslint.config.ts`.
@@ -195,9 +209,17 @@ plugin.configs = {
     plugins: { 'es-toolkit': plugin },
     rules: arrayRules,
   },
+  function: {
+    plugins: { 'es-toolkit': plugin },
+    rules: functionRules,
+  },
   math: {
     plugins: { 'es-toolkit': plugin },
     rules: mathRules,
+  },
+  object: {
+    plugins: { 'es-toolkit': plugin },
+    rules: objectRules,
   },
   predicate: {
     plugins: { 'es-toolkit': plugin },
@@ -215,7 +237,9 @@ plugin.configs = {
     plugins: { 'es-toolkit': plugin },
     rules: {
       ...arrayRules,
+      ...functionRules,
       ...mathRules,
+      ...objectRules,
       ...predicateRules,
       ...promiseRules,
       ...stringRules,

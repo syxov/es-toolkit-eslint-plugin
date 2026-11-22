@@ -3,7 +3,9 @@ import plugin from '../src/index.js';
 
 const categoryNames = [
   'array',
+  'function',
   'math',
+  'object',
   'predicate',
   'promise',
   'string',
@@ -52,7 +54,6 @@ test('partitions every rule into exactly one category', () => {
 });
 
 test('all config combines every category config', () => {
-  // Severity is pinned to 'error' by the `PluginConfig` type, now that tests are type-checked.
   const categoryRules = Object.fromEntries(
     categoryNames.flatMap(categoryName =>
       Object.entries(plugin.configs[categoryName].rules),
