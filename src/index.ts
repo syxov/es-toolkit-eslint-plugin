@@ -52,6 +52,7 @@ import { preferSumBy } from './rules/prefer-sum-by.js';
 import { preferTail } from './rules/prefer-tail.js';
 import { preferUnion } from './rules/prefer-union.js';
 import { preferUniq } from './rules/prefer-uniq.js';
+import { preferUniqBy } from './rules/prefer-uniq-by.js';
 import { preferUpperFirst } from './rules/prefer-upper-first.js';
 import { preferWithout } from './rules/prefer-without.js';
 
@@ -114,6 +115,7 @@ const rules = {
   'prefer-tail': preferTail,
   'prefer-union': preferUnion,
   'prefer-uniq': preferUniq,
+  'prefer-uniq-by': preferUniqBy,
   'prefer-upper-first': preferUpperFirst,
   'prefer-without': preferWithout,
 };
@@ -137,6 +139,7 @@ const arrayRules = {
   'es-toolkit/prefer-tail': 'error',
   'es-toolkit/prefer-union': 'error',
   'es-toolkit/prefer-uniq': 'error',
+  'es-toolkit/prefer-uniq-by': 'error',
   'es-toolkit/prefer-without': 'error',
 } as const;
 

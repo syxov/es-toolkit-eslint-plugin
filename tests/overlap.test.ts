@@ -48,6 +48,7 @@ const cases: [code: string, rules: string[]][] = [
   ['Array.from(new Set(arr));', ['prefer-uniq']],
   ['arr.sort(() => Math.random() - 0.5);', ['prefer-shuffle']],
   ['Object.fromEntries(users.map(u => [u.id, u]));', ['prefer-key-by']],
+  ['[...new Map(users.map(u => [u.id, u])).values()];', ['prefer-uniq-by']],
   // math
   ['Math.min(Math.max(x, 0), 10);', ['prefer-clamp']],
   ['x >= 0 && x < 10;', ['prefer-in-range']],
