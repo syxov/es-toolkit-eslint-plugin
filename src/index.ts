@@ -7,6 +7,7 @@ import { preferCompact } from './rules/prefer-compact.js';
 import { preferDelay } from './rules/prefer-delay.js';
 import { preferIsDate } from './rules/prefer-is-date.js';
 import { preferDifference } from './rules/prefer-difference.js';
+import { preferEscapeRegExp } from './rules/prefer-escape-reg-exp.js';
 import { preferFlatMap } from './rules/prefer-flat-map.js';
 import { preferFlatMapDeep } from './rules/prefer-flat-map-deep.js';
 import { preferFlatten } from './rules/prefer-flatten.js';
@@ -66,6 +67,7 @@ const rules = {
   'prefer-delay': preferDelay,
   'prefer-is-date': preferIsDate,
   'prefer-difference': preferDifference,
+  'prefer-escape-reg-exp': preferEscapeRegExp,
   'prefer-flat-map': preferFlatMap,
   'prefer-flat-map-deep': preferFlatMapDeep,
   'prefer-flatten': preferFlatten,
@@ -181,6 +183,7 @@ const promiseRules = {
 
 const stringRules = {
   'es-toolkit/prefer-capitalize': 'error',
+  'es-toolkit/prefer-escape-reg-exp': 'error',
   'es-toolkit/prefer-lower-first': 'error',
   'es-toolkit/prefer-upper-first': 'error',
 } as const;

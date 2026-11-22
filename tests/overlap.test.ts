@@ -95,6 +95,7 @@ const cases: [code: string, rules: string[]][] = [
     's.charAt(0).toUpperCase() + s.slice(1).toLowerCase();',
     ['prefer-capitalize'],
   ],
+  ["s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');", ['prefer-escape-reg-exp']],
 ];
 
 describe('rule overlap', () => {
