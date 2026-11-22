@@ -110,6 +110,7 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 | [`prefer-intersection`](docs/rules/prefer-intersection.md)   | Enforce using `intersection` instead of `a.filter(x => b.includes(x))`.                   |
 | [`prefer-last`](docs/rules/prefer-last.md)                   | Enforce using `last` instead of `arr[arr.length - 1]`.                                    |
 | [`prefer-sample`](docs/rules/prefer-sample.md)               | Enforce using `sample` instead of random-index array access.                              |
+| [`prefer-shuffle`](docs/rules/prefer-shuffle.md)             | Enforce using `shuffle` instead of sorting with a random comparator.                      |
 | [`prefer-tail`](docs/rules/prefer-tail.md)                   | Enforce using `tail` instead of `arr.slice(1)`.                                           |
 | [`prefer-union`](docs/rules/prefer-union.md)                 | Enforce using `union` instead of deduplicating two concatenated arrays through `new Set`. |
 | [`prefer-uniq`](docs/rules/prefer-uniq.md)                   | Enforce using `uniq` instead of `new Set` round-trips.                                    |

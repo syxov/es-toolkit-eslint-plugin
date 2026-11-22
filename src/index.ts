@@ -43,6 +43,7 @@ import { preferMeanBy } from './rules/prefer-mean-by.js';
 import { preferRandomInt } from './rules/prefer-random-int.js';
 import { preferRange } from './rules/prefer-range.js';
 import { preferSample } from './rules/prefer-sample.js';
+import { preferShuffle } from './rules/prefer-shuffle.js';
 import { preferSum } from './rules/prefer-sum.js';
 import { preferSumBy } from './rules/prefer-sum-by.js';
 import { preferTail } from './rules/prefer-tail.js';
@@ -101,6 +102,7 @@ const rules = {
   'prefer-random-int': preferRandomInt,
   'prefer-range': preferRange,
   'prefer-sample': preferSample,
+  'prefer-shuffle': preferShuffle,
   'prefer-sum': preferSum,
   'prefer-sum-by': preferSumBy,
   'prefer-tail': preferTail,
@@ -124,6 +126,7 @@ const arrayRules = {
   'es-toolkit/prefer-intersection': 'error',
   'es-toolkit/prefer-last': 'error',
   'es-toolkit/prefer-sample': 'error',
+  'es-toolkit/prefer-shuffle': 'error',
   'es-toolkit/prefer-tail': 'error',
   'es-toolkit/prefer-union': 'error',
   'es-toolkit/prefer-uniq': 'error',
