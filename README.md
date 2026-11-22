@@ -134,9 +134,10 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 
 ## Object rules
 
-| Rule                                                   | Description                                                           |
-| ------------------------------------------------------ | --------------------------------------------------------------------- |
-| [`prefer-clone-deep`](docs/rules/prefer-clone-deep.md) | Enforce using `cloneDeep` instead of `JSON.parse(JSON.stringify(x))`. |
+| Rule                                                   | Description                                                                                              |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| [`prefer-clone-deep`](docs/rules/prefer-clone-deep.md) | Enforce using `cloneDeep` instead of `JSON.parse(JSON.stringify(x))`.                                    |
+| [`prefer-map-values`](docs/rules/prefer-map-values.md) | Enforce using `mapValues` instead of `Object.fromEntries(Object.entries(o).map(([k, v]) => [k, f(v)]))`. |
 
 ## Predicate rules
 

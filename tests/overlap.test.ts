@@ -72,6 +72,10 @@ const cases: [code: string, rules: string[]][] = [
   ['Number(x.toFixed(2));', ['prefer-round']],
   // object
   ['JSON.parse(JSON.stringify(x));', ['prefer-clone-deep']],
+  [
+    'Object.fromEntries(Object.entries(o).map(([k, v]) => [k, v * 2]));',
+    ['prefer-map-values'],
+  ],
   // predicate
   ['x === null;', ['prefer-is-null']],
   ['x === undefined;', ['prefer-is-undefined']],

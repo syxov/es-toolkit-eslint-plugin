@@ -1,9 +1,10 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
+import { objectFromEntries } from '../utils/entries-map.js';
 import { isKeyEntryMap, keyEntryMap } from '../utils/key-entry-callback.js';
 
 // `Object.fromEntries(xs.map(p => [key, p]))`, with the map call as its only argument.
-const fromEntriesOfKeyEntryMap = `CallExpression[callee.type="MemberExpression"][callee.computed=false][callee.object.name="Object"][callee.property.name="fromEntries"][arguments.length=1]${keyEntryMap('arguments.0.')}`;
+const fromEntriesOfKeyEntryMap = `${objectFromEntries}${keyEntryMap('arguments.0.')}`;
 
 export const preferKeyBy = createRule({
   name: 'prefer-key-by',

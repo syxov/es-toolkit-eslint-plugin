@@ -44,6 +44,7 @@ src/
   utils/is-sample-index.ts  # `a[Math.floor(Math.random() * a.length)]`: prefer-sample vs prefer-random-int
   utils/nil-check.ts        # null/undefined comparisons and `x === null || x === undefined` pairs
   utils/string-case.ts      # first-character / rest helpers for the string rules
+  utils/entries-map.ts      # `Object.fromEntries(…)`, `.map(cb)` and entry-callback fragments
   utils/key-entry-callback.ts # `xs.map(p => [key, p])` entry callbacks: prefer-key-by, prefer-uniq-by
   rules/<name>.ts           # one file per rule
 tests/rules/<name>.test.ts  # RuleTester valid/invalid matrix per rule

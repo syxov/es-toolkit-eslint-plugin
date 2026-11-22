@@ -1,5 +1,6 @@
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { isIdentifierNamed, referencesParam } from './ast.js';
+import { entryCallback, mapCall, returnedExpression } from './entries-map.js';
 
 // In every fragment `path` is the attribute prefix of the matched node ('' for the selector
 // subject, otherwise ending in a dot).
@@ -11,19 +12,11 @@ const entryShape = (path: string) =>
 // A one-parameter callback that returns `[key, p]`, either as an expression-bodied arrow or
 // from a body made of a single `return`.
 export const keyEntryCallback = (path: string) =>
-  `[${path}type=/^(ArrowFunctionExpression|FunctionExpression)$/][${path}params.length=1][${path}params.0.type="Identifier"]:matches(${entryShape(`${path}body.`)}, [${path}body.body.length=1][${path}body.body.0.type="ReturnStatement"]${entryShape(`${path}body.body.0.argument.`)})`;
+  `${entryCallback(path, entryShape)}[${path}params.0.type="Identifier"]`;
 
 // `xs.map(p => [key, p])` without a `thisArg`. `isKeyEntryMap` checks the names.
 export const keyEntryMap = (path: string) =>
-  `[${path}type="CallExpression"][${path}callee.type="MemberExpression"][${path}callee.computed=false][${path}callee.property.name="map"][${path}arguments.length=1]${keyEntryCallback(`${path}arguments.0.`)}`;
-
-const returnedExpression = (
-  body: TSESTree.BlockStatement | TSESTree.Expression,
-) => {
-  if (body.type !== 'BlockStatement') return body;
-  const [statement] = body.body;
-  return statement.type === 'ReturnStatement' ? statement.argument : null;
-};
+  `${mapCall(path)}${keyEntryCallback(`${path}arguments.0.`)}`;
 
 // A `keyEntryMap` match whose entry is `[key, p]` for the callback's own parameter `p`, with
 // a key that reads `p` without being `p` itself (`[u, u]` maps each element to itself).

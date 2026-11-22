@@ -40,6 +40,7 @@ import { preferInRange } from './rules/prefer-in-range.js';
 import { preferKeyBy } from './rules/prefer-key-by.js';
 import { preferLast } from './rules/prefer-last.js';
 import { preferLowerFirst } from './rules/prefer-lower-first.js';
+import { preferMapValues } from './rules/prefer-map-values.js';
 import { preferMean } from './rules/prefer-mean.js';
 import { preferMeanBy } from './rules/prefer-mean-by.js';
 import { preferRandomInt } from './rules/prefer-random-int.js';
@@ -103,6 +104,7 @@ const rules = {
   'prefer-key-by': preferKeyBy,
   'prefer-last': preferLast,
   'prefer-lower-first': preferLowerFirst,
+  'prefer-map-values': preferMapValues,
   'prefer-mean': preferMean,
   'prefer-mean-by': preferMeanBy,
   'prefer-random-int': preferRandomInt,
@@ -159,6 +161,7 @@ const mathRules = {
 
 const objectRules = {
   'es-toolkit/prefer-clone-deep': 'error',
+  'es-toolkit/prefer-map-values': 'error',
 } as const;
 
 const predicateRules = {
