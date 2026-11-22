@@ -1,6 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
-  chainPositions,
+  arrayMethodRuleSchema,
   shouldReportArrayMethodReplacement,
   type ArrayMethodRuleOptions,
 } from '../utils/array-method-chain.js';
@@ -21,31 +21,20 @@ export const preferCompact = createRule({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Prefer `compact` from es-toolkit over a truthiness filter.',
+      description:
+        'Enforce using `compact` from es-toolkit instead of a truthiness filter.',
     },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          chainPosition: { type: 'string', enum: [...chainPositions] },
-        },
-        additionalProperties: false,
-      },
-    ],
+    schema: arrayMethodRuleSchema,
+    defaultOptions: [{}] satisfies ArrayMethodRuleOptions,
     messages: {
       preferCompact:
         'Prefer `compact` from es-toolkit instead of filtering by truthiness.',
     },
   },
-  defaultOptions: [{}] satisfies ArrayMethodRuleOptions,
-  create(context) {
+  create(context, [options]) {
     const report = (node: TSESTree.Node) =>
       node.type === 'CallExpression'
-      && shouldReportArrayMethodReplacement(
-        node,
-        context.options,
-        context.settings,
-      )
+      && shouldReportArrayMethodReplacement(node, options, context.settings)
       && context.report({ node, messageId: 'preferCompact' });
 
     return {

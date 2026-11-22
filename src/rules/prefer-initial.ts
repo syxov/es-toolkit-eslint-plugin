@@ -6,7 +6,8 @@ export const preferInitial = createRule({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Prefer `initial` from es-toolkit over `arr.slice(0, -1)`.',
+      description:
+        'Enforce using `initial` from es-toolkit instead of `arr.slice(0, -1)`.',
     },
     schema: [],
     messages: {

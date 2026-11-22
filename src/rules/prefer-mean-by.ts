@@ -1,6 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
-  chainPositions,
+  arrayMethodRuleSchema,
   shouldReportArrayMethodReplacement,
   type ArrayMethodRuleOptions,
 } from '../utils/array-method-chain.js';
@@ -13,24 +13,16 @@ export const preferMeanBy = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `meanBy` over dividing a property-summing reduce by length.',
+        'Enforce using `meanBy` from es-toolkit instead of dividing a property-summing reduce by length.',
     },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          chainPosition: { type: 'string', enum: [...chainPositions] },
-        },
-        additionalProperties: false,
-      },
-    ],
+    schema: arrayMethodRuleSchema,
+    defaultOptions: [{}] satisfies ArrayMethodRuleOptions,
     messages: {
       preferMeanBy:
         'Prefer `meanBy` from es-toolkit instead of averaging a property with `reduce`.',
     },
   },
-  defaultOptions: [{}] satisfies ArrayMethodRuleOptions,
-  create(context) {
+  create(context, [options]) {
     return {
       [division](node: TSESTree.BinaryExpression) {
         const reduce = node.left;
@@ -54,8 +46,9 @@ export const preferMeanBy = createRule({
           || seed.value !== 0
         )
           return;
+        if (arrow.params.length !== 2) return;
         const [acc, item] = arrow.params;
-        if (acc?.type !== 'Identifier' || item?.type !== 'Identifier') return;
+        if (acc.type !== 'Identifier' || item.type !== 'Identifier') return;
         const { left, right } = arrow.body;
         const matches =
           (left.type === 'Identifier'
@@ -72,7 +65,7 @@ export const preferMeanBy = createRule({
           !matches
           || !shouldReportArrayMethodReplacement(
             reduce,
-            context.options,
+            options,
             context.settings,
           )
         )

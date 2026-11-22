@@ -5,7 +5,10 @@ export const preferFlatten = createRule({
   name: 'prefer-flatten',
   meta: {
     type: 'suggestion',
-    docs: { description: 'Prefer `flatten` over `arr.flat()`.' },
+    docs: {
+      description:
+        'Enforce using `flatten` from es-toolkit instead of `arr.flat()`.',
+    },
     schema: [],
     messages: {
       preferFlatten:

@@ -1,4 +1,5 @@
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
+import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 
 export const chainPositions = [
   'always',
@@ -9,7 +10,25 @@ export const chainPositions = [
 ] as const;
 
 export type ChainPosition = (typeof chainPositions)[number];
-export type ArrayMethodRuleOptions = [{ chainPosition?: ChainPosition }];
+export interface ChainPositionOption {
+  chainPosition?: ChainPosition;
+}
+export type ArrayMethodRuleOptions = [ChainPositionOption];
+
+export const chainPositionOption: JSONSchema4 = {
+  type: 'string',
+  enum: [...chainPositions],
+  description:
+    'Where in a method chain the call is reported. Overrides `settings["es-toolkit"].arrayMethods.chainPosition`.',
+};
+
+export const arrayMethodRuleSchema: JSONSchema4[] = [
+  {
+    type: 'object',
+    properties: { chainPosition: chainPositionOption },
+    additionalProperties: false,
+  },
+];
 
 const isChainPosition = (value: unknown): value is ChainPosition =>
   typeof value === 'string'
@@ -51,11 +70,11 @@ const getGlobalChainPosition = (
 
 export const shouldReportArrayMethodReplacement = (
   node: TSESTree.CallExpression,
-  ruleOptions: ArrayMethodRuleOptions,
+  options: ChainPositionOption,
   settings: TSESLint.SharedConfigurationSettings,
 ) => {
   const chainPosition =
-    ruleOptions[0]?.chainPosition
+    options.chainPosition
     ?? getGlobalChainPosition(settings)
     ?? 'outside-chain';
   const hasPrevious = hasPreviousMethodCall(node);

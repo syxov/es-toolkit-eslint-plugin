@@ -4,7 +4,10 @@ export const preferIsError = createRule({
   name: 'prefer-is-error',
   meta: {
     type: 'suggestion',
-    docs: { description: 'Prefer `isError` over `value instanceof Error`.' },
+    docs: {
+      description:
+        'Enforce using `isError` from es-toolkit instead of `value instanceof Error`.',
+    },
     schema: [],
     messages: {
       preferIsError:

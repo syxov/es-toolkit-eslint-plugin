@@ -4,7 +4,10 @@ export const preferIsSet = createRule({
   name: 'prefer-is-set',
   meta: {
     type: 'suggestion',
-    docs: { description: 'Prefer `isSet` over `value instanceof Set`.' },
+    docs: {
+      description:
+        'Enforce using `isSet` from es-toolkit instead of `value instanceof Set`.',
+    },
     schema: [],
     messages: {
       preferIsSet:

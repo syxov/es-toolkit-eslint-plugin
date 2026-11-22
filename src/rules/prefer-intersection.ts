@@ -1,6 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
-  chainPositions,
+  arrayMethodRuleSchema,
   shouldReportArrayMethodReplacement,
   type ArrayMethodRuleOptions,
 } from '../utils/array-method-chain.js';
@@ -28,24 +28,16 @@ export const preferIntersection = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `intersection` from es-toolkit over `a.filter(x => b.includes(x))`.',
+        'Enforce using `intersection` from es-toolkit instead of `a.filter(x => b.includes(x))`.',
     },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          chainPosition: { type: 'string', enum: [...chainPositions] },
-        },
-        additionalProperties: false,
-      },
-    ],
+    schema: arrayMethodRuleSchema,
+    defaultOptions: [{}] satisfies ArrayMethodRuleOptions,
     messages: {
       preferIntersection:
         'Prefer `intersection` from es-toolkit instead of filtering for members of another array.',
     },
   },
-  defaultOptions: [{}] satisfies ArrayMethodRuleOptions,
-  create(context) {
+  create(context, [options]) {
     return {
       [filterArrow](node: TSESTree.CallExpression) {
         const arrow = node.arguments[0];
@@ -56,11 +48,7 @@ export const preferIntersection = createRule({
         // `x => b.includes(x)` — bare `.includes`, not the negated `difference` form.
         if (
           isIncludesOfParam(arrow.body, param.name)
-          && shouldReportArrayMethodReplacement(
-            node,
-            context.options,
-            context.settings,
-          )
+          && shouldReportArrayMethodReplacement(node, options, context.settings)
         )
           context.report({ node, messageId: 'preferIntersection' });
       },

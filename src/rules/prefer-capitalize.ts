@@ -60,7 +60,7 @@ export const preferCapitalize = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `capitalize` from es-toolkit over `s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()`.',
+        'Enforce using `capitalize` from es-toolkit instead of `s.charAt(0).toUpperCase() + s.slice(1).toLowerCase()`.',
     },
     schema: [],
     messages: {

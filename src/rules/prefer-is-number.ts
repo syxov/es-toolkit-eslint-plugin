@@ -9,7 +9,8 @@ export const preferIsNumber = createRule({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Prefer `isNumber` from es-toolkit over a `typeof` check.',
+      description:
+        'Enforce using `isNumber` from es-toolkit instead of a `typeof` check.',
     },
     schema: [],
     messages: {

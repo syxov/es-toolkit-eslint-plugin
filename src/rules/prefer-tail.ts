@@ -5,7 +5,10 @@ export const preferTail = createRule({
   name: 'prefer-tail',
   meta: {
     type: 'suggestion',
-    docs: { description: 'Prefer `tail` from es-toolkit over `arr.slice(1)`.' },
+    docs: {
+      description:
+        'Enforce using `tail` from es-toolkit instead of `arr.slice(1)`.',
+    },
     schema: [],
     messages: {
       preferTail: 'Prefer `tail` from es-toolkit instead of `arr.slice(1)`.',

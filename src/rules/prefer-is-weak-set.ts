@@ -5,7 +5,8 @@ export const preferIsWeakSet = createRule({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Prefer `isWeakSet` over `value instanceof WeakSet`.',
+      description:
+        'Enforce using `isWeakSet` from es-toolkit instead of `value instanceof WeakSet`.',
     },
     schema: [],
     messages: {

@@ -16,7 +16,7 @@ export const preferUnion = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `union` from es-toolkit over deduplicating concatenated arrays through `new Set`.',
+        'Enforce using `union` from es-toolkit instead of deduplicating concatenated arrays through `new Set`.',
     },
     schema: [],
     messages: {

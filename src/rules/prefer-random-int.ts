@@ -18,7 +18,7 @@ export const preferRandomInt = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `randomInt` from es-toolkit over truncating `Math.random() * …` to an int.',
+        'Enforce using `randomInt` from es-toolkit instead of truncating `Math.random() * …` to an int.',
     },
     schema: [],
     messages: {

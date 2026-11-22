@@ -6,7 +6,7 @@ export const preferFlatMapDeep = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `flatMapDeep` over `arr.map(callback).flat(Infinity)`.',
+        'Enforce using `flatMapDeep` from es-toolkit instead of `arr.map(callback).flat(Infinity)`.',
     },
     schema: [],
     messages: {

@@ -17,7 +17,8 @@ export const preferUniq = createRule({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Prefer `uniq` from es-toolkit over `new Set` round-trips.',
+      description:
+        'Enforce using `uniq` from es-toolkit instead of `new Set` round-trips.',
     },
     schema: [],
     messages: {

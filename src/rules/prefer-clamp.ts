@@ -17,7 +17,7 @@ export const preferClamp = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `clamp` from es-toolkit over nested `Math.min`/`Math.max`.',
+        'Enforce using `clamp` from es-toolkit instead of nested `Math.min`/`Math.max`.',
     },
     schema: [],
     messages: {

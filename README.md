@@ -37,22 +37,27 @@ export default [
 ];
 ```
 
-Or extend either bundled config:
+Or extend the configs for the es-toolkit categories you use:
 
 ```js
 import esToolkit from 'es-toolkit-eslint-plugin';
 
-export default [
-  esToolkit.configs.utilities,
-  esToolkit.configs['array-methods'],
-];
+export default [esToolkit.configs.array, esToolkit.configs.predicate];
 ```
 
-`utilities` contains rules for non-array idioms. `array-methods` contains rules that replace
-`.filter(...)` or `.reduce(...)` and is intentionally conservative: by default it reports only
-when the matched call is outside a method-call chain.
+The bundled category configs are `array`, `math`, `predicate`, `promise`, and `string`. To
+enable every rule, use the combined config:
 
-Configure that policy for all array-method rules with plugin settings:
+```js
+export default [esToolkit.configs.all];
+```
+
+Rules that replace `.filter(...)` or `.reduce(...)` are intentionally conservative: by default
+they report only when the matched call is outside a method-call chain. This applies to
+`prefer-compact`, `prefer-difference`, `prefer-intersection`, `prefer-mean`, `prefer-mean-by`,
+`prefer-sum`, `prefer-sum-by`, and `prefer-without`.
+
+Configure that policy for all chain-aware rules with plugin settings:
 
 ```js
 export default [
@@ -79,64 +84,79 @@ export default [
 
 Only adjacent method calls define a chain. A standalone call is both its start and end.
 
-## Utility rules
+## Array rules
 
-| Rule                                                             | Description                                                          |
-| ---------------------------------------------------------------- | -------------------------------------------------------------------- |
-| [`prefer-capitalize`](docs/rules/prefer-capitalize.md)           | Prefer `capitalize` over upper-casing the first char by hand.        |
-| [`prefer-clamp`](docs/rules/prefer-clamp.md)                     | Prefer `clamp` over nested `Math.min`/`Math.max`.                    |
-| [`prefer-delay`](docs/rules/prefer-delay.md)                     | Prefer `delay` over `new Promise` + `setTimeout`.                    |
-| [`prefer-is-date`](docs/rules/prefer-is-date.md)                 | Prefer `isDate` over `value instanceof Date`.                        |
-| [`prefer-flat-map`](docs/rules/prefer-flat-map.md)               | Prefer `flatMap` over `.map(...).flat()`.                            |
-| [`prefer-flat-map-deep`](docs/rules/prefer-flat-map-deep.md)     | Prefer `flatMapDeep` over `.map(...).flat(Infinity)`.                |
-| [`prefer-flatten`](docs/rules/prefer-flatten.md)                 | Prefer `flatten` over `.flat()`.                                     |
-| [`prefer-flatten-deep`](docs/rules/prefer-flatten-deep.md)       | Prefer `flattenDeep` over `.flat(Infinity)`.                         |
-| [`prefer-head`](docs/rules/prefer-head.md)                       | Prefer `head` over indexing an array with `0`.                       |
-| [`prefer-is-empty`](docs/rules/prefer-is-empty.md)               | Prefer `isEmpty` over `Object.keys(obj).length === 0`.               |
-| [`prefer-is-equal`](docs/rules/prefer-is-equal.md)               | Prefer `isEqual` over comparing `JSON.stringify` output.             |
-| [`prefer-is-error`](docs/rules/prefer-is-error.md)               | Prefer `isError` over `value instanceof Error`.                      |
-| [`prefer-is-function`](docs/rules/prefer-is-function.md)         | Prefer `isFunction` over a `typeof` function check.                  |
-| [`prefer-is-map`](docs/rules/prefer-is-map.md)                   | Prefer `isMap` over `value instanceof Map`.                          |
-| [`prefer-is-boolean`](docs/rules/prefer-is-boolean.md)           | Prefer `isBoolean` over a `typeof` boolean check.                    |
-| [`prefer-is-blob`](docs/rules/prefer-is-blob.md)                 | Prefer `isBlob` over `value instanceof Blob`.                        |
-| [`prefer-is-file`](docs/rules/prefer-is-file.md)                 | Prefer `isFile` over `value instanceof File`.                        |
-| [`prefer-is-array-buffer`](docs/rules/prefer-is-array-buffer.md) | Prefer `isArrayBuffer` over `value instanceof ArrayBuffer`.          |
-| [`prefer-is-nil`](docs/rules/prefer-is-nil.md)                   | Prefer `isNil` over `value == null`.                                 |
-| [`prefer-is-not-nil`](docs/rules/prefer-is-not-nil.md)           | Prefer `isNotNil` over `value != null`.                              |
-| [`prefer-is-null`](docs/rules/prefer-is-null.md)                 | Prefer `isNull` over `value === null`.                               |
-| [`prefer-is-number`](docs/rules/prefer-is-number.md)             | Prefer `isNumber` over a `typeof` number check.                      |
-| [`prefer-is-reg-exp`](docs/rules/prefer-is-reg-exp.md)           | Prefer `isRegExp` over `value instanceof RegExp`.                    |
-| [`prefer-is-set`](docs/rules/prefer-is-set.md)                   | Prefer `isSet` over `value instanceof Set`.                          |
-| [`prefer-is-string`](docs/rules/prefer-is-string.md)             | Prefer `isString` over a `typeof` string check.                      |
-| [`prefer-is-symbol`](docs/rules/prefer-is-symbol.md)             | Prefer `isSymbol` over a `typeof` symbol check.                      |
-| [`prefer-is-typed-array`](docs/rules/prefer-is-typed-array.md)   | Prefer `isTypedArray` over a manual ArrayBuffer view check.          |
-| [`prefer-is-undefined`](docs/rules/prefer-is-undefined.md)       | Prefer `isUndefined` over `value === undefined`.                     |
-| [`prefer-is-weak-map`](docs/rules/prefer-is-weak-map.md)         | Prefer `isWeakMap` over `value instanceof WeakMap`.                  |
-| [`prefer-is-weak-set`](docs/rules/prefer-is-weak-set.md)         | Prefer `isWeakSet` over `value instanceof WeakSet`.                  |
-| [`prefer-initial`](docs/rules/prefer-initial.md)                 | Prefer `initial` over `arr.slice(0, -1)`.                            |
-| [`prefer-in-range`](docs/rules/prefer-in-range.md)               | Prefer `inRange` over manual range-bound checks.                     |
-| [`prefer-last`](docs/rules/prefer-last.md)                       | Prefer `last` over `arr[arr.length - 1]`.                            |
-| [`prefer-lower-first`](docs/rules/prefer-lower-first.md)         | Prefer `lowerFirst` over lower-casing the first char by hand.        |
-| [`prefer-random-int`](docs/rules/prefer-random-int.md)           | Prefer `randomInt` over `Math.floor(Math.random() * …)`.             |
-| [`prefer-range`](docs/rules/prefer-range.md)                     | Prefer `range` over manual index-array construction.                 |
-| [`prefer-sample`](docs/rules/prefer-sample.md)                   | Prefer `sample` over random-index array access.                      |
-| [`prefer-tail`](docs/rules/prefer-tail.md)                       | Prefer `tail` over `arr.slice(1)`.                                   |
-| [`prefer-union`](docs/rules/prefer-union.md)                     | Prefer `union` over deduplicating concatenated arrays via `new Set`. |
-| [`prefer-uniq`](docs/rules/prefer-uniq.md)                       | Prefer `uniq` over `new Set` round-trips.                            |
-| [`prefer-upper-first`](docs/rules/prefer-upper-first.md)         | Prefer `upperFirst` over `s.charAt(0).toUpperCase() + s.slice(1)`.   |
+| Rule                                                         | Description                                                             |
+| ------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| [`prefer-compact`](docs/rules/prefer-compact.md)             | Enforce using `compact` instead of `.filter(Boolean)`.                  |
+| [`prefer-difference`](docs/rules/prefer-difference.md)       | Enforce using `difference` instead of `a.filter(x => !b.includes(x))`.  |
+| [`prefer-flat-map`](docs/rules/prefer-flat-map.md)           | Enforce using `flatMap` instead of `.map(...).flat()`.                  |
+| [`prefer-flat-map-deep`](docs/rules/prefer-flat-map-deep.md) | Enforce using `flatMapDeep` instead of `.map(...).flat(Infinity)`.      |
+| [`prefer-flatten`](docs/rules/prefer-flatten.md)             | Enforce using `flatten` instead of `.flat()`.                           |
+| [`prefer-flatten-deep`](docs/rules/prefer-flatten-deep.md)   | Enforce using `flattenDeep` instead of `.flat(Infinity)`.               |
+| [`prefer-head`](docs/rules/prefer-head.md)                   | Enforce using `head` instead of indexing an array with `0`.             |
+| [`prefer-initial`](docs/rules/prefer-initial.md)             | Enforce using `initial` instead of `arr.slice(0, -1)`.                  |
+| [`prefer-intersection`](docs/rules/prefer-intersection.md)   | Enforce using `intersection` instead of `a.filter(x => b.includes(x))`. |
+| [`prefer-last`](docs/rules/prefer-last.md)                   | Enforce using `last` instead of `arr[arr.length - 1]`.                  |
+| [`prefer-sample`](docs/rules/prefer-sample.md)               | Enforce using `sample` instead of random-index array access.            |
+| [`prefer-tail`](docs/rules/prefer-tail.md)                   | Enforce using `tail` instead of `arr.slice(1)`.                         |
+| [`prefer-union`](docs/rules/prefer-union.md)                 | Enforce using `union` instead of deduplicating arrays via `new Set`.    |
+| [`prefer-uniq`](docs/rules/prefer-uniq.md)                   | Enforce using `uniq` instead of `new Set` round-trips.                  |
+| [`prefer-without`](docs/rules/prefer-without.md)             | Enforce using `without` instead of `arr.filter(x => x !== value)`.      |
 
-## Array-method rules
+## Math rules
 
-| Rule                                                       | Description                                                    |
-| ---------------------------------------------------------- | -------------------------------------------------------------- |
-| [`prefer-compact`](docs/rules/prefer-compact.md)           | Prefer `compact` over `.filter(Boolean)`.                      |
-| [`prefer-difference`](docs/rules/prefer-difference.md)     | Prefer `difference` over `a.filter(x => !b.includes(x))`.      |
-| [`prefer-intersection`](docs/rules/prefer-intersection.md) | Prefer `intersection` over `a.filter(x => b.includes(x))`.     |
-| [`prefer-mean`](docs/rules/prefer-mean.md)                 | Prefer `mean` over a `reduce` sum divided by `.length`.        |
-| [`prefer-mean-by`](docs/rules/prefer-mean-by.md)           | Prefer `meanBy` over averaging an item property with `reduce`. |
-| [`prefer-sum`](docs/rules/prefer-sum.md)                   | Prefer `sum` over `reduce((a, b) => a + b, 0)`.                |
-| [`prefer-sum-by`](docs/rules/prefer-sum-by.md)             | Prefer `sumBy` over summing an item property with `reduce`.    |
-| [`prefer-without`](docs/rules/prefer-without.md)           | Prefer `without` over `arr.filter(x => x !== value)`.          |
+| Rule                                                   | Description                                                                 |
+| ------------------------------------------------------ | --------------------------------------------------------------------------- |
+| [`prefer-clamp`](docs/rules/prefer-clamp.md)           | Enforce using `clamp` instead of nested `Math.min`/`Math.max`.              |
+| [`prefer-in-range`](docs/rules/prefer-in-range.md)     | Enforce using `inRange` instead of manual range-bound checks.               |
+| [`prefer-mean`](docs/rules/prefer-mean.md)             | Enforce using `mean` instead of a `reduce` sum divided by `.length`.        |
+| [`prefer-mean-by`](docs/rules/prefer-mean-by.md)       | Enforce using `meanBy` instead of averaging an item property with `reduce`. |
+| [`prefer-random-int`](docs/rules/prefer-random-int.md) | Enforce using `randomInt` instead of `Math.floor(Math.random() * …)`.       |
+| [`prefer-range`](docs/rules/prefer-range.md)           | Enforce using `range` instead of manual index-array construction.           |
+| [`prefer-sum`](docs/rules/prefer-sum.md)               | Enforce using `sum` instead of `reduce((a, b) => a + b, 0)`.                |
+| [`prefer-sum-by`](docs/rules/prefer-sum-by.md)         | Enforce using `sumBy` instead of summing an item property with `reduce`.    |
+
+## Predicate rules
+
+| Rule                                                             | Description                                                           |
+| ---------------------------------------------------------------- | --------------------------------------------------------------------- |
+| [`prefer-is-array-buffer`](docs/rules/prefer-is-array-buffer.md) | Enforce using `isArrayBuffer` instead of `instanceof ArrayBuffer`.    |
+| [`prefer-is-blob`](docs/rules/prefer-is-blob.md)                 | Enforce using `isBlob` instead of `value instanceof Blob`.            |
+| [`prefer-is-boolean`](docs/rules/prefer-is-boolean.md)           | Enforce using `isBoolean` instead of a `typeof` boolean check.        |
+| [`prefer-is-date`](docs/rules/prefer-is-date.md)                 | Enforce using `isDate` instead of `value instanceof Date`.            |
+| [`prefer-is-empty`](docs/rules/prefer-is-empty.md)               | Enforce using `isEmpty` instead of `Object.keys(obj).length === 0`.   |
+| [`prefer-is-equal`](docs/rules/prefer-is-equal.md)               | Enforce using `isEqual` instead of comparing `JSON.stringify` output. |
+| [`prefer-is-error`](docs/rules/prefer-is-error.md)               | Enforce using `isError` instead of `value instanceof Error`.          |
+| [`prefer-is-file`](docs/rules/prefer-is-file.md)                 | Enforce using `isFile` instead of `value instanceof File`.            |
+| [`prefer-is-function`](docs/rules/prefer-is-function.md)         | Enforce using `isFunction` instead of a `typeof` function check.      |
+| [`prefer-is-map`](docs/rules/prefer-is-map.md)                   | Enforce using `isMap` instead of `value instanceof Map`.              |
+| [`prefer-is-nil`](docs/rules/prefer-is-nil.md)                   | Enforce using `isNil` instead of `value == null`.                     |
+| [`prefer-is-not-nil`](docs/rules/prefer-is-not-nil.md)           | Enforce using `isNotNil` instead of `value != null`.                  |
+| [`prefer-is-null`](docs/rules/prefer-is-null.md)                 | Enforce using `isNull` instead of `value === null`.                   |
+| [`prefer-is-number`](docs/rules/prefer-is-number.md)             | Enforce using `isNumber` instead of a `typeof` number check.          |
+| [`prefer-is-reg-exp`](docs/rules/prefer-is-reg-exp.md)           | Enforce using `isRegExp` instead of `value instanceof RegExp`.        |
+| [`prefer-is-set`](docs/rules/prefer-is-set.md)                   | Enforce using `isSet` instead of `value instanceof Set`.              |
+| [`prefer-is-string`](docs/rules/prefer-is-string.md)             | Enforce using `isString` instead of a `typeof` string check.          |
+| [`prefer-is-symbol`](docs/rules/prefer-is-symbol.md)             | Enforce using `isSymbol` instead of a `typeof` symbol check.          |
+| [`prefer-is-typed-array`](docs/rules/prefer-is-typed-array.md)   | Enforce using `isTypedArray` instead of an ArrayBuffer view check.    |
+| [`prefer-is-undefined`](docs/rules/prefer-is-undefined.md)       | Enforce using `isUndefined` instead of `value === undefined`.         |
+| [`prefer-is-weak-map`](docs/rules/prefer-is-weak-map.md)         | Enforce using `isWeakMap` instead of `value instanceof WeakMap`.      |
+| [`prefer-is-weak-set`](docs/rules/prefer-is-weak-set.md)         | Enforce using `isWeakSet` instead of `value instanceof WeakSet`.      |
+
+## Promise rules
+
+| Rule                                         | Description                                                    |
+| -------------------------------------------- | -------------------------------------------------------------- |
+| [`prefer-delay`](docs/rules/prefer-delay.md) | Enforce using `delay` instead of `new Promise` + `setTimeout`. |
+
+## String rules
+
+| Rule                                                     | Description                                                                |
+| -------------------------------------------------------- | -------------------------------------------------------------------------- |
+| [`prefer-capitalize`](docs/rules/prefer-capitalize.md)   | Enforce using `capitalize` instead of upper-casing the first char by hand. |
+| [`prefer-lower-first`](docs/rules/prefer-lower-first.md) | Enforce using `lowerFirst` instead of lower-casing the first char by hand. |
+| [`prefer-upper-first`](docs/rules/prefer-upper-first.md) | Enforce using `upperFirst` instead of upper-casing the first char by hand. |
 
 ## Development
 

@@ -15,7 +15,7 @@ export const preferRange = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `range` from es-toolkit over manual index-array construction.',
+        'Enforce using `range` from es-toolkit instead of manual index-array construction.',
     },
     schema: [],
     messages: {
@@ -39,7 +39,7 @@ export const preferRange = createRule({
         const index = mapper.params[1];
         // Only a mapper that returns its own index parameter yields `range(n)`.
         if (
-          index?.type === 'Identifier'
+          index.type === 'Identifier'
           && mapper.body.type === 'Identifier'
           && mapper.body.name === index.name
         ) {

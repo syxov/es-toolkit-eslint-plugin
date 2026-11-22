@@ -23,16 +23,20 @@ Core principles (apply to every rule):
 pnpm install      # also runs esbuild's approved build script
 pnpm test         # vitest run — RuleTester suites
 pnpm test:watch   # vitest watch
-pnpm build        # tsc -> dist/ (with .d.ts)
+pnpm build        # tsc -p tsconfig.build.json -> dist/ (with .d.ts)
+pnpm lint         # eslint . (typescript-eslint strict + eslint-plugin-eslint-plugin + vitest)
+pnpm typecheck    # tsc --noEmit over src/ and tests/
 pnpm format       # prettier --write .
+pnpm check        # format:check + lint + typecheck + test; run before committing
 ```
 
 ## Layout
 
 ```
 src/
-  index.ts                  # plugin object: meta, rules, configs.utilities/array-methods
-  utils/array-method-chain.ts # shared array-method chain-position policy
+  index.ts                  # plugin object: meta, rules, configs.array/math/predicate/promise/string/all
+  utils/array-method-chain.ts # shared chain-position policy, option schema and types
+  utils/is-mean-numerator.ts  # `<reduce> / x.length` guard shared by the sum rules
   utils/create-rule.ts      # shared RuleCreator factory — reuse for every rule
   rules/<name>.ts           # one file per rule
 tests/rules/<name>.test.ts  # RuleTester valid/invalid matrix per rule
@@ -54,11 +58,12 @@ used as `es-toolkit/<name>`.
      name: '<name>',
      meta: {
        type: 'suggestion',
-       docs: { description: '…' },
+       docs: {
+         description: 'Enforce using `<utility>` from es-toolkit instead of …',
+       },
        schema: [],
-       messages: { <messageId>: '…' },
+       messages: { <messageId>: 'Prefer `<utility>` from es-toolkit instead of …' },
      },
-     defaultOptions: [],
      create(context) {
        const report = (node: TSESTree.Node) =>
          context.report({ node, messageId: '<messageId>' });
@@ -67,8 +72,10 @@ used as `es-toolkit/<name>`.
    });
    ```
 
-2. **Register** in `src/index.ts`: add to `rules` and exactly one appropriate config
-   (`configs.utilities` or `configs['array-methods']`), with severity `'error'`.
+2. **Register** in `src/index.ts`: add to `rules` and to exactly one category map
+   (`arrayRules`, `mathRules`, `predicateRules`, `promiseRules`, `stringRules`) with severity
+   `'error'`. `configs.all` is built from the category maps; `tests/index.test.ts` asserts
+   every rule sits in exactly one category.
 3. **`tests/rules/<name>.test.ts`** — `RuleTester` from `@typescript-eslint/rule-tester`,
    a `valid`/`invalid` matrix. Assert only `messageId` (no `output` — report-only).
    Include at least one TypeScript sample and the obvious false-positive cases as `valid`.
@@ -77,12 +84,17 @@ used as `es-toolkit/<name>`.
 
 ### Array-method replacement rules
 
-Rules that replace `.filter(...)` or `.reduce(...)` belong in `array-methods` and must use
-`utils/array-method-chain.ts`. They support the global setting
+Rules that replace `.filter(...)` or `.reduce(...)` must use `utils/array-method-chain.ts`,
+whatever their category (e.g. `prefer-compact` is in `array`, `prefer-sum` is in `math`). They support the global setting
 `settings['es-toolkit'].arrayMethods.chainPosition`, overridden by the rule option
 `{ chainPosition }`. Valid values are `always`, `chain-start`, `chain-end`,
 `chain-boundaries`, and `outside-chain` (the default). Test the default, global setting, local
 override, and chained positions; document the setting in the rule doc and README.
+
+Put `schema: arrayMethodRuleSchema` and `defaultOptions: [{}] satisfies ArrayMethodRuleOptions`
+inside `meta` (top-level `defaultOptions` is deprecated). Read the resolved options from
+`create(context, [options])` and pass `options` to `shouldReportArrayMethodReplacement`; raw
+`context.options` may be empty. `prefer-without` shows how to add a rule-specific option.
 
 ### Reference rule
 
@@ -118,7 +130,11 @@ of adding scope analysis (keep the rule minimal).
   `package.json` `files`.
 - **Style is enforced by Prettier**
   Run `pnpm format` before committing.
-
-## Before publishing
-
-- Add a `repository` field to `package.json`.
+- **Lint rules for rule authors** (`eslint.config.js`): `meta.docs.description` starts with
+  `Enforce`/`Require`/`Disallow`, every schema property has a `description`, and `meta` keys
+  follow `type, docs, schema, defaultOptions, messages`. Report messages keep the
+  "Prefer … from es-toolkit" wording.
+- **TypeScript 6** defaults `types` to `[]`, so `tsconfig.json` lists `"node"` explicitly.
+  `tsconfig.json` type-checks `src/` and `tests/` without emitting; `tsconfig.build.json`
+  emits `src/` only.
+- `plugin.meta` is read from `package.json` at runtime; do not hard-code the version.

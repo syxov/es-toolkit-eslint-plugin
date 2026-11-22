@@ -1,13 +1,13 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
-  chainPositions,
+  chainPositionOption,
   shouldReportArrayMethodReplacement,
-  type ChainPosition,
+  type ChainPositionOption,
 } from '../utils/array-method-chain.js';
 import { createRule } from '../utils/create-rule.js';
 
 type PreferWithoutOptions = [
-  { chainPosition?: ChainPosition; skipTypePredicate?: boolean },
+  ChainPositionOption & { skipTypePredicate?: boolean },
 ];
 
 // `.filter(x => …)` with a single single-parameter arrow predicate; its body is checked below.
@@ -23,25 +23,29 @@ export const preferWithout = createRule<PreferWithoutOptions, 'preferWithout'>({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `without` from es-toolkit over `arr.filter(x => x !== value)`.',
+        'Enforce using `without` from es-toolkit instead of `arr.filter(x => x !== value)`.',
     },
     schema: [
       {
         type: 'object',
         properties: {
-          chainPosition: { type: 'string', enum: [...chainPositions] },
-          skipTypePredicate: { type: 'boolean' },
+          chainPosition: chainPositionOption,
+          skipTypePredicate: {
+            type: 'boolean',
+            description:
+              'Skip predicates annotated as a type guard on the parameter (`(x): x is T => …`).',
+          },
         },
         additionalProperties: false,
       },
     ],
+    defaultOptions: [{}] satisfies PreferWithoutOptions,
     messages: {
       preferWithout:
         'Prefer `without` from es-toolkit instead of filtering out a specific value.',
     },
   },
-  defaultOptions: [{}] satisfies PreferWithoutOptions,
-  create(context) {
+  create(context, [options]) {
     return {
       [filterArrow](node: TSESTree.CallExpression) {
         const arrow = node.arguments[0];
@@ -54,7 +58,7 @@ export const preferWithout = createRule<PreferWithoutOptions, 'preferWithout'>({
 
         const typeAnnotation = arrow.returnType?.typeAnnotation;
         if (
-          context.options[0]?.skipTypePredicate
+          options.skipTypePredicate
           && typeAnnotation?.type === 'TSTypePredicate'
           && typeAnnotation.parameterName.type === 'Identifier'
           && typeAnnotation.parameterName.name === param.name
@@ -67,13 +71,7 @@ export const preferWithout = createRule<PreferWithoutOptions, 'preferWithout'>({
         const right = isParam(body.right, param.name);
         if (left === right) return;
 
-        if (
-          shouldReportArrayMethodReplacement(
-            node,
-            context.options,
-            context.settings,
-          )
-        )
+        if (shouldReportArrayMethodReplacement(node, options, context.settings))
           context.report({ node, messageId: 'preferWithout' });
       },
     };

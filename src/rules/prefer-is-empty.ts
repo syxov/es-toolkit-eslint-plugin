@@ -17,7 +17,7 @@ export const preferIsEmpty = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `isEmpty` from es-toolkit over `Object.keys(obj).length === 0`.',
+        'Enforce using `isEmpty` from es-toolkit instead of `Object.keys(obj).length === 0`.',
     },
     schema: [],
     messages: {

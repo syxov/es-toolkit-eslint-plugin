@@ -6,7 +6,7 @@ export const preferIsTypedArray = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `isTypedArray` over checking an ArrayBuffer view that is not a DataView.',
+        'Enforce using `isTypedArray` from es-toolkit instead of checking an ArrayBuffer view that is not a DataView.',
     },
     schema: [],
     messages: {

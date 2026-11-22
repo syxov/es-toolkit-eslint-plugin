@@ -10,7 +10,8 @@ export const preferLast = createRule({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Prefer `last` from es-toolkit over `arr[arr.length - 1]`.',
+      description:
+        'Enforce using `last` from es-toolkit instead of `arr[arr.length - 1]`.',
     },
     schema: [],
     messages: {

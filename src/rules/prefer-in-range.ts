@@ -12,7 +12,8 @@ export const preferInRange = createRule({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Prefer `inRange` over a lower- and upper-bound comparison.',
+      description:
+        'Enforce using `inRange` from es-toolkit instead of a lower- and upper-bound comparison.',
     },
     schema: [],
     messages: {

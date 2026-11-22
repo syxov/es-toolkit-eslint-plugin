@@ -9,7 +9,8 @@ export const preferIsFunction = createRule({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Prefer `isFunction` over a `typeof` function check.',
+      description:
+        'Enforce using `isFunction` from es-toolkit instead of a `typeof` function check.',
     },
     schema: [],
     messages: {

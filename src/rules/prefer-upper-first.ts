@@ -50,7 +50,7 @@ export const preferUpperFirst = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `upperFirst` from es-toolkit over `s.charAt(0).toUpperCase() + s.slice(1)`.',
+        'Enforce using `upperFirst` from es-toolkit instead of `s.charAt(0).toUpperCase() + s.slice(1)`.',
     },
     schema: [],
     messages: {

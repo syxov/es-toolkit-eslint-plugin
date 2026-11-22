@@ -23,7 +23,7 @@ export const preferSample = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `sample` from es-toolkit over random-index array access.',
+        'Enforce using `sample` from es-toolkit instead of random-index array access.',
     },
     schema: [],
     messages: {

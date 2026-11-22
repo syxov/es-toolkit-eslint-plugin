@@ -4,7 +4,10 @@ export const preferIsDate = createRule({
   name: 'prefer-is-date',
   meta: {
     type: 'suggestion',
-    docs: { description: 'Prefer `isDate` over `value instanceof Date`.' },
+    docs: {
+      description:
+        'Enforce using `isDate` from es-toolkit instead of `value instanceof Date`.',
+    },
     schema: [],
     messages: {
       preferIsDate:

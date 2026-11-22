@@ -9,7 +9,8 @@ export const preferIsBoolean = createRule({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Prefer `isBoolean` from es-toolkit over a `typeof` check.',
+      description:
+        'Enforce using `isBoolean` from es-toolkit instead of a `typeof` check.',
     },
     schema: [],
     messages: {

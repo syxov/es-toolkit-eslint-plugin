@@ -4,7 +4,10 @@ export const preferIsMap = createRule({
   name: 'prefer-is-map',
   meta: {
     type: 'suggestion',
-    docs: { description: 'Prefer `isMap` over `value instanceof Map`.' },
+    docs: {
+      description:
+        'Enforce using `isMap` from es-toolkit instead of `value instanceof Map`.',
+    },
     schema: [],
     messages: {
       preferIsMap:

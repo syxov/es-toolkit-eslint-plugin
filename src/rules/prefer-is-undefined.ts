@@ -10,7 +10,7 @@ export const preferIsUndefined = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `isUndefined` from es-toolkit over `value === undefined`.',
+        'Enforce using `isUndefined` from es-toolkit instead of `value === undefined`.',
     },
     schema: [],
     messages: {

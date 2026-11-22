@@ -1,3 +1,4 @@
+import { createRequire } from 'node:module';
 import { preferCapitalize } from './rules/prefer-capitalize.js';
 import { preferClamp } from './rules/prefer-clamp.js';
 import { preferCompact } from './rules/prefer-compact.js';
@@ -48,120 +49,181 @@ import { preferUniq } from './rules/prefer-uniq.js';
 import { preferUpperFirst } from './rules/prefer-upper-first.js';
 import { preferWithout } from './rules/prefer-without.js';
 
-const plugin = {
-  meta: { name: 'es-toolkit-eslint-plugin', version: '1.0.0' },
-  rules: {
-    'prefer-capitalize': preferCapitalize,
-    'prefer-clamp': preferClamp,
-    'prefer-compact': preferCompact,
-    'prefer-delay': preferDelay,
-    'prefer-is-date': preferIsDate,
-    'prefer-difference': preferDifference,
-    'prefer-flat-map': preferFlatMap,
-    'prefer-flat-map-deep': preferFlatMapDeep,
-    'prefer-flatten': preferFlatten,
-    'prefer-flatten-deep': preferFlattenDeep,
-    'prefer-head': preferHead,
-    'prefer-intersection': preferIntersection,
-    'prefer-is-empty': preferIsEmpty,
-    'prefer-is-equal': preferIsEqual,
-    'prefer-is-error': preferIsError,
-    'prefer-is-function': preferIsFunction,
-    'prefer-is-map': preferIsMap,
-    'prefer-is-boolean': preferIsBoolean,
-    'prefer-is-blob': preferIsBlob,
-    'prefer-is-file': preferIsFile,
-    'prefer-is-array-buffer': preferIsArrayBuffer,
-    'prefer-is-nil': preferIsNil,
-    'prefer-is-not-nil': preferIsNotNil,
-    'prefer-is-null': preferIsNull,
-    'prefer-is-number': preferIsNumber,
-    'prefer-is-reg-exp': preferIsRegExp,
-    'prefer-is-set': preferIsSet,
-    'prefer-is-string': preferIsString,
-    'prefer-is-symbol': preferIsSymbol,
-    'prefer-is-typed-array': preferIsTypedArray,
-    'prefer-is-undefined': preferIsUndefined,
-    'prefer-is-weak-map': preferIsWeakMap,
-    'prefer-is-weak-set': preferIsWeakSet,
-    'prefer-initial': preferInitial,
-    'prefer-in-range': preferInRange,
-    'prefer-last': preferLast,
-    'prefer-lower-first': preferLowerFirst,
-    'prefer-mean': preferMean,
-    'prefer-mean-by': preferMeanBy,
-    'prefer-random-int': preferRandomInt,
-    'prefer-range': preferRange,
-    'prefer-sample': preferSample,
-    'prefer-sum': preferSum,
-    'prefer-sum-by': preferSumBy,
-    'prefer-tail': preferTail,
-    'prefer-union': preferUnion,
-    'prefer-uniq': preferUniq,
-    'prefer-upper-first': preferUpperFirst,
-    'prefer-without': preferWithout,
-  },
-  configs: {},
+// Resolves to the package root from both `src/` (tests) and `dist/` (published build).
+const packageJson = createRequire(import.meta.url)('../package.json') as {
+  name: string;
+  version: string;
+};
+
+const rules = {
+  'prefer-capitalize': preferCapitalize,
+  'prefer-clamp': preferClamp,
+  'prefer-compact': preferCompact,
+  'prefer-delay': preferDelay,
+  'prefer-is-date': preferIsDate,
+  'prefer-difference': preferDifference,
+  'prefer-flat-map': preferFlatMap,
+  'prefer-flat-map-deep': preferFlatMapDeep,
+  'prefer-flatten': preferFlatten,
+  'prefer-flatten-deep': preferFlattenDeep,
+  'prefer-head': preferHead,
+  'prefer-intersection': preferIntersection,
+  'prefer-is-empty': preferIsEmpty,
+  'prefer-is-equal': preferIsEqual,
+  'prefer-is-error': preferIsError,
+  'prefer-is-function': preferIsFunction,
+  'prefer-is-map': preferIsMap,
+  'prefer-is-boolean': preferIsBoolean,
+  'prefer-is-blob': preferIsBlob,
+  'prefer-is-file': preferIsFile,
+  'prefer-is-array-buffer': preferIsArrayBuffer,
+  'prefer-is-nil': preferIsNil,
+  'prefer-is-not-nil': preferIsNotNil,
+  'prefer-is-null': preferIsNull,
+  'prefer-is-number': preferIsNumber,
+  'prefer-is-reg-exp': preferIsRegExp,
+  'prefer-is-set': preferIsSet,
+  'prefer-is-string': preferIsString,
+  'prefer-is-symbol': preferIsSymbol,
+  'prefer-is-typed-array': preferIsTypedArray,
+  'prefer-is-undefined': preferIsUndefined,
+  'prefer-is-weak-map': preferIsWeakMap,
+  'prefer-is-weak-set': preferIsWeakSet,
+  'prefer-initial': preferInitial,
+  'prefer-in-range': preferInRange,
+  'prefer-last': preferLast,
+  'prefer-lower-first': preferLowerFirst,
+  'prefer-mean': preferMean,
+  'prefer-mean-by': preferMeanBy,
+  'prefer-random-int': preferRandomInt,
+  'prefer-range': preferRange,
+  'prefer-sample': preferSample,
+  'prefer-sum': preferSum,
+  'prefer-sum-by': preferSumBy,
+  'prefer-tail': preferTail,
+  'prefer-union': preferUnion,
+  'prefer-uniq': preferUniq,
+  'prefer-upper-first': preferUpperFirst,
+  'prefer-without': preferWithout,
+};
+
+const arrayRules = {
+  'es-toolkit/prefer-compact': 'error',
+  'es-toolkit/prefer-difference': 'error',
+  'es-toolkit/prefer-flat-map': 'error',
+  'es-toolkit/prefer-flat-map-deep': 'error',
+  'es-toolkit/prefer-flatten': 'error',
+  'es-toolkit/prefer-flatten-deep': 'error',
+  'es-toolkit/prefer-head': 'error',
+  'es-toolkit/prefer-initial': 'error',
+  'es-toolkit/prefer-intersection': 'error',
+  'es-toolkit/prefer-last': 'error',
+  'es-toolkit/prefer-sample': 'error',
+  'es-toolkit/prefer-tail': 'error',
+  'es-toolkit/prefer-union': 'error',
+  'es-toolkit/prefer-uniq': 'error',
+  'es-toolkit/prefer-without': 'error',
+} as const;
+
+const mathRules = {
+  'es-toolkit/prefer-clamp': 'error',
+  'es-toolkit/prefer-in-range': 'error',
+  'es-toolkit/prefer-mean': 'error',
+  'es-toolkit/prefer-mean-by': 'error',
+  'es-toolkit/prefer-random-int': 'error',
+  'es-toolkit/prefer-range': 'error',
+  'es-toolkit/prefer-sum': 'error',
+  'es-toolkit/prefer-sum-by': 'error',
+} as const;
+
+const predicateRules = {
+  'es-toolkit/prefer-is-array-buffer': 'error',
+  'es-toolkit/prefer-is-blob': 'error',
+  'es-toolkit/prefer-is-boolean': 'error',
+  'es-toolkit/prefer-is-date': 'error',
+  'es-toolkit/prefer-is-empty': 'error',
+  'es-toolkit/prefer-is-equal': 'error',
+  'es-toolkit/prefer-is-error': 'error',
+  'es-toolkit/prefer-is-file': 'error',
+  'es-toolkit/prefer-is-function': 'error',
+  'es-toolkit/prefer-is-map': 'error',
+  'es-toolkit/prefer-is-nil': 'error',
+  'es-toolkit/prefer-is-not-nil': 'error',
+  'es-toolkit/prefer-is-null': 'error',
+  'es-toolkit/prefer-is-number': 'error',
+  'es-toolkit/prefer-is-reg-exp': 'error',
+  'es-toolkit/prefer-is-set': 'error',
+  'es-toolkit/prefer-is-string': 'error',
+  'es-toolkit/prefer-is-symbol': 'error',
+  'es-toolkit/prefer-is-typed-array': 'error',
+  'es-toolkit/prefer-is-undefined': 'error',
+  'es-toolkit/prefer-is-weak-map': 'error',
+  'es-toolkit/prefer-is-weak-set': 'error',
+} as const;
+
+const promiseRules = {
+  'es-toolkit/prefer-delay': 'error',
+} as const;
+
+const stringRules = {
+  'es-toolkit/prefer-capitalize': 'error',
+  'es-toolkit/prefer-lower-first': 'error',
+  'es-toolkit/prefer-upper-first': 'error',
+} as const;
+
+interface PluginConfig {
+  plugins: { 'es-toolkit': Plugin };
+  rules: Record<string, 'error'>;
+}
+
+interface Plugin {
+  meta: { name: string; version: string };
+  rules: typeof rules;
+  configs: {
+    array: PluginConfig;
+    math: PluginConfig;
+    predicate: PluginConfig;
+    promise: PluginConfig;
+    string: PluginConfig;
+    all: PluginConfig;
+  };
+}
+
+const plugin: Plugin = {
+  meta: { name: packageJson.name, version: packageJson.version },
+  rules,
+  configs: {} as Plugin['configs'],
 };
 
 plugin.configs = {
-  utilities: {
+  array: {
     plugins: { 'es-toolkit': plugin },
-    rules: {
-      'es-toolkit/prefer-capitalize': 'error',
-      'es-toolkit/prefer-clamp': 'error',
-      'es-toolkit/prefer-delay': 'error',
-      'es-toolkit/prefer-is-date': 'error',
-      'es-toolkit/prefer-head': 'error',
-      'es-toolkit/prefer-flat-map': 'error',
-      'es-toolkit/prefer-flat-map-deep': 'error',
-      'es-toolkit/prefer-flatten': 'error',
-      'es-toolkit/prefer-flatten-deep': 'error',
-      'es-toolkit/prefer-is-empty': 'error',
-      'es-toolkit/prefer-is-equal': 'error',
-      'es-toolkit/prefer-is-error': 'error',
-      'es-toolkit/prefer-is-function': 'error',
-      'es-toolkit/prefer-is-map': 'error',
-      'es-toolkit/prefer-is-boolean': 'error',
-      'es-toolkit/prefer-is-blob': 'error',
-      'es-toolkit/prefer-is-file': 'error',
-      'es-toolkit/prefer-is-array-buffer': 'error',
-      'es-toolkit/prefer-is-nil': 'error',
-      'es-toolkit/prefer-is-not-nil': 'error',
-      'es-toolkit/prefer-is-null': 'error',
-      'es-toolkit/prefer-is-number': 'error',
-      'es-toolkit/prefer-is-reg-exp': 'error',
-      'es-toolkit/prefer-is-set': 'error',
-      'es-toolkit/prefer-is-string': 'error',
-      'es-toolkit/prefer-is-symbol': 'error',
-      'es-toolkit/prefer-is-typed-array': 'error',
-      'es-toolkit/prefer-is-undefined': 'error',
-      'es-toolkit/prefer-is-weak-map': 'error',
-      'es-toolkit/prefer-is-weak-set': 'error',
-      'es-toolkit/prefer-initial': 'error',
-      'es-toolkit/prefer-in-range': 'error',
-      'es-toolkit/prefer-last': 'error',
-      'es-toolkit/prefer-lower-first': 'error',
-      'es-toolkit/prefer-random-int': 'error',
-      'es-toolkit/prefer-range': 'error',
-      'es-toolkit/prefer-sample': 'error',
-      'es-toolkit/prefer-union': 'error',
-      'es-toolkit/prefer-uniq': 'error',
-      'es-toolkit/prefer-upper-first': 'error',
-      'es-toolkit/prefer-tail': 'error',
-    },
+    rules: arrayRules,
   },
-  'array-methods': {
+  math: {
+    plugins: { 'es-toolkit': plugin },
+    rules: mathRules,
+  },
+  predicate: {
+    plugins: { 'es-toolkit': plugin },
+    rules: predicateRules,
+  },
+  promise: {
+    plugins: { 'es-toolkit': plugin },
+    rules: promiseRules,
+  },
+  string: {
+    plugins: { 'es-toolkit': plugin },
+    rules: stringRules,
+  },
+  all: {
     plugins: { 'es-toolkit': plugin },
     rules: {
-      'es-toolkit/prefer-compact': 'error',
-      'es-toolkit/prefer-difference': 'error',
-      'es-toolkit/prefer-intersection': 'error',
-      'es-toolkit/prefer-mean': 'error',
-      'es-toolkit/prefer-mean-by': 'error',
-      'es-toolkit/prefer-sum': 'error',
-      'es-toolkit/prefer-sum-by': 'error',
-      'es-toolkit/prefer-without': 'error',
+      ...arrayRules,
+      ...mathRules,
+      ...predicateRules,
+      ...promiseRules,
+      ...stringRules,
     },
   },
 };

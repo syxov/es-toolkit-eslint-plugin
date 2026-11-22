@@ -33,24 +33,34 @@
   },
   "homepage": "https://github.com/syxov/es-toolkit-eslint-plugin#readme",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc -p tsconfig.build.json",
     "test": "vitest run",
     "test:watch": "vitest",
+    "lint": "eslint .",
+    "typecheck": "tsc",
     "format": "prettier --write . --experimental-cli --log-level=error",
-    "prepublishOnly": "pnpm run test && pnpm run build",
+    "format:check": "prettier --check . --experimental-cli --log-level=warn",
+    "check": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run test",
+    "prepublishOnly": "pnpm run check && pnpm run build",
     "release": "pnpm publish --access public"
   },
+  "dependencies": {
+    "@typescript-eslint/utils": "^8.73.0"
+  },
   "peerDependencies": {
-    "@typescript-eslint/utils": "^8.61.1",
     "eslint": ">=10"
   },
   "devDependencies": {
-    "@types/node": "^26.1.1",
-    "@typescript-eslint/parser": "^8.64.0",
-    "@typescript-eslint/rule-tester": "^8.64.0",
-    "eslint": "^10.7.0",
-    "prettier": "^3.9.5",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.6",
+    "@typescript-eslint/parser": "^8.73.0",
+    "@typescript-eslint/rule-tester": "^8.73.0",
+    "@vitest/eslint-plugin": "^1.6.28",
+    "eslint": "^10.15.0",
+    "eslint-plugin-eslint-plugin": "^7.6.2",
+    "prettier": "^3.10.1",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.10"
+    "typescript-eslint": "^8.73.0",
+    "vitest": "^5.1.1"
   }
 }

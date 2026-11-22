@@ -6,7 +6,7 @@ export const preferIsArrayBuffer = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `isArrayBuffer` over `value instanceof ArrayBuffer`.',
+        'Enforce using `isArrayBuffer` from es-toolkit instead of `value instanceof ArrayBuffer`.',
     },
     schema: [],
     messages: {

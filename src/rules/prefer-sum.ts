@@ -1,10 +1,11 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
-  chainPositions,
+  arrayMethodRuleSchema,
   shouldReportArrayMethodReplacement,
   type ArrayMethodRuleOptions,
 } from '../utils/array-method-chain.js';
 import { createRule } from '../utils/create-rule.js';
+import { isMeanNumerator } from '../utils/is-mean-numerator.js';
 
 // `arr.reduce((a, b) => …, 0)`: a two-arg reduce with a two-param arrow and a `0` seed.
 const reduceArrow =
@@ -20,43 +21,22 @@ const addsParams = (body: TSESTree.Node, first: string, second: string) =>
   && ((isParam(body.left, first) && isParam(body.right, second))
     || (isParam(body.left, second) && isParam(body.right, first)));
 
-// `<reduce> / <…>.length` — that whole expression belongs to `prefer-mean`.
-const isMeanNumerator = (node: TSESTree.CallExpression) => {
-  const { parent } = node;
-  return (
-    parent.type === 'BinaryExpression'
-    && parent.operator === '/'
-    && parent.left === node
-    && parent.right.type === 'MemberExpression'
-    && parent.right.property.type === 'Identifier'
-    && parent.right.property.name === 'length'
-  );
-};
-
 export const preferSum = createRule({
   name: 'prefer-sum',
   meta: {
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `sum` from es-toolkit over `reduce((a, b) => a + b, 0)`.',
+        'Enforce using `sum` from es-toolkit instead of `reduce((a, b) => a + b, 0)`.',
     },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          chainPosition: { type: 'string', enum: [...chainPositions] },
-        },
-        additionalProperties: false,
-      },
-    ],
+    schema: arrayMethodRuleSchema,
+    defaultOptions: [{}] satisfies ArrayMethodRuleOptions,
     messages: {
       preferSum:
         'Prefer `sum` from es-toolkit instead of summing with `reduce`.',
     },
   },
-  defaultOptions: [{}] satisfies ArrayMethodRuleOptions,
-  create(context) {
+  create(context, [options]) {
     return {
       [reduceArrow](node: TSESTree.CallExpression) {
         const arrow = node.arguments[0];
@@ -66,13 +46,7 @@ export const preferSum = createRule({
         if (!addsParams(arrow.body, first.name, second.name)) return;
         if (isMeanNumerator(node)) return;
 
-        if (
-          shouldReportArrayMethodReplacement(
-            node,
-            context.options,
-            context.settings,
-          )
-        )
+        if (shouldReportArrayMethodReplacement(node, options, context.settings))
           context.report({ node, messageId: 'preferSum' });
       },
     };

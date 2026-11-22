@@ -17,7 +17,7 @@ export const preferDelay = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `delay` from es-toolkit over `new Promise` + `setTimeout`.',
+        'Enforce using `delay` from es-toolkit instead of `new Promise` + `setTimeout`.',
     },
     schema: [],
     messages: {

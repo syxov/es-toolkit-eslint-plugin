@@ -4,7 +4,10 @@ export const preferIsBlob = createRule({
   name: 'prefer-is-blob',
   meta: {
     type: 'suggestion',
-    docs: { description: 'Prefer `isBlob` over `value instanceof Blob`.' },
+    docs: {
+      description:
+        'Enforce using `isBlob` from es-toolkit instead of `value instanceof Blob`.',
+    },
     schema: [],
     messages: {
       preferIsBlob:

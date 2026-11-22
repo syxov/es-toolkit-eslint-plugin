@@ -4,7 +4,10 @@ export const preferIsFile = createRule({
   name: 'prefer-is-file',
   meta: {
     type: 'suggestion',
-    docs: { description: 'Prefer `isFile` over `value instanceof File`.' },
+    docs: {
+      description:
+        'Enforce using `isFile` from es-toolkit instead of `value instanceof File`.',
+    },
     schema: [],
     messages: {
       preferIsFile:

@@ -9,7 +9,8 @@ export const preferIsSymbol = createRule({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Prefer `isSymbol` from es-toolkit over a `typeof` check.',
+      description:
+        'Enforce using `isSymbol` from es-toolkit instead of a `typeof` check.',
     },
     schema: [],
     messages: {

@@ -5,7 +5,9 @@ export const preferHead = createRule({
   name: 'prefer-head',
   meta: {
     type: 'suggestion',
-    docs: { description: 'Prefer `head` from es-toolkit over `arr[0]`.' },
+    docs: {
+      description: 'Enforce using `head` from es-toolkit instead of `arr[0]`.',
+    },
     schema: [],
     messages: {
       preferHead: 'Prefer `head` from es-toolkit instead of indexing with `0`.',

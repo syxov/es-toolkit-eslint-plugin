@@ -40,7 +40,7 @@ export const preferLowerFirst = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `lowerFirst` from es-toolkit over lower-casing the first character by hand.',
+        'Enforce using `lowerFirst` from es-toolkit instead of lower-casing the first character by hand.',
     },
     schema: [],
     messages: {

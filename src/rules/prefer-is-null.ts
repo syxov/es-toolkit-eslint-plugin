@@ -9,7 +9,8 @@ export const preferIsNull = createRule({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Prefer `isNull` from es-toolkit over `value === null`.',
+      description:
+        'Enforce using `isNull` from es-toolkit instead of `value === null`.',
     },
     schema: [],
     messages: {

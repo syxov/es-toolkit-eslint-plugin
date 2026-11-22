@@ -4,7 +4,10 @@ export const preferIsRegExp = createRule({
   name: 'prefer-is-reg-exp',
   meta: {
     type: 'suggestion',
-    docs: { description: 'Prefer `isRegExp` over `value instanceof RegExp`.' },
+    docs: {
+      description:
+        'Enforce using `isRegExp` from es-toolkit instead of `value instanceof RegExp`.',
+    },
     schema: [],
     messages: {
       preferIsRegExp:

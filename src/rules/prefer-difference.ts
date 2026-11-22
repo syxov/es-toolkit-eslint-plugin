@@ -1,6 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
-  chainPositions,
+  arrayMethodRuleSchema,
   shouldReportArrayMethodReplacement,
   type ArrayMethodRuleOptions,
 } from '../utils/array-method-chain.js';
@@ -28,24 +28,16 @@ export const preferDifference = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `difference` from es-toolkit over `a.filter(x => !b.includes(x))`.',
+        'Enforce using `difference` from es-toolkit instead of `a.filter(x => !b.includes(x))`.',
     },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          chainPosition: { type: 'string', enum: [...chainPositions] },
-        },
-        additionalProperties: false,
-      },
-    ],
+    schema: arrayMethodRuleSchema,
+    defaultOptions: [{}] satisfies ArrayMethodRuleOptions,
     messages: {
       preferDifference:
         'Prefer `difference` from es-toolkit instead of filtering out members of another array.',
     },
   },
-  defaultOptions: [{}] satisfies ArrayMethodRuleOptions,
-  create(context) {
+  create(context, [options]) {
     return {
       [filterArrow](node: TSESTree.CallExpression) {
         const arrow = node.arguments[0];
@@ -61,11 +53,7 @@ export const preferDifference = createRule({
           && isIncludesOfParam(body.argument, param.name)
         )
           if (
-            shouldReportArrayMethodReplacement(
-              node,
-              context.options,
-              context.settings,
-            )
+            shouldReportArrayMethodReplacement(node, options, context.settings)
           )
             context.report({ node, messageId: 'preferDifference' });
       },

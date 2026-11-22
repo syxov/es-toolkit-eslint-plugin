@@ -5,7 +5,10 @@ export const preferFlattenDeep = createRule({
   name: 'prefer-flatten-deep',
   meta: {
     type: 'suggestion',
-    docs: { description: 'Prefer `flattenDeep` over `arr.flat(Infinity)`.' },
+    docs: {
+      description:
+        'Enforce using `flattenDeep` from es-toolkit instead of `arr.flat(Infinity)`.',
+    },
     schema: [],
     messages: {
       preferFlattenDeep:

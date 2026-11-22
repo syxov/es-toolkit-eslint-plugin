@@ -13,7 +13,7 @@ export const preferIsEqual = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `isEqual` from es-toolkit over comparing `JSON.stringify` results.',
+        'Enforce using `isEqual` from es-toolkit instead of comparing `JSON.stringify` results.',
     },
     schema: [],
     messages: {

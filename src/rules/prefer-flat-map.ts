@@ -5,7 +5,10 @@ export const preferFlatMap = createRule({
   name: 'prefer-flat-map',
   meta: {
     type: 'suggestion',
-    docs: { description: 'Prefer `flatMap` over `arr.map(callback).flat()`.' },
+    docs: {
+      description:
+        'Enforce using `flatMap` from es-toolkit instead of `arr.map(callback).flat()`.',
+    },
     schema: [],
     messages: {
       preferFlatMap:

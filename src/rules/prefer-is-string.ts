@@ -9,7 +9,8 @@ export const preferIsString = createRule({
   meta: {
     type: 'suggestion',
     docs: {
-      description: 'Prefer `isString` from es-toolkit over a `typeof` check.',
+      description:
+        'Enforce using `isString` from es-toolkit instead of a `typeof` check.',
     },
     schema: [],
     messages: {

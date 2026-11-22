@@ -1,6 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import {
-  chainPositions,
+  arrayMethodRuleSchema,
   shouldReportArrayMethodReplacement,
   type ArrayMethodRuleOptions,
 } from '../utils/array-method-chain.js';
@@ -25,24 +25,16 @@ export const preferMean = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Prefer `mean` from es-toolkit over dividing a `reduce` sum by `.length`.',
+        'Enforce using `mean` from es-toolkit instead of dividing a `reduce` sum by `.length`.',
     },
-    schema: [
-      {
-        type: 'object',
-        properties: {
-          chainPosition: { type: 'string', enum: [...chainPositions] },
-        },
-        additionalProperties: false,
-      },
-    ],
+    schema: arrayMethodRuleSchema,
+    defaultOptions: [{}] satisfies ArrayMethodRuleOptions,
     messages: {
       preferMean:
         'Prefer `mean` from es-toolkit instead of dividing a `reduce` sum by `length`.',
     },
   },
-  defaultOptions: [{}] satisfies ArrayMethodRuleOptions,
-  create(context) {
+  create(context, [options]) {
     return {
       [division](node: TSESTree.BinaryExpression) {
         const reduce = node.left;
@@ -52,17 +44,13 @@ export const preferMean = createRule({
         const [arrow, seed] = reduce.arguments;
         if (arrow.type !== 'ArrowFunctionExpression') return;
         if (seed.type !== 'Literal' || seed.value !== 0) return;
+        if (arrow.params.length !== 2) return;
         const [first, second] = arrow.params;
-        if (first?.type !== 'Identifier' || second?.type !== 'Identifier')
-          return;
+        if (first.type !== 'Identifier' || second.type !== 'Identifier') return;
         if (!addsParams(arrow.body, first.name, second.name)) return;
 
         if (
-          shouldReportArrayMethodReplacement(
-            reduce,
-            context.options,
-            context.settings,
-          )
+          shouldReportArrayMethodReplacement(reduce, options, context.settings)
         )
           context.report({ node, messageId: 'preferMean' });
       },
