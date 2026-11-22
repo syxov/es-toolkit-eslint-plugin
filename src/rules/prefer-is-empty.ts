@@ -1,15 +1,27 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
 
+type Side = 'left' | 'right';
+
 const objectKeysLength = (path: string) =>
   `[${path}.property.name="length"][${path}.object.callee.object.name="Object"][${path}.object.callee.property.name="keys"]`;
 
-// `Object.keys(obj).length === 0`, in either operand order.
-const keysLengthZero = (zero: 'left' | 'right', keys: 'left' | 'right') =>
-  `BinaryExpression[operator=/^===?$/][${zero}.value=0]${objectKeysLength(keys)}`;
+// esquery compares attribute values as strings, so `raw` keeps `'0'` from matching.
+const zero = (side: Side) => `[${side}.type="Literal"][${side}.raw="0"]`;
 
-// `!Object.keys(obj).length` — a falsy length means no keys.
-const notKeysLength = `UnaryExpression[operator="!"]${objectKeysLength('argument')}`;
+const keysAgainstZero = (operator: string, keys: Side, literal: Side) =>
+  `BinaryExpression[operator=${operator}]${objectKeysLength(keys)}${zero(literal)}`;
+
+const keysLengthChecks = [
+  // `=== 0` / `!== 0` (loose too), in either operand order.
+  keysAgainstZero('/^[!=]==?$/', 'left', 'right'),
+  keysAgainstZero('/^[!=]==?$/', 'right', 'left'),
+  // `length > 0` / `0 < length`.
+  keysAgainstZero('">"', 'left', 'right'),
+  keysAgainstZero('"<"', 'right', 'left'),
+  // `!Object.keys(obj).length` — a falsy length means no keys.
+  `UnaryExpression[operator="!"]${objectKeysLength('argument')}`,
+];
 
 export const preferIsEmpty = createRule({
   name: 'prefer-is-empty',
@@ -17,22 +29,18 @@ export const preferIsEmpty = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Enforce using `isEmpty` from es-toolkit instead of `Object.keys(obj).length === 0`.',
+        'Enforce using `isEmpty` from es-toolkit/compat instead of comparing `Object.keys(obj).length` with `0`.',
     },
     schema: [],
     messages: {
       preferIsEmpty:
-        'Prefer `isEmpty` from es-toolkit instead of `Object.keys(obj).length === 0`.',
+        'Prefer `isEmpty` from es-toolkit/compat instead of checking `Object.keys(obj).length`.',
     },
   },
   create(context) {
-    const report = (node: TSESTree.Node) =>
-      context.report({ node, messageId: 'preferIsEmpty' });
-
     return {
-      [keysLengthZero('right', 'left')]: report,
-      [keysLengthZero('left', 'right')]: report,
-      [notKeysLength]: report,
+      [keysLengthChecks.join(', ')]: (node: TSESTree.Node) =>
+        context.report({ node, messageId: 'preferIsEmpty' }),
     };
   },
 });

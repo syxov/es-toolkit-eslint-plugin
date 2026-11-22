@@ -1,5 +1,10 @@
 import type { TSESTree } from '@typescript-eslint/utils';
+import { isWriteTarget } from '../utils/ast.js';
 import { createRule } from '../utils/create-rule.js';
+import { caseConversionReceiver } from '../utils/selectors.js';
+
+// `raw` rather than `value`: esquery compares values as strings, so `obj["0"]` would match too.
+const firstIndex = `MemberExpression[computed=true][property.type="Literal"][property.raw="0"]:not(${caseConversionReceiver})`;
 
 export const preferHead = createRule({
   name: 'prefer-head',
@@ -15,9 +20,10 @@ export const preferHead = createRule({
   },
   create(context) {
     return {
-      'MemberExpression[computed=true][property.value=0]': (
-        node: TSESTree.Node,
-      ) => context.report({ node, messageId: 'preferHead' }),
+      [firstIndex](node: TSESTree.MemberExpression) {
+        if (!isWriteTarget(node))
+          context.report({ node, messageId: 'preferHead' });
+      },
     };
   },
 });

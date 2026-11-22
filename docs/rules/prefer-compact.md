@@ -1,7 +1,7 @@
 # prefer-compact
 
 Prefer [`compact`](https://es-toolkit.dev/reference/array/compact.html) from es-toolkit
-over `.filter(Boolean)`.
+over `.filter(Boolean)` and other truthiness filters.
 
 `compact(arr)` removes all falsy values (`false`, `null`, `0`, `''`, `undefined`, `NaN`) —
 exactly what a truthiness filter does, but named and (in TypeScript) better typed.
@@ -9,12 +9,13 @@ exactly what a truthiness filter does, but named and (in TypeScript) better type
 ## Rule details
 
 This rule reports — it does **not** auto-fix — a single-argument truthiness filter:
-`.filter(Boolean)`, `.filter(x => !!x)`, or `.filter(x => Boolean(x))`.
+`.filter(Boolean)`, `.filter(x => x)`, `.filter(x => !!x)`, or `.filter(x => Boolean(x))`.
 
 ### ❌ Incorrect
 
 ```js
 arr.filter(Boolean);
+arr.filter(x => x);
 arr.filter(x => !!x);
 arr.filter(x => Boolean(x));
 items.filter(Boolean).map(x => x.id);
@@ -28,7 +29,7 @@ import { compact } from 'es-toolkit';
 compact(arr);
 
 // Not a falsy filter — left untouched:
-arr.filter(x => x);
+arr.filter(x => y); // filters by a different value
 arr.filter(x => !!y); // filters by a different value
 arr.filter(x => Boolean(x.foo)); // filters by a property, not the element
 arr.map(Boolean);
@@ -43,9 +44,11 @@ with `settings['es-toolkit'].arrayMethods.chainPosition`, or override this rule 
 
 ## Limitations
 
-- **Arrow predicate is identity-checked.** `x => !!x` and `x => Boolean(x)` are reported only
-  when the negated/wrapped value is the predicate's own parameter, so `x => !!y` and
+- **Arrow predicate is identity-checked.** `x => x`, `x => !!x` and `x => Boolean(x)` are
+  reported only when the returned value is the predicate's own parameter, so `x => !!y` and
   `x => Boolean(x.foo)` are left alone.
+- **Arrow predicates only.** A `function` callback (`arr.filter(function (x) { … })`) or a
+  block-body arrow is not matched.
 - **Syntactic match.** A shadowed local `Boolean` could produce a false positive. This is
   rare in practice.
 - **TypeScript bonus.** Beyond readability, `compact` narrows nullable element types, while

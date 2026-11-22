@@ -1,8 +1,8 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
+import { nilPairIn, nullLiteral, undefinedValue } from '../utils/nil-check.js';
 
-const nilComparison = (value: 'left' | 'right') =>
-  `BinaryExpression[operator="=="][${value}.value=null]`;
+const looseNilComparison = `BinaryExpression[operator="=="]:matches(${nullLiteral('left')}, ${nullLiteral('right')}, ${undefinedValue('left')}, ${undefinedValue('right')})`;
 
 export const preferIsNil = createRule({
   name: 'prefer-is-nil',
@@ -10,20 +10,22 @@ export const preferIsNil = createRule({
     type: 'suggestion',
     docs: {
       description:
-        'Enforce using `isNil` from es-toolkit instead of `value == null`.',
+        'Enforce using `isNil` from es-toolkit instead of `value == null` or `value === null || value === undefined`.',
     },
     schema: [],
     messages: {
-      preferIsNil: 'Prefer `isNil` from es-toolkit instead of `value == null`.',
+      preferIsNil:
+        'Prefer `isNil` from es-toolkit instead of checking for `null` and `undefined` by hand.',
     },
   },
   create(context) {
-    const report = (node: TSESTree.Node) =>
-      context.report({ node, messageId: 'preferIsNil' });
-
     return {
-      [nilComparison('left')]: report,
-      [nilComparison('right')]: report,
+      [looseNilComparison]: (node: TSESTree.BinaryExpression) =>
+        context.report({ node, messageId: 'preferIsNil' }),
+      'LogicalExpression[operator="||"]'(node: TSESTree.LogicalExpression) {
+        const loc = nilPairIn(context.sourceCode, node);
+        if (loc) context.report({ loc, messageId: 'preferIsNil' });
+      },
     };
   },
 });

@@ -1,8 +1,9 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
 
+// A replacer or indentation argument changes what is compared, so only plain calls count.
 const stringify = (side: 'left' | 'right') =>
-  `[${side}.callee.object.name="JSON"][${side}.callee.property.name="stringify"]`;
+  `[${side}.type="CallExpression"][${side}.callee.object.name="JSON"][${side}.callee.property.name="stringify"][${side}.arguments.length=1]`;
 
 // `JSON.stringify(a) === JSON.stringify(b)` (or `!==`) is a fragile deep-equality check.
 const stringifyComparison = `BinaryExpression[operator=/^[!=]==?$/]${stringify('left')}${stringify('right')}`;

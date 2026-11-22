@@ -1,0 +1,97 @@
+import { Linter } from 'eslint';
+import tseslint from 'typescript-eslint';
+import { describe, expect, it } from 'vitest';
+import plugin from '../src/index.js';
+
+// Runs `configs.all` over snippets and asserts the exact set of rules that fire, so two
+// rules never report the same code and a hand-off between rules cannot silently drop it.
+const linter = new Linter({ configType: 'flat' });
+const config: Linter.Config[] = [
+  {
+    files: ['**/*.ts'],
+    languageOptions: { parser: tseslint.parser },
+    ...plugin.configs.all,
+  },
+];
+
+const reportedRules = (code: string) =>
+  linter
+    .verify(code, config, 'snippet.ts')
+    .map(({ ruleId, message }) => ruleId?.replace('es-toolkit/', '') ?? message)
+    .sort();
+
+const cases: [code: string, rules: string[]][] = [
+  // array
+  ['arr.filter(Boolean);', ['prefer-compact']],
+  ['arr.filter(x => !b.includes(x));', ['prefer-difference']],
+  ['arr.filter(x => b.includes(x));', ['prefer-intersection']],
+  ['arr.filter(x => x !== value);', ['prefer-without']],
+  ['arr.filter(x => x !== null);', ['prefer-without']],
+  ['arr.filter(x => x !== undefined);', ['prefer-without']],
+  ['arr.filter(x => x != null);', ['prefer-is-not-nil']],
+  ['arr.map(f).flat();', ['prefer-flat-map']],
+  ['arr.map(f).flat(Infinity);', ['prefer-flat-map-deep']],
+  ['arr.flat();', ['prefer-flatten']],
+  ['arr.flat(Infinity);', ['prefer-flatten-deep']],
+  ['arr[0];', ['prefer-head']],
+  ['arr[0] = 1;', []],
+  ['arr[arr.length - 1];', ['prefer-last']],
+  ['arr.slice(1);', ['prefer-tail']],
+  ['arr.slice(0, -1);', ['prefer-initial']],
+  ['arr[Math.floor(Math.random() * arr.length)];', ['prefer-sample']],
+  ['[...new Set([...a, ...b])];', ['prefer-union']],
+  ['[...new Set([...a, ...b, ...c])];', ['prefer-uniq']],
+  ['Array.from(new Set(arr));', ['prefer-uniq']],
+  // math
+  ['Math.min(Math.max(x, 0), 10);', ['prefer-clamp']],
+  ['x >= 0 && x < 10;', ['prefer-in-range']],
+  ['nums.reduce((a, b) => a + b, 0) / nums.length;', ['prefer-mean']],
+  ['a.reduce((s, x) => s + x, 0) / b.length;', ['prefer-sum']],
+  [
+    'items.reduce((acc, item) => acc + item.value, 0) / items.length;',
+    ['prefer-mean-by'],
+  ],
+  [
+    'items.reduce((acc, item) => acc + item.value, 0) / other.length;',
+    ['prefer-sum-by'],
+  ],
+  ['nums.reduce((a, b) => a + b, 0);', ['prefer-sum']],
+  ['Math.floor(Math.random() * 10);', ['prefer-random-int']],
+  ['const j = Math.floor(Math.random() * arr.length);', ['prefer-random-int']],
+  ['a[Math.floor(Math.random() * (a.length - 1))];', ['prefer-random-int']],
+  ['Array.from({ length: n }, (_, i) => i);', ['prefer-range']],
+  ['[...Array(n).keys()];', ['prefer-range']],
+  // predicate
+  ['x === null;', ['prefer-is-null']],
+  ['x === undefined;', ['prefer-is-undefined']],
+  ['x == null;', ['prefer-is-nil']],
+  ['x != null;', ['prefer-is-not-nil']],
+  ['x === null || x === undefined;', ['prefer-is-nil']],
+  ['x !== null && x !== undefined;', ['prefer-is-not-nil']],
+  ['typeof x === "string";', ['prefer-is-string']],
+  ['typeof x === "undefined";', ['prefer-is-undefined']],
+  ['Object.keys(o).length === 0;', ['prefer-is-empty']],
+  ['JSON.stringify(a) === JSON.stringify(b);', ['prefer-is-equal']],
+  [
+    'ArrayBuffer.isView(v) && !(v instanceof DataView);',
+    ['prefer-is-typed-array'],
+  ],
+  ['v instanceof Date;', ['prefer-is-date']],
+  // promise
+  ['new Promise(resolve => setTimeout(resolve, ms));', ['prefer-delay']],
+  // string
+  ['s[0].toUpperCase() + s.slice(1);', ['prefer-upper-first']],
+  ['s.charAt(0).toUpperCase() + s.slice(1);', ['prefer-upper-first']],
+  ['`${s[0].toUpperCase()}${s.slice(1)}`;', ['prefer-upper-first']],
+  ['s[0].toLowerCase() + s.slice(1);', ['prefer-lower-first']],
+  [
+    's.charAt(0).toUpperCase() + s.slice(1).toLowerCase();',
+    ['prefer-capitalize'],
+  ],
+];
+
+describe('configs.all overlap', () => {
+  it.each(cases)('%s', (code, rules) => {
+    expect(reportedRules(code)).toEqual(rules);
+  });
+});

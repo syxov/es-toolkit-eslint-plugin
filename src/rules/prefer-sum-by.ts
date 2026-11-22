@@ -6,9 +6,8 @@ import {
 } from '../utils/array-method-chain.js';
 import { createRule } from '../utils/create-rule.js';
 import { isMeanNumerator } from '../utils/is-mean-numerator.js';
+import { sumByReduce, isSumByReducer } from '../utils/sum-reducer.js';
 
-const reduce =
-  'CallExpression[callee.property.name="reduce"][arguments.length=2][arguments.0.type="ArrowFunctionExpression"][arguments.0.params.length=2][arguments.1.value=0]';
 export const preferSumBy = createRule({
   name: 'prefer-sum-by',
   meta: {
@@ -26,42 +25,13 @@ export const preferSumBy = createRule({
   },
   create(context, [options]) {
     return {
-      [reduce](node: TSESTree.CallExpression) {
-        const arrow = node.arguments[0];
+      [sumByReduce](node: TSESTree.CallExpression) {
         if (
-          arrow.type !== 'ArrowFunctionExpression'
-          || arrow.body.type !== 'BinaryExpression'
-          || arrow.body.operator !== '+'
+          isSumByReducer(node)
+          && !isMeanNumerator(node, context.sourceCode)
+          && shouldReportArrayMethodReplacement(node, options, context.settings)
         )
-          return;
-        const [acc, item] = arrow.params;
-        if (acc.type !== 'Identifier' || item.type !== 'Identifier') return;
-        const { left, right } = arrow.body;
-        const property =
-          left.type === 'MemberExpression'
-          && left.object.type === 'Identifier'
-          && left.object.name === item.name
-          && right.type === 'Identifier'
-          && right.name === acc.name
-            ? left
-            : right.type === 'MemberExpression'
-                && right.object.type === 'Identifier'
-                && right.object.name === item.name
-                && left.type === 'Identifier'
-                && left.name === acc.name
-              ? right
-              : null;
-        if (
-          !property
-          || isMeanNumerator(node)
-          || !shouldReportArrayMethodReplacement(
-            node,
-            options,
-            context.settings,
-          )
-        )
-          return;
-        context.report({ node, messageId: 'preferSumBy' });
+          context.report({ node, messageId: 'preferSumBy' });
       },
     };
   },

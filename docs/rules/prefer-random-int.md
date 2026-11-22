@@ -9,8 +9,9 @@ formula; `randomInt` names the intent and removes the off-by-one foot-guns.
 ## Rule details
 
 This rule reports — it does **not** auto-fix — a `Math.random() * …` product truncated to an
-integer, whether by `Math.floor(...)`, `Math.trunc(...)`, `~~(...)`, or `… | 0`. A `.length`
-multiplier is left to [`prefer-sample`](./prefer-sample.md) instead.
+integer, whether by `Math.floor(...)`, `Math.trunc(...)`, `~~(...)`, or `… | 0`. The one
+exception is a random element pick `arr[Math.floor(Math.random() * arr.length)]`, which
+[`prefer-sample`](./prefer-sample.md) reports instead.
 
 ### ❌ Incorrect
 
@@ -20,6 +21,8 @@ Math.trunc(Math.random() * 6);
 ~~(Math.random() * 6);
 (Math.random() * 6) | 0;
 Math.floor(Math.random() * (max - min + 1)) + min;
+const j = Math.floor(Math.random() * arr.length); // a random index → randomInt(0, arr.length)
+a[Math.floor(Math.random() * (a.length - 1))]; // not a whole-array sample
 ```
 
 ### ✅ Correct

@@ -5,6 +5,18 @@ ruleTester.run('prefer-sum-by', preferSumBy, {
   valid: [
     'sumBy(items, item => item.value);',
     'items.reduce((acc, item) => acc + item.value, 1);',
+    // The numeric `0` seed is required: the string `'0'` concatenates, and without a seed the
+    // accumulator starts as the first item.
+    "items.reduce((acc, item) => acc + item.value, '0');",
+    'items.reduce((acc, item) => acc + item.value);',
+    'items.reduce((acc, item) => acc + item, 0);',
+    'items.reduce((acc, item) => acc + item.a.b, 0);',
+    'items.reduce((acc, item) => acc.total + item.value, 0);',
+    'items.reduce((acc, item) => acc - item.value, 0);',
+    // `function` callbacks and block bodies are not matched.
+    'items.reduce(function (acc, item) { return acc + item.value; }, 0);',
+    'items.reduce((acc, item) => { return acc + item.value; }, 0);',
+    'this.items.reduce((acc, i) => acc + i.v, 0) / this.items.length;',
     // The surrounding meanBy expression belongs to prefer-mean-by.
     'items.reduce((acc, item) => acc + item.value, 0) / items.length;',
     'items.filter((item) => item.active).reduce((acc, item) => acc + item.value, 0);',
@@ -50,6 +62,20 @@ ruleTester.run('prefer-sum-by', preferSumBy, {
     },
   ],
   invalid: [
+    {
+      // Divided by a different array's length: not a mean, so the sum is reported.
+      code: 'items.reduce((acc, i) => acc + i.v, 0) / other.length;',
+      errors: [{ messageId: 'preferSumBy' }],
+    },
+    {
+      code: 'const total = this.items.reduce((acc, i) => acc + i[key], 0);',
+      errors: [{ messageId: 'preferSumBy' }],
+    },
+    {
+      code: 'items.filter((item) => item.active).reduce((acc, item) => acc + item.value, 0) / items.length;',
+      options: [{ chainPosition: 'always' }],
+      errors: [{ messageId: 'preferSumBy' }],
+    },
     {
       code: 'items.reduce((acc, item) => acc + item.value, 0);',
       errors: [{ messageId: 'preferSumBy' }],

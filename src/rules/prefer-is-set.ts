@@ -1,5 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
+
 export const preferIsSet = createRule({
   name: 'prefer-is-set',
   meta: {
@@ -16,9 +17,9 @@ export const preferIsSet = createRule({
   },
   create(context) {
     return {
-      'BinaryExpression[operator="instanceof"][right.name="Set"]': (
-        node: TSESTree.Node,
-      ) => context.report({ node, messageId: 'preferIsSet' }),
+      'BinaryExpression[operator="instanceof"][right.type="Identifier"][right.name="Set"]':
+        (node: TSESTree.BinaryExpression) =>
+          context.report({ node, messageId: 'preferIsSet' }),
     };
   },
 });

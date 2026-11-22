@@ -10,6 +10,16 @@ ruleTester.run('prefer-last', preferLast, {
     'arr[i - 1];',
     'arr[arr.length];',
     'arr.at(-1);',
+    'arr[arr.length - "1"];',
+    'arr[arr["length"] - 1];',
+    // A different receiver is not the last element of `a`.
+    'a[b.length - 1];',
+    'a.b[a.length - 1];',
+    // Writes, not reads.
+    'arr[arr.length - 1] = x;',
+    'arr[arr.length - 1]++;',
+    'delete arr[arr.length - 1];',
+    '[arr[arr.length - 1]] = xs;',
   ],
   invalid: [
     {
@@ -25,7 +35,15 @@ ruleTester.run('prefer-last', preferLast, {
       errors: [{ messageId: 'preferLast' }],
     },
     {
+      code: 'this.items[this.items.length - 1];',
+      errors: [{ messageId: 'preferLast' }],
+    },
+    {
       code: 'const x: string = words[words.length - 1];',
+      errors: [{ messageId: 'preferLast' }],
+    },
+    {
+      code: 'arr[arr.length - 1].done = true;',
       errors: [{ messageId: 'preferLast' }],
     },
   ],

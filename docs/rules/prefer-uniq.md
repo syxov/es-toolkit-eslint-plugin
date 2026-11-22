@@ -16,6 +16,7 @@ This rule reports — it does **not** auto-fix — an array literal spreading a 
 ```js
 [...new Set(arr)];
 Array.from(new Set(arr));
+[...new Set([...a, ...b, ...c])]; // uniq([...a, ...b, ...c])
 ```
 
 ### ✅ Correct
@@ -36,8 +37,9 @@ Array.from(new Set(arr), x => x * 2); // a map, not plain uniq
 - **Syntactic match.** `Set`/`Array` are matched by name, so shadowed locals could produce
   a false positive. This is rare in practice.
 - **Single-argument `Set` only.** `[...new Set()]` (empty) is not reported.
-- **Spread-concatenation is a union.** `[...new Set([...a, ...b])]` is reported by
-  [`prefer-union`](prefer-union.md), not here.
+- **Two-array spread-concatenation is a union.** `[...new Set([...a, ...b])]` (exactly two
+  spreads) is reported by [`prefer-union`](prefer-union.md), not here. Any other literal,
+  such as three spreads or a spread plus a value, is reported here.
 - **`Array.from(set, mapFn)`** is intentionally skipped — the second argument transforms
   the result, so it is not a plain `uniq`.
 - **No auto-fix by design.** The fix requires adding an `import { uniq } from 'es-toolkit'`.

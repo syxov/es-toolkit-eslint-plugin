@@ -13,8 +13,13 @@ ruleTester.run('prefer-random-int', preferRandomInt, {
     'Math.ceil(Math.random() * n);',
     '~(Math.random() * n);',
     '(Math.random() * 6) | 1;',
+    "(Math.random() * 6) | '0';",
+    'Math.floor(Math.random() + 6);',
+    // Owned by prefer-sample.
     'arr[Math.floor(Math.random() * arr.length)];',
+    'arr[Math.trunc(arr.length * Math.random())];',
     'arr[~~(Math.random() * arr.length)];',
+    'arr[(Math.random() * arr.length) | 0];',
   ],
   invalid: [
     {
@@ -43,6 +48,31 @@ ruleTester.run('prefer-random-int', preferRandomInt, {
     },
     {
       code: 'const dice: number = Math.floor(Math.random() * 6) + 1;',
+      errors: [{ messageId: 'preferRandomInt' }],
+    },
+    // A `.length` multiplier outside a matching element access is a plain random int.
+    {
+      code: 'const j = Math.floor(Math.random() * arr.length);',
+      errors: [{ messageId: 'preferRandomInt' }],
+    },
+    {
+      code: 'a[Math.floor(Math.random() * (a.length - 1))];',
+      errors: [{ messageId: 'preferRandomInt' }],
+    },
+    {
+      code: 'a[Math.floor(Math.random() * b.length)];',
+      errors: [{ messageId: 'preferRandomInt' }],
+    },
+    {
+      code: 'a[Math.floor(Math.random() * a.length) + 1];',
+      errors: [{ messageId: 'preferRandomInt' }],
+    },
+    {
+      code: 'arr[~~(Math.random() * arr.length)] = x;',
+      errors: [{ messageId: 'preferRandomInt' }],
+    },
+    {
+      code: 'swap(arr, i, Math.floor(Math.random() * (i + 1)));',
       errors: [{ messageId: 'preferRandomInt' }],
     },
   ],

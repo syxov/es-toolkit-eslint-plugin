@@ -11,6 +11,13 @@ ruleTester.run('prefer-union', preferUnion, {
     'Array.from(new Set(arr));',
     'new Set([...a, ...b]);',
     '[...new Set([...a])];',
+    // `union` takes exactly two arrays; other shapes are a plain dedupe (`prefer-uniq`).
+    '[...new Set([...a, ...b, ...c])];',
+    'Array.from(new Set([...a, ...b, ...c]));',
+    '[...new Set([...a, ...b, x])];',
+    '[...new Set([...a, x])];',
+    '[...new Set([x, ...a])];',
+    'Array.from(new Set([...a, ...b]), (x) => x * 2);',
   ],
   invalid: [
     {
@@ -22,7 +29,7 @@ ruleTester.run('prefer-union', preferUnion, {
       errors: [{ messageId: 'preferUnion' }],
     },
     {
-      code: 'const u = [...new Set([...a, ...b, ...c])];',
+      code: 'const u = Array.from(new Set([...this.a, ...getB()]));',
       errors: [{ messageId: 'preferUnion' }],
     },
     {

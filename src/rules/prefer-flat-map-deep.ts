@@ -1,5 +1,9 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
+import { mapReceiver } from '../utils/selectors.js';
+
+const mapFlatInfinity = `CallExpression[callee.property.name="flat"][arguments.length=1][arguments.0.type="Identifier"][arguments.0.name="Infinity"]${mapReceiver}`;
+
 export const preferFlatMapDeep = createRule({
   name: 'prefer-flat-map-deep',
   meta: {
@@ -16,9 +20,8 @@ export const preferFlatMapDeep = createRule({
   },
   create(context) {
     return {
-      'CallExpression[callee.property.name="flat"][arguments.length=1][arguments.0.name="Infinity"][callee.object.callee.property.name="map"][callee.object.arguments.length=1]':
-        (node: TSESTree.Node) =>
-          context.report({ node, messageId: 'preferFlatMapDeep' }),
+      [mapFlatInfinity]: (node: TSESTree.CallExpression) =>
+        context.report({ node, messageId: 'preferFlatMapDeep' }),
     };
   },
 });

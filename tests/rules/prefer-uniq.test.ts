@@ -18,6 +18,27 @@ ruleTester.run('prefer-uniq', preferUniq, {
   ],
   invalid: [
     {
+      // Three arrays: `union` takes exactly two, so this is a plain dedupe.
+      code: '[...new Set([...a, ...b, ...c])];',
+      errors: [{ messageId: 'preferUniq' }],
+    },
+    {
+      code: 'Array.from(new Set([...a, ...b, ...c]));',
+      errors: [{ messageId: 'preferUniq' }],
+    },
+    {
+      code: '[...new Set([...a, ...b, x])];',
+      errors: [{ messageId: 'preferUniq' }],
+    },
+    {
+      code: '[...new Set([...a, x])];',
+      errors: [{ messageId: 'preferUniq' }],
+    },
+    {
+      code: '[...new Set([...a])];',
+      errors: [{ messageId: 'preferUniq' }],
+    },
+    {
       code: '[...new Set(arr)];',
       errors: [{ messageId: 'preferUniq' }],
     },

@@ -1,8 +1,14 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
 
-const comparison = (side: 'left' | 'right') =>
-  `BinaryExpression[operator="==="][${side}.value="function"][${side === 'left' ? 'right' : 'left'}.operator="typeof"]`;
+const typeofOn = (
+  typeofSide: 'left' | 'right',
+  literalSide: 'left' | 'right',
+) =>
+  `[${typeofSide}.type="UnaryExpression"][${typeofSide}.operator="typeof"][${literalSide}.type="Literal"][${literalSide}.value="function"]`;
+
+// `typeof` always yields a string, so loose and strict (in)equality are equivalent.
+const typeofComparison = `BinaryExpression[operator=/^[!=]==?$/]:matches(${typeofOn('left', 'right')}, ${typeofOn('right', 'left')})`;
 
 export const preferIsFunction = createRule({
   name: 'prefer-is-function',
@@ -19,8 +25,9 @@ export const preferIsFunction = createRule({
     },
   },
   create(context) {
-    const report = (node: TSESTree.Node) =>
-      context.report({ node, messageId: 'preferIsFunction' });
-    return { [comparison('left')]: report, [comparison('right')]: report };
+    return {
+      [typeofComparison]: (node: TSESTree.BinaryExpression) =>
+        context.report({ node, messageId: 'preferIsFunction' }),
+    };
   },
 });

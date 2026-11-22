@@ -1,5 +1,8 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
+import { mapReceiver } from '../utils/selectors.js';
+
+const flatInfinity = `CallExpression[callee.property.name="flat"][arguments.length=1][arguments.0.type="Identifier"][arguments.0.name="Infinity"]:not(${mapReceiver})`;
 
 export const preferFlattenDeep = createRule({
   name: 'prefer-flatten-deep',
@@ -17,9 +20,8 @@ export const preferFlattenDeep = createRule({
   },
   create(context) {
     return {
-      'CallExpression[callee.property.name="flat"][arguments.length=1][arguments.0.name="Infinity"]':
-        (node: TSESTree.Node) =>
-          context.report({ node, messageId: 'preferFlattenDeep' }),
+      [flatInfinity]: (node: TSESTree.CallExpression) =>
+        context.report({ node, messageId: 'preferFlattenDeep' }),
     };
   },
 });

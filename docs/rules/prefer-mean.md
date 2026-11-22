@@ -9,13 +9,15 @@ dividing a `reduce` sum by `.length`.
 ## Rule details
 
 This rule reports — it does **not** auto-fix — a division whose numerator is the
-`reduce((a, b) => a + b, 0)` sum shape and whose denominator is a `.length` access.
+[`prefer-sum`](prefer-sum.md) shape (`xs.reduce((a, b) => a + b, 0)`, or with no seed) and
+whose denominator is the `.length` of the same receiver, `xs.length`.
 
 ### ❌ Incorrect
 
 ```js
 arr.reduce((a, b) => a + b, 0) / arr.length;
 nums.reduce((acc, x) => acc + x, 0) / nums.length;
+this.values.reduce((a, b) => a + b) / this.values.length;
 ```
 
 ### ✅ Correct
@@ -29,6 +31,7 @@ mean(arr);
 total / arr.length; // numerator is not a reduce sum
 arr.reduce((a, b) => a * b, 0) / arr.length; // not addition
 arr.reduce((a, b) => a + b, 0) / count; // denominator is not `.length`
+a.reduce((s, x) => s + x, 0) / b.length; // another array's length — see `prefer-sum`
 ```
 
 ## Configuring method-call chains
@@ -41,7 +44,12 @@ with `settings['es-toolkit'].arrayMethods.chainPosition`, or override this rule 
 ## Limitations
 
 - **The numerator must be the exact sum shape.** Same constraints as
-  [`prefer-sum`](prefer-sum.md): a two-param arrow adding its params, seeded with `0`.
-- **The numerator and denominator arrays are not cross-checked.** `a.reduce(…) / b.length`
-  is still reported; the rule is syntactic and does not verify they are the same array.
+  [`prefer-sum`](prefer-sum.md): an expression-body arrow (not a `function` callback) adding
+  its two params, seeded with the number `0` or not seeded. A seedless reduce throws on an
+  empty array, while `mean([])` returns `NaN`.
+- **The receivers are compared as written.** `xs.reduce(…) / xs.length` and
+  `this.items.reduce(…) / this.items.length` are reported; `a.reduce(…) / b.length` is a
+  sum divided by something else and is left to `prefer-sum`. The comparison is textual
+  apart from type-only wrappers: `(xs as number[]).reduce(…) / xs.length` is a mean, while
+  `xs.map(f).reduce(…) / xs.length` is not.
 - **No auto-fix by design.** The fix requires adding an `import { mean } from 'es-toolkit'`.

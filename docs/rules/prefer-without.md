@@ -9,7 +9,8 @@ several values at once.
 ## Rule details
 
 This rule reports — it does **not** auto-fix — a single-parameter arrow `.filter` whose
-body is a `!==`/`!=` comparison between the parameter itself and some other value.
+body is a `!==` comparison between the parameter itself and a value that does not depend on
+the parameter. Loose `!=` comparisons are reported only with `checkLooseInequality: true`.
 
 ### ❌ Incorrect
 
@@ -28,9 +29,33 @@ without(arr, value);
 // Not a `without` — left untouched:
 arr.filter(x => x.id !== value); // compares a property, not the element
 arr.filter(x => x === value); // keeps the value rather than removing it
+arr.filter(x => x !== f(x)); // the compared value depends on the element
+arr.filter(x => x != null); // loose `!=`, see `checkLooseInequality`
 ```
 
 ## Options
+
+### `checkLooseInequality`
+
+`checkLooseInequality` defaults to `false`, so only strict `!==` is reported. Set it to `true`
+to also report loose `!=` comparisons:
+
+```js
+{
+  rules: {
+    'es-toolkit/prefer-without': ['error', { checkLooseInequality: true }],
+  },
+}
+```
+
+It is opt-in because `!=` coerces: `arr.filter(x => x != null)` drops both `null` and
+`undefined`, while `without(arr, null)` compares with SameValueZero and keeps `undefined`.
+The same goes for other coercions (`'1' != 1` is `false`). Rewriting a loose comparison is
+equivalent only when no element is loosely equal to the value without being the same value.
+Even with the option on, `x != null` and `x != undefined` are left to
+[`prefer-is-not-nil`](prefer-is-not-nil.md): they are nil checks, not a single excluded value.
+
+### `skipTypePredicate`
 
 `skipTypePredicate` defaults to `false`, so the rule reports type-predicate callbacks just
 like other filters. Set it to `true` to leave callbacks with a TypeScript predicate for their
@@ -58,6 +83,12 @@ with `settings['es-toolkit'].arrayMethods.chainPosition`, or override this rule 
 
 - **Element comparison only.** Exactly one side of the comparison must be the predicate's
   own parameter, so `x => x.id !== value` is left alone.
+- **The value must not depend on the element.** `x => x !== f(x)` or `x => x.next !== x`
+  reads the parameter on the value side, so it is skipped.
+- **Strict inequality by default.** `x => x != value` is reported only with
+  `checkLooseInequality: true`, because `!=` coerces `null`/`undefined` and `without` does not.
+- **Arrow predicates only.** A `function` callback (`arr.filter(function (x) { … })`) or a
+  block-body arrow is not matched.
 - **Single value.** Multi-value chains (`x => x !== a && x !== b`) are not matched, even
   though `without(arr, a, b)` would cover them.
 - **Optional type-predicate skipping.** With `skipTypePredicate: true`, callbacks whose

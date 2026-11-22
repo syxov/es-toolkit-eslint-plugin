@@ -9,6 +9,13 @@ ruleTester.run('prefer-difference', preferDifference, {
     'a.filter((x) => b.includes(x));',
     'a.filter((x) => !b.includes(x.id));',
     'a.filter((x) => !b.has(x));',
+    // The receiver depends on the element, so it is not a fixed second array.
+    'a.filter((x) => !x.children.includes(x));',
+    'a.filter((x) => !lookup[x].includes(x));',
+    'a.filter((x) => !getList(x).includes(x));',
+    'a.filter((x) => !b.includes(x, 1));',
+    // `function` callbacks are not matched.
+    'a.filter(function (x) { return !b.includes(x); });',
     'a.filter((x) => !b.includes(x)).map((x) => x.id);',
     'a.map((x) => x.id).filter((x) => !b.includes(x));',
     'a.map((x) => x.id).filter((x) => !b.includes(x)).sort();',
@@ -52,6 +59,19 @@ ruleTester.run('prefer-difference', preferDifference, {
     },
   ],
   invalid: [
+    {
+      code: 'a.filter((x) => !this.excluded.includes(x));',
+      errors: [{ messageId: 'preferDifference' }],
+    },
+    {
+      code: 'a.filter((x) => !groups[key].includes(x));',
+      errors: [{ messageId: 'preferDifference' }],
+    },
+    {
+      // A property named like the parameter is not a read of it.
+      code: 'a.filter((x) => !obj.x.includes(x));',
+      errors: [{ messageId: 'preferDifference' }],
+    },
     {
       code: 'a.filter((x) => !b.includes(x));',
       errors: [{ messageId: 'preferDifference' }],

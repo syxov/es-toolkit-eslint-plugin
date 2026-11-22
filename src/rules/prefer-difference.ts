@@ -4,23 +4,9 @@ import {
   shouldReportArrayMethodReplacement,
   type ArrayMethodRuleOptions,
 } from '../utils/array-method-chain.js';
+import { isIdentifierNamed, referencesParam } from '../utils/ast.js';
 import { createRule } from '../utils/create-rule.js';
-
-// `.filter(x => …)` with a single single-parameter arrow predicate; its body is checked below.
-const filterArrow =
-  'CallExpression[callee.property.name="filter"][arguments.length=1][arguments.0.type="ArrowFunctionExpression"][arguments.0.params.length=1][arguments.0.params.0.type="Identifier"]';
-
-const isParam = (node: TSESTree.Node, name: string) =>
-  node.type === 'Identifier' && node.name === name;
-
-// `<other>.includes(<param>)` — a single-arg `.includes` of the predicate's own parameter.
-const isIncludesOfParam = (node: TSESTree.Node, name: string) =>
-  node.type === 'CallExpression'
-  && node.callee.type === 'MemberExpression'
-  && node.callee.property.type === 'Identifier'
-  && node.callee.property.name === 'includes'
-  && node.arguments.length === 1
-  && isParam(node.arguments[0], name);
+import { filterArrow } from '../utils/selectors.js';
 
 export const preferDifference = createRule({
   name: 'prefer-difference',
@@ -46,16 +32,24 @@ export const preferDifference = createRule({
         if (param.type !== 'Identifier') return;
         const { body } = arrow;
 
-        // `x => !b.includes(x)`.
+        // `x => !b.includes(x)`, where `b` does not depend on `x`.
         if (
-          body.type === 'UnaryExpression'
-          && body.operator === '!'
-          && isIncludesOfParam(body.argument, param.name)
+          body.type !== 'UnaryExpression'
+          || body.operator !== '!'
+          || body.argument.type !== 'CallExpression'
         )
-          if (
-            shouldReportArrayMethodReplacement(node, options, context.settings)
-          )
-            context.report({ node, messageId: 'preferDifference' });
+          return;
+        const { callee, arguments: args } = body.argument;
+        if (
+          callee.type === 'MemberExpression'
+          && isIdentifierNamed(callee.property, 'includes')
+          && !callee.computed
+          && args.length === 1
+          && isIdentifierNamed(args[0], param.name)
+          && !referencesParam(context.sourceCode, arrow, callee.object)
+          && shouldReportArrayMethodReplacement(node, options, context.settings)
+        )
+          context.report({ node, messageId: 'preferDifference' });
       },
     };
   },

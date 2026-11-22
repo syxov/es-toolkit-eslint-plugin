@@ -1,5 +1,9 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
+import { stringContext } from '../utils/selectors.js';
+
+// `raw` rather than `value`: esquery compares values as strings, so `slice('0', -1)` would match too.
+const initialSlice = `CallExpression[callee.property.name="slice"][arguments.length=2][arguments.0.type="Literal"][arguments.0.raw="0"][arguments.1.type="UnaryExpression"][arguments.1.operator="-"][arguments.1.argument.type="Literal"][arguments.1.argument.raw="1"]:not(${stringContext})`;
 
 export const preferInitial = createRule({
   name: 'prefer-initial',
@@ -17,9 +21,8 @@ export const preferInitial = createRule({
   },
   create(context) {
     return {
-      'CallExpression[callee.property.name="slice"][arguments.length=2][arguments.0.value=0][arguments.1.operator="-"][arguments.1.argument.value=1]':
-        (node: TSESTree.Node) =>
-          context.report({ node, messageId: 'preferInitial' }),
+      [initialSlice]: (node: TSESTree.CallExpression) =>
+        context.report({ node, messageId: 'preferInitial' }),
     };
   },
 });

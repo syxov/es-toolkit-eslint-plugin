@@ -6,20 +6,7 @@ import {
 } from '../utils/array-method-chain.js';
 import { createRule } from '../utils/create-rule.js';
 import { isMeanNumerator } from '../utils/is-mean-numerator.js';
-
-// `arr.reduce((a, b) => …, 0)`: a two-arg reduce with a two-param arrow and a `0` seed.
-const reduceArrow =
-  'CallExpression[callee.property.name="reduce"][arguments.length=2][arguments.0.type="ArrowFunctionExpression"][arguments.0.params.length=2][arguments.1.value=0]';
-
-const isParam = (node: TSESTree.Node, name: string) =>
-  node.type === 'Identifier' && node.name === name;
-
-// `a + b`, where `a` and `b` are exactly the reducer's two params (in either order).
-const addsParams = (body: TSESTree.Node, first: string, second: string) =>
-  body.type === 'BinaryExpression'
-  && body.operator === '+'
-  && ((isParam(body.left, first) && isParam(body.right, second))
-    || (isParam(body.left, second) && isParam(body.right, first)));
+import { sumReduce, isSumReducer } from '../utils/sum-reducer.js';
 
 export const preferSum = createRule({
   name: 'prefer-sum',
@@ -38,15 +25,12 @@ export const preferSum = createRule({
   },
   create(context, [options]) {
     return {
-      [reduceArrow](node: TSESTree.CallExpression) {
-        const arrow = node.arguments[0];
-        if (arrow.type !== 'ArrowFunctionExpression') return;
-        const [first, second] = arrow.params;
-        if (first.type !== 'Identifier' || second.type !== 'Identifier') return;
-        if (!addsParams(arrow.body, first.name, second.name)) return;
-        if (isMeanNumerator(node)) return;
-
-        if (shouldReportArrayMethodReplacement(node, options, context.settings))
+      [sumReduce](node: TSESTree.CallExpression) {
+        if (
+          isSumReducer(node)
+          && !isMeanNumerator(node, context.sourceCode)
+          && shouldReportArrayMethodReplacement(node, options, context.settings)
+        )
           context.report({ node, messageId: 'preferSum' });
       },
     };

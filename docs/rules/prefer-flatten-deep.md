@@ -4,15 +4,28 @@ Prefer [`flattenDeep`](https://es-toolkit.dev/reference/array/flattenDeep.html) 
 
 ## Rule details
 
-```js
-// Incorrect
-items.flat(Infinity);
+This rule reports — it does **not** auto-fix — `arr.flat(Infinity)`.
 
-// Correct
+### ❌ Incorrect
+
+```js
+items.flat(Infinity);
+```
+
+### ✅ Correct
+
+```js
+import { flattenDeep } from 'es-toolkit';
+
 flattenDeep(items);
+
+// Left untouched:
+items.map(mapper).flat(Infinity); // see prefer-flat-map-deep
 ```
 
 ## Limitations
 
 - Only the literal `Infinity` depth is matched.
+- A one-argument `.map(callback)` receiver is skipped because
+  [`prefer-flat-map-deep`](./prefer-flat-map-deep.md) reports the whole chain.
 - No auto-fix is provided because adding imports is project-specific.

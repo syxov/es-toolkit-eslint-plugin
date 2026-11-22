@@ -6,12 +6,18 @@ const ruleTester = new RuleTester();
 ruleTester.run('prefer-compact', preferCompact, {
   valid: [
     'compact(arr);',
-    'arr.filter((x) => x);',
+    'arr.filter((x) => y);',
+    'arr.filter((x) => x.foo);',
+    'arr.filter((x) => !x);',
     'arr.filter((x) => !!y);',
     'arr.filter((x) => Boolean(x.foo));',
     'arr.map(Boolean);',
     'Boolean(x);',
     'arr.filter(Boolean, thisArg);',
+    // `function` callbacks are not matched.
+    'arr.filter(function (x) { return x; });',
+    'arr.filter(function (x) { return !!x; });',
+    'items.filter((x) => x).map((x) => x.id);',
     'items.filter(Boolean).map((x) => x.id);',
     'items.map((x) => x.id).filter(Boolean);',
     'items.map((x) => x).filter(Boolean).map((x) => x.id);',
@@ -36,6 +42,19 @@ ruleTester.run('prefer-compact', preferCompact, {
   invalid: [
     {
       code: 'arr.filter(Boolean);',
+      errors: [{ messageId: 'preferCompact' }],
+    },
+    {
+      code: 'arr.filter((x) => x);',
+      errors: [{ messageId: 'preferCompact' }],
+    },
+    {
+      code: 'const names = (users as (string | null)[]).filter((u: string | null) => u);',
+      errors: [{ messageId: 'preferCompact' }],
+    },
+    {
+      code: 'items.map((x) => x.id).filter((id) => id);',
+      options: [{ chainPosition: 'chain-end' }],
       errors: [{ messageId: 'preferCompact' }],
     },
     {

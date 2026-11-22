@@ -1,5 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
+
 export const preferIsArrayBuffer = createRule({
   name: 'prefer-is-array-buffer',
   meta: {
@@ -16,9 +17,9 @@ export const preferIsArrayBuffer = createRule({
   },
   create(context) {
     return {
-      'BinaryExpression[operator="instanceof"][right.name="ArrayBuffer"]': (
-        node: TSESTree.Node,
-      ) => context.report({ node, messageId: 'preferIsArrayBuffer' }),
+      'BinaryExpression[operator="instanceof"][right.type="Identifier"][right.name="ArrayBuffer"]':
+        (node: TSESTree.BinaryExpression) =>
+          context.report({ node, messageId: 'preferIsArrayBuffer' }),
     };
   },
 });

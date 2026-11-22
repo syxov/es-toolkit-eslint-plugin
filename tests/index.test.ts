@@ -62,7 +62,7 @@ test('all config combines every category config', () => {
   expect(plugin.configs.all.rules).toEqual(categoryRules);
   expect(
     Object.values(plugin.configs).every(
-      config => config.plugins['es-toolkit'] === plugin,
+      config => config.plugins?.['es-toolkit'] === plugin,
     ),
   ).toBe(true);
 });

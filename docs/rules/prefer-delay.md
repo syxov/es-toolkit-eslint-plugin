@@ -8,15 +8,23 @@ hand-rolled `new Promise((resolve) => setTimeout(resolve, ms))` sleep idiom.
 
 ## Rule details
 
-This rule reports — it does **not** auto-fix — a `new Promise` whose single-parameter
-executor immediately calls `setTimeout` with that same parameter as the callback, whether the
-executor has an expression body or a single-statement block body.
+This rule reports — it does **not** auto-fix — a `new Promise` whose executor:
+
+- is an arrow function or a function expression with a single parameter (`resolve`);
+- consists of one two-argument `setTimeout(callback, ms)` call, as an expression body or a
+  single-statement block body;
+- passes a `callback` that only resolves: `resolve` itself, or a zero-parameter arrow
+  that calls `resolve()` with no arguments (`() => resolve()` or `() => { resolve(); }`).
 
 ### ❌ Incorrect
 
 ```js
 new Promise(resolve => setTimeout(resolve, 1000));
 new Promise(resolve => {
+  setTimeout(resolve, ms);
+});
+new Promise(resolve => setTimeout(() => resolve(), ms));
+new Promise(function (resolve) {
   setTimeout(resolve, ms);
 });
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -31,6 +39,9 @@ await delay(1000);
 
 // Not a pure delay — left untouched:
 new Promise(resolve => setTimeout(doWork, 1000)); // runs work, not just a delay
+new Promise(resolve => setTimeout(() => resolve(value), ms)); // resolves with a value
+new Promise(resolve => setTimeout(resolve, ms, value)); // resolves with a value
+new Promise((resolve, reject) => setTimeout(resolve, ms)); // also takes `reject`
 new Promise(resolve => {
   doWork();
   setTimeout(resolve, ms); // does more than wait, see Limitations
@@ -40,9 +51,13 @@ new Promise(resolve => {
 ## Limitations
 
 - **Single-statement executors only.** A block body that does more than the one `setTimeout`
-  (e.g. `new Promise((resolve) => { doWork(); setTimeout(resolve, ms); })`), arrow-only forms,
-  and wrapped forms like `setTimeout(() => resolve(), ms)` are not reported, to keep the rule
-  precise. Function-expression executors (`function (resolve) { … }`) are also not flagged.
-- **Identity-checked.** The rule reports only when `setTimeout`'s callback is the promise's
-  own `resolve` parameter, so `setTimeout(doWork, ms)` inside a `new Promise` is left alone.
+  (e.g. `new Promise((resolve) => { doWork(); setTimeout(resolve, ms); })`) is not
+  reported, to keep the rule precise.
+- **Arrow callbacks only.** A `function () { resolve(); }` timeout callback is not matched;
+  `resolve` itself or a zero-parameter arrow calling `resolve()` is.
+- **Identity-checked by name.** The rule reports only when the timeout callback is, or
+  calls, the executor's own parameter, so `setTimeout(doWork, ms)` inside a `new Promise` is
+  left alone.
+- **Syntactic.** `Promise` and `setTimeout` are matched by name; shadowed locals with
+  those names are not distinguished.
 - **No auto-fix by design.** The fix requires adding an `import { delay } from 'es-toolkit'`.

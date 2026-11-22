@@ -4,17 +4,25 @@ import {
   shouldReportArrayMethodReplacement,
   type ArrayMethodRuleOptions,
 } from '../utils/array-method-chain.js';
+import { isIdentifierNamed } from '../utils/ast.js';
 import { createRule } from '../utils/create-rule.js';
+import { filterArrow } from '../utils/selectors.js';
 
 const filterBoolean =
   'CallExpression[callee.property.name="filter"][arguments.length=1][arguments.0.name="Boolean"]';
 
-// `.filter(x => …)` with a single single-parameter arrow predicate; its body is checked below.
-const filterArrow =
-  'CallExpression[callee.property.name="filter"][arguments.length=1][arguments.0.type="ArrowFunctionExpression"][arguments.0.params.length=1][arguments.0.params.0.type="Identifier"]';
-
-const isParam = (node: TSESTree.Node, param: string) =>
-  node.type === 'Identifier' && node.name === param;
+// The predicate keeps only truthy values: `x => x`, `x => !!x` or `x => Boolean(x)`.
+const isTruthinessOf = (body: TSESTree.Node, param: string) =>
+  isIdentifierNamed(body, param)
+  || (body.type === 'UnaryExpression'
+    && body.operator === '!'
+    && body.argument.type === 'UnaryExpression'
+    && body.argument.operator === '!'
+    && isIdentifierNamed(body.argument.argument, param))
+  || (body.type === 'CallExpression'
+    && isIdentifierNamed(body.callee, 'Boolean')
+    && body.arguments.length === 1
+    && isIdentifierNamed(body.arguments[0], param));
 
 export const preferCompact = createRule({
   name: 'prefer-compact',
@@ -32,9 +40,8 @@ export const preferCompact = createRule({
     },
   },
   create(context, [options]) {
-    const report = (node: TSESTree.Node) =>
-      node.type === 'CallExpression'
-      && shouldReportArrayMethodReplacement(node, options, context.settings)
+    const report = (node: TSESTree.CallExpression) =>
+      shouldReportArrayMethodReplacement(node, options, context.settings)
       && context.report({ node, messageId: 'preferCompact' });
 
     return {
@@ -44,23 +51,7 @@ export const preferCompact = createRule({
         if (arrow.type !== 'ArrowFunctionExpression') return;
         const [param] = arrow.params;
         if (param.type !== 'Identifier') return;
-        const { body } = arrow;
-
-        // The predicate keeps only truthy values: `x => !!x` or `x => Boolean(x)`.
-        const isDoubleBang =
-          body.type === 'UnaryExpression'
-          && body.operator === '!'
-          && body.argument.type === 'UnaryExpression'
-          && body.argument.operator === '!'
-          && isParam(body.argument.argument, param.name);
-        const isBooleanCall =
-          body.type === 'CallExpression'
-          && body.callee.type === 'Identifier'
-          && body.callee.name === 'Boolean'
-          && body.arguments.length === 1
-          && isParam(body.arguments[0], param.name);
-
-        if (isDoubleBang || isBooleanCall) report(node);
+        if (isTruthinessOf(arrow.body, param.name)) report(node);
       },
     };
   },

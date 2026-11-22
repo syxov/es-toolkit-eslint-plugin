@@ -10,6 +10,25 @@ ruleTester.run('prefer-sample', preferSample, {
     'arr[~~(Math.random() * 3)];',
     'arr[i];',
     'arr[Math.floor(x)];',
+    // The `.length` belongs to another array.
+    'a[Math.floor(Math.random() * b.length)];',
+    'a.b[Math.floor(Math.random() * a.length)];',
+    // Not exactly `Math.random() * <arr>.length`.
+    'a[Math.floor(Math.random() * (a.length - 1))];',
+    'a[Math.floor(Math.random() * a.length) + 1];',
+    'a[Math.floor(Math.random() + a.length)];',
+    'a[Math.floor(rand() * a.length)];',
+    'a[Math.floor(Math.random() * a["length"])];',
+    'a[Math.round(Math.random() * a.length)];',
+    'a[Math.ceil(Math.random() * a.length)];',
+    'a[Math.floor(Math.random() * a.length, 1)];',
+    'a[~(Math.random() * a.length)];',
+    'a[(Math.random() * a.length) | 1];',
+    "a[(Math.random() * a.length) | '0'];",
+    'a.random;',
+    // Writes, not reads.
+    'arr[Math.floor(Math.random() * arr.length)] = x;',
+    'delete arr[Math.floor(Math.random() * arr.length)];',
   ],
   invalid: [
     {
@@ -18,6 +37,10 @@ ruleTester.run('prefer-sample', preferSample, {
     },
     {
       code: 'items[Math.floor(Math.random() * items.length)];',
+      errors: [{ messageId: 'preferSample' }],
+    },
+    {
+      code: 'arr[Math.floor(arr.length * Math.random())];',
       errors: [{ messageId: 'preferSample' }],
     },
     {
@@ -34,6 +57,10 @@ ruleTester.run('prefer-sample', preferSample, {
     },
     {
       code: 'getArr()[Math.floor(Math.random() * getArr().length)];',
+      errors: [{ messageId: 'preferSample' }],
+    },
+    {
+      code: 'this.items[Math.floor(Math.random() * this.items.length)];',
       errors: [{ messageId: 'preferSample' }],
     },
     {

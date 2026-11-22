@@ -1,15 +1,45 @@
 import type { TSESTree } from '@typescript-eslint/utils';
+import { isIdentifierNamed } from '../utils/ast.js';
 import { createRule } from '../utils/create-rule.js';
 
-// `new Promise(resolve => setTimeout(resolve, ms))` — a single-param executor whose
-// expression body is a two-argument `setTimeout` whose first argument is an identifier.
-const expressionExecutor =
-  'NewExpression[callee.name="Promise"][arguments.length=1] > ArrowFunctionExpression[params.length=1][params.0.type="Identifier"][body.callee.name="setTimeout"][body.arguments.length=2][body.arguments.0.type="Identifier"]';
+type Executor = TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression;
 
-// The block-bodied form `new Promise(resolve => { setTimeout(resolve, ms); })` — a single
-// statement that is the same two-argument `setTimeout`.
-const blockExecutor =
-  'NewExpression[callee.name="Promise"][arguments.length=1] > ArrowFunctionExpression[params.length=1][params.0.type="Identifier"][body.type="BlockStatement"][body.body.length=1][body.body.0.type="ExpressionStatement"][body.body.0.expression.callee.name="setTimeout"][body.body.0.expression.arguments.length=2][body.body.0.expression.arguments.0.type="Identifier"]';
+const executor =
+  'NewExpression[callee.name="Promise"][arguments.length=1] > :matches(ArrowFunctionExpression, FunctionExpression)[params.length=1][params.0.type="Identifier"]';
+
+const timeoutCall = (path: string) =>
+  `[${path}.callee.name="setTimeout"][${path}.arguments.length=2]`;
+
+// `resolve => setTimeout(…, ms)`
+const expressionExecutor = `${executor}${timeoutCall('body')}`;
+
+// `resolve => { setTimeout(…, ms); }` or `function (resolve) { setTimeout(…, ms); }`
+const blockExecutor = `${executor}[body.type="BlockStatement"][body.body.length=1]${timeoutCall('body.body.0.expression')}`;
+
+// The call a function body consists of: `f()` or `{ f(); }`.
+const soleCall = (body: TSESTree.BlockStatement | TSESTree.Expression) => {
+  let expression: TSESTree.Node = body;
+  if (body.type === 'BlockStatement') {
+    const [statement] = body.body;
+    if (body.body.length !== 1 || statement.type !== 'ExpressionStatement')
+      return null;
+    expression = statement.expression;
+  }
+  return expression.type === 'CallExpression' ? expression : null;
+};
+
+// `resolve` itself, or `() => resolve()` / `() => { resolve(); }`.
+const callsOnlyResolve = (callback: TSESTree.Node, resolve: string) => {
+  if (isIdentifierNamed(callback, resolve)) return true;
+  if (callback.type !== 'ArrowFunctionExpression' || callback.params.length > 0)
+    return false;
+  const call = soleCall(callback.body);
+  return (
+    call !== null
+    && call.arguments.length === 0
+    && isIdentifierNamed(call.callee, resolve)
+  );
+};
 
 export const preferDelay = createRule({
   name: 'prefer-delay',
@@ -26,42 +56,16 @@ export const preferDelay = createRule({
     },
   },
   create(context) {
-    // Confirm the timeout callback IS the promise's own `resolve` (a pure delay).
-    const isPureDelay = (
-      param: TSESTree.Parameter,
-      timeout: TSESTree.CallExpression,
-    ) => {
-      const [callback] = timeout.arguments;
-      return (
-        param.type === 'Identifier'
-        && callback.type === 'Identifier'
-        && param.name === callback.name
-      );
+    const report = (node: Executor) => {
+      const [resolve] = node.params;
+      const timeout = soleCall(node.body);
+      if (
+        resolve.type === 'Identifier'
+        && timeout
+        && callsOnlyResolve(timeout.arguments[0], resolve.name)
+      )
+        context.report({ node: node.parent, messageId: 'preferDelay' });
     };
-
-    const reportPromise = (node: TSESTree.ArrowFunctionExpression) =>
-      context.report({ node: node.parent, messageId: 'preferDelay' });
-
-    return {
-      [expressionExecutor](node: TSESTree.ArrowFunctionExpression) {
-        if (
-          node.body.type === 'CallExpression'
-          && isPureDelay(node.params[0], node.body)
-        ) {
-          reportPromise(node);
-        }
-      },
-      [blockExecutor](node: TSESTree.ArrowFunctionExpression) {
-        if (node.body.type !== 'BlockStatement') return;
-        const [statement] = node.body.body;
-        if (
-          statement.type === 'ExpressionStatement'
-          && statement.expression.type === 'CallExpression'
-          && isPureDelay(node.params[0], statement.expression)
-        ) {
-          reportPromise(node);
-        }
-      },
-    };
+    return { [expressionExecutor]: report, [blockExecutor]: report };
   },
 });

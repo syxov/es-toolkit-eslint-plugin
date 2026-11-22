@@ -5,19 +5,8 @@ import {
   type ArrayMethodRuleOptions,
 } from '../utils/array-method-chain.js';
 import { createRule } from '../utils/create-rule.js';
-
-// `<reduce-call> / <…>.length`.
-const division =
-  'BinaryExpression[operator="/"][left.type="CallExpression"][left.callee.property.name="reduce"][right.type="MemberExpression"][right.property.name="length"]';
-
-const isParam = (node: TSESTree.Node, name: string) =>
-  node.type === 'Identifier' && node.name === name;
-
-const addsParams = (body: TSESTree.Node, first: string, second: string) =>
-  body.type === 'BinaryExpression'
-  && body.operator === '+'
-  && ((isParam(body.left, first) && isParam(body.right, second))
-    || (isParam(body.left, second) && isParam(body.right, first)));
+import { isMeanNumerator } from '../utils/is-mean-numerator.js';
+import { isSumReducer, sumReduce } from '../utils/sum-reducer.js';
 
 export const preferMean = createRule({
   name: 'prefer-mean',
@@ -35,24 +24,16 @@ export const preferMean = createRule({
     },
   },
   create(context, [options]) {
+    // Matches the `prefer-sum` reduce and reports the `xs.reduce(…) / xs.length` around it;
+    // chain position is measured on the `reduce`.
     return {
-      [division](node: TSESTree.BinaryExpression) {
-        const reduce = node.left;
-        // The numerator must be the exact `reduce((a, b) => a + b, 0)` sum shape.
-        if (reduce.type !== 'CallExpression' || reduce.arguments.length !== 2)
-          return;
-        const [arrow, seed] = reduce.arguments;
-        if (arrow.type !== 'ArrowFunctionExpression') return;
-        if (seed.type !== 'Literal' || seed.value !== 0) return;
-        if (arrow.params.length !== 2) return;
-        const [first, second] = arrow.params;
-        if (first.type !== 'Identifier' || second.type !== 'Identifier') return;
-        if (!addsParams(arrow.body, first.name, second.name)) return;
-
+      [sumReduce](node: TSESTree.CallExpression) {
         if (
-          shouldReportArrayMethodReplacement(reduce, options, context.settings)
+          isSumReducer(node)
+          && isMeanNumerator(node, context.sourceCode)
+          && shouldReportArrayMethodReplacement(node, options, context.settings)
         )
-          context.report({ node, messageId: 'preferMean' });
+          context.report({ node: node.parent, messageId: 'preferMean' });
       },
     };
   },

@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module';
+import type { ESLint, Linter } from 'eslint';
 import { preferCapitalize } from './rules/prefer-capitalize.js';
 import { preferClamp } from './rules/prefer-clamp.js';
 import { preferCompact } from './rules/prefer-compact.js';
@@ -171,27 +172,21 @@ const stringRules = {
   'es-toolkit/prefer-upper-first': 'error',
 } as const;
 
-interface PluginConfig {
-  plugins: { 'es-toolkit': Plugin };
-  rules: Record<string, 'error'>;
-}
+type ConfigName = 'array' | 'math' | 'predicate' | 'promise' | 'string' | 'all';
 
-interface Plugin {
+// Typed with ESLint's own `Plugin`/`Config` so `defineConfig([esToolkit.configs.all])`
+// type-checks in an `eslint.config.ts`.
+interface Plugin extends ESLint.Plugin {
   meta: { name: string; version: string };
-  rules: typeof rules;
-  configs: {
-    array: PluginConfig;
-    math: PluginConfig;
-    predicate: PluginConfig;
-    promise: PluginConfig;
-    string: PluginConfig;
-    all: PluginConfig;
-  };
+  rules: NonNullable<ESLint.Plugin['rules']>;
+  configs: Record<ConfigName, Linter.Config & { rules: Linter.RulesRecord }>;
 }
 
 const plugin: Plugin = {
   meta: { name: packageJson.name, version: packageJson.version },
-  rules,
+  // typescript-eslint's `RuleModule` is not assignable to ESLint's `RuleDefinition` type,
+  // although ESLint runs it as one.
+  rules: rules as unknown as Plugin['rules'],
   configs: {} as Plugin['configs'],
 };
 

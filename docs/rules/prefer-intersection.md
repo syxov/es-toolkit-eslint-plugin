@@ -28,6 +28,7 @@ intersection(a, b);
 // Not an intersection — left untouched:
 a.filter(x => !b.includes(x)); // that is `difference`
 a.filter(x => b.includes(x.id)); // compares a property, not the element
+a.filter(x => x.children.includes(x)); // the receiver depends on the element
 ```
 
 ## Configuring method-call chains
@@ -41,6 +42,12 @@ with `settings['es-toolkit'].arrayMethods.chainPosition`, or override this rule 
 
 - **Predicate is identity-checked.** Only `b.includes(x)` where `x` is the predicate's own
   parameter is reported, so `b.includes(x.id)` is left alone.
+- **The receiver must not depend on the element.** `x => x.children.includes(x)` or
+  `x => lookup[x].includes(x)` reads the parameter on the receiver side, so it is skipped.
+- **String receivers look the same.** `words.filter(w => text.includes(w))` is a substring
+  check, not array membership, but it is syntactically identical and is still reported.
+- **Arrow predicates only.** A `function` callback (`arr.filter(function (x) { … })`) or a
+  block-body arrow is not matched.
 - **`includes` only.** The `b.indexOf(x) !== -1` / `b.indexOf(x) >= 0` variants are not
   matched.
 - **Syntactic match.** The rule does not verify `b` is an array; a `Set`/`Map` receiver

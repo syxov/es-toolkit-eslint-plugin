@@ -1,5 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
+
 export const preferIsWeakSet = createRule({
   name: 'prefer-is-weak-set',
   meta: {
@@ -16,9 +17,9 @@ export const preferIsWeakSet = createRule({
   },
   create(context) {
     return {
-      'BinaryExpression[operator="instanceof"][right.name="WeakSet"]': (
-        node: TSESTree.Node,
-      ) => context.report({ node, messageId: 'preferIsWeakSet' }),
+      'BinaryExpression[operator="instanceof"][right.type="Identifier"][right.name="WeakSet"]':
+        (node: TSESTree.BinaryExpression) =>
+          context.report({ node, messageId: 'preferIsWeakSet' }),
     };
   },
 });

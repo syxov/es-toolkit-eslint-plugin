@@ -1,5 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
+
 export const preferIsDate = createRule({
   name: 'prefer-is-date',
   meta: {
@@ -16,9 +17,9 @@ export const preferIsDate = createRule({
   },
   create(context) {
     return {
-      'BinaryExpression[operator="instanceof"][right.name="Date"]': (
-        node: TSESTree.Node,
-      ) => context.report({ node, messageId: 'preferIsDate' }),
+      'BinaryExpression[operator="instanceof"][right.type="Identifier"][right.name="Date"]':
+        (node: TSESTree.BinaryExpression) =>
+          context.report({ node, messageId: 'preferIsDate' }),
     };
   },
 });

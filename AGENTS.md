@@ -35,11 +35,18 @@ pnpm check        # format:check + lint + typecheck + test; run before committin
 ```
 src/
   index.ts                  # plugin object: meta, rules, configs.array/math/predicate/promise/string/all
-  utils/array-method-chain.ts # shared chain-position policy, option schema and types
-  utils/is-mean-numerator.ts  # `<reduce> / x.length` guard shared by the sum rules
   utils/create-rule.ts      # shared RuleCreator factory — reuse for every rule
+  utils/ast.ts              # isIdentifierNamed, isLiteralValue, isSameExpression, isWriteTarget, referencesParam
+  utils/selectors.ts        # shared esquery fragments (filterArrow, mapReceiver, stringContext)
+  utils/array-method-chain.ts # shared chain-position policy, option schema and types
+  utils/sum-reducer.ts      # sum / sumBy reduce shapes shared by the sum and mean rules
+  utils/is-mean-numerator.ts  # `xs.reduce(…) / xs.length`: owned by the mean rules, skipped by sum rules
+  utils/is-sample-index.ts  # `a[Math.floor(Math.random() * a.length)]`: prefer-sample vs prefer-random-int
+  utils/nil-check.ts        # null/undefined comparisons and `x === null || x === undefined` pairs
+  utils/string-case.ts      # first-character / rest helpers for the string rules
   rules/<name>.ts           # one file per rule
 tests/rules/<name>.test.ts  # RuleTester valid/invalid matrix per rule
+tests/overlap.test.ts       # configs.all over snippets: exactly which rules fire on each
 docs/rules/<name>.md        # one doc per rule
 ```
 
@@ -112,10 +119,23 @@ Detection lives in the selector. Useful constructs (all supported by ESLint's es
 - Has a direct child matching: `:has(> CallExpression…)`
 - OR / either-of: `:matches(sel1, sel2)` or regex value `[callee.property.name=/^(min|max)$/]`
 - A rule may register **multiple** selector keys, each pointing at a handler.
+- **Values are compared as strings.** `[arguments.0.value=0]` also matches `'0'`, and
+  `[right.value=null]` matches `'null'`. Match number/null literals by `raw`:
+  `[x.type="Literal"][x.raw="0"]`, or use `isLiteralValue` in JS.
 
 Detection is **syntactic** — e.g. `Math` is matched by name, so a shadowed local `Math`
 is a known, accepted false-positive risk. Document such limits in the rule's doc instead
-of adding scope analysis (keep the rule minimal).
+of adding scope analysis (keep the rule minimal). The one exception is `referencesParam`,
+which asks whether a callback's own parameter is read (`x => x !== f(x)` is not a fixed value).
+
+### One report per snippet
+
+Under `configs.all` a snippet must be reported by exactly one rule. When two rules can
+match the same code, decide which one owns it and make the other skip it through a shared
+helper in `src/utils/` (e.g. `prefer-flatten` skips `arr.map(f).flat()`, which belongs to
+`prefer-flat-map`; `prefer-head`/`prefer-tail` skip string idioms owned by the string
+rules). Add the snippet to `tests/overlap.test.ts`, which asserts the exact set of rules
+that fire.
 
 ## Project notes / gotchas
 
@@ -138,3 +158,7 @@ of adding scope analysis (keep the rule minimal).
   `tsconfig.json` type-checks `src/` and `tests/` without emitting; `tsconfig.build.json`
   emits `src/` only.
 - `plugin.meta` is read from `package.json` at runtime; do not hard-code the version.
+- The plugin is typed with ESLint's own `ESLint.Plugin` / `Linter.Config`, so
+  `defineConfig([esToolkit.configs.all])` type-checks in a consumer's `eslint.config.ts`.
+  typescript-eslint's `RuleModule` is not assignable to ESLint's rule type, hence the cast
+  on `rules` in `src/index.ts`.

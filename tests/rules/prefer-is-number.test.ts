@@ -6,8 +6,13 @@ const ruleTester = new RuleTester();
 ruleTester.run('prefer-is-number', preferIsNumber, {
   valid: [
     'isNumber(value);',
-    'typeof value === "string";',
-    'typeof value == "number";',
+    '!isNumber(value);',
+    'typeof value === "bigint";',
+    'typeof value !== "bigint";',
+    'value === "number";',
+    'typeof value === kind;',
+    'typeof value === typeof other;',
+    'void value === "number";',
   ],
   invalid: [
     {
@@ -15,12 +20,39 @@ ruleTester.run('prefer-is-number', preferIsNumber, {
       errors: [{ messageId: 'preferIsNumber' }],
     },
     {
+      code: 'typeof value == "number";',
+      errors: [{ messageId: 'preferIsNumber' }],
+    },
+    {
+      code: 'typeof value !== "number";',
+      errors: [{ messageId: 'preferIsNumber' }],
+    },
+    {
+      code: 'typeof value != "number";',
+      errors: [{ messageId: 'preferIsNumber' }],
+    },
+    {
       code: '"number" === typeof value;',
       errors: [{ messageId: 'preferIsNumber' }],
     },
     {
-      code: 'const valid: boolean = typeof value === "number";',
+      code: '"number" != typeof value;',
       errors: [{ messageId: 'preferIsNumber' }],
+    },
+    {
+      code: 'if (typeof obj.prop !== "number") throw new TypeError("bad");',
+      errors: [{ messageId: 'preferIsNumber' }],
+    },
+    {
+      code: 'function check(value: unknown): boolean { return typeof value === "number"; }',
+      errors: [{ messageId: 'preferIsNumber' }],
+    },
+    {
+      code: 'const both = typeof a === "number" && typeof b !== "number";',
+      errors: [
+        { messageId: 'preferIsNumber' },
+        { messageId: 'preferIsNumber' },
+      ],
     },
   ],
 });
