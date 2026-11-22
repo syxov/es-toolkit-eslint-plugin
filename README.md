@@ -114,6 +114,7 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 | [`prefer-shuffle`](docs/rules/prefer-shuffle.md)             | Enforce using `shuffle` instead of sorting with a random comparator.                      |
 | [`prefer-tail`](docs/rules/prefer-tail.md)                   | Enforce using `tail` instead of `arr.slice(1)`.                                           |
 | [`prefer-take`](docs/rules/prefer-take.md)                   | Enforce using `take` instead of `arr.slice(0, n)` (opt-in).                               |
+| [`prefer-take-right`](docs/rules/prefer-take-right.md)       | Enforce using `takeRight` instead of `arr.slice(-n)` (opt-in).                            |
 | [`prefer-union`](docs/rules/prefer-union.md)                 | Enforce using `union` instead of deduplicating two concatenated arrays through `new Set`. |
 | [`prefer-uniq`](docs/rules/prefer-uniq.md)                   | Enforce using `uniq` instead of `new Set` round-trips.                                    |
 | [`prefer-uniq-by`](docs/rules/prefer-uniq-by.md)             | Enforce using `uniqBy` instead of reading the values of `new Map(xs.map(x => [key, x]))`. |

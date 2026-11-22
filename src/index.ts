@@ -52,6 +52,7 @@ import { preferSum } from './rules/prefer-sum.js';
 import { preferSumBy } from './rules/prefer-sum-by.js';
 import { preferTail } from './rules/prefer-tail.js';
 import { preferTake } from './rules/prefer-take.js';
+import { preferTakeRight } from './rules/prefer-take-right.js';
 import { preferUnion } from './rules/prefer-union.js';
 import { preferUniq } from './rules/prefer-uniq.js';
 import { preferUniqBy } from './rules/prefer-uniq-by.js';
@@ -118,6 +119,7 @@ const rules = {
   'prefer-sum-by': preferSumBy,
   'prefer-tail': preferTail,
   'prefer-take': preferTake,
+  'prefer-take-right': preferTakeRight,
   'prefer-union': preferUnion,
   'prefer-uniq': preferUniq,
   'prefer-uniq-by': preferUniqBy,
@@ -144,6 +146,7 @@ const arrayRules = {
   'es-toolkit/prefer-shuffle': 'error',
   'es-toolkit/prefer-tail': 'error',
   'es-toolkit/prefer-take': 'off',
+  'es-toolkit/prefer-take-right': 'off',
   'es-toolkit/prefer-union': 'error',
   'es-toolkit/prefer-uniq': 'error',
   'es-toolkit/prefer-uniq-by': 'error',
