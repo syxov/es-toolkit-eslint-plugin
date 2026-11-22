@@ -1,5 +1,8 @@
 # es-toolkit-eslint-plugin
 
+[![npm](https://img.shields.io/npm/v/es-toolkit-eslint-plugin)](https://www.npmjs.com/package/es-toolkit-eslint-plugin)
+[![CI](https://github.com/syxov/es-toolkit-eslint-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/syxov/es-toolkit-eslint-plugin/actions/workflows/ci.yml)
+
 An ESLint plugin that actively suggests [es-toolkit](https://es-toolkit.dev) utilities in
 place of verbose hand-written JS/TS.
 
