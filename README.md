@@ -128,6 +128,12 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 | [`prefer-sum`](docs/rules/prefer-sum.md)               | Enforce using `sum` instead of `reduce((a, b) => a + b, 0)`.                |
 | [`prefer-sum-by`](docs/rules/prefer-sum-by.md)         | Enforce using `sumBy` instead of summing an item property with `reduce`.    |
 
+## Object rules
+
+| Rule                                                   | Description                                                           |
+| ------------------------------------------------------ | --------------------------------------------------------------------- |
+| [`prefer-clone-deep`](docs/rules/prefer-clone-deep.md) | Enforce using `cloneDeep` instead of `JSON.parse(JSON.stringify(x))`. |
+
 ## Predicate rules
 
 | Rule                                                             | Description                                                                                                         |

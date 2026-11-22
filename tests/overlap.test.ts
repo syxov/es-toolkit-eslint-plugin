@@ -65,6 +65,8 @@ const cases: [code: string, rules: string[]][] = [
   ['a[Math.floor(Math.random() * (a.length - 1))];', ['prefer-random-int']],
   ['Array.from({ length: n }, (_, i) => i);', ['prefer-range']],
   ['[...Array(n).keys()];', ['prefer-range']],
+  // object
+  ['JSON.parse(JSON.stringify(x));', ['prefer-clone-deep']],
   // predicate
   ['x === null;', ['prefer-is-null']],
   ['x === undefined;', ['prefer-is-undefined']],

@@ -2,6 +2,7 @@ import { createRequire } from 'node:module';
 import type { ESLint, Linter } from 'eslint';
 import { preferCapitalize } from './rules/prefer-capitalize.js';
 import { preferClamp } from './rules/prefer-clamp.js';
+import { preferCloneDeep } from './rules/prefer-clone-deep.js';
 import { preferCompact } from './rules/prefer-compact.js';
 import { preferDelay } from './rules/prefer-delay.js';
 import { preferIsDate } from './rules/prefer-is-date.js';
@@ -59,6 +60,7 @@ const packageJson = createRequire(import.meta.url)('../package.json') as {
 const rules = {
   'prefer-capitalize': preferCapitalize,
   'prefer-clamp': preferClamp,
+  'prefer-clone-deep': preferCloneDeep,
   'prefer-compact': preferCompact,
   'prefer-delay': preferDelay,
   'prefer-is-date': preferIsDate,
@@ -141,7 +143,9 @@ const mathRules = {
   'es-toolkit/prefer-sum-by': 'error',
 } as const;
 
-const objectRules = {} as const;
+const objectRules = {
+  'es-toolkit/prefer-clone-deep': 'error',
+} as const;
 
 const predicateRules = {
   'es-toolkit/prefer-is-array-buffer': 'error',
