@@ -24,6 +24,15 @@ test('exports category configs and an all config', () => {
     'es-toolkit/prefer-mean': 'error',
     'es-toolkit/prefer-sum-by': 'error',
   });
+  expect(plugin.configs.function.rules).toEqual({
+    'es-toolkit/prefer-debounce': 'off',
+    'es-toolkit/prefer-identity': 'off',
+    'es-toolkit/prefer-noop': 'off',
+  });
+  expect(plugin.configs.object.rules).toEqual({
+    'es-toolkit/prefer-clone-deep': 'error',
+    'es-toolkit/prefer-map-values': 'error',
+  });
   expect(plugin.configs.predicate.rules).toMatchObject({
     'es-toolkit/prefer-is-empty': 'error',
     'es-toolkit/prefer-is-nil': 'error',
@@ -38,6 +47,20 @@ test('exports category configs and an all config', () => {
     'es-toolkit/prefer-lower-first': 'error',
     'es-toolkit/prefer-upper-first': 'error',
   });
+});
+
+test('leaves exactly the opt-in rules off, even in the all config', () => {
+  const offRules = Object.entries(plugin.configs.all.rules)
+    .filter(([, severity]) => severity === 'off')
+    .map(([ruleName]) => ruleName);
+
+  expect(offRules.toSorted()).toEqual([
+    'es-toolkit/prefer-debounce',
+    'es-toolkit/prefer-identity',
+    'es-toolkit/prefer-noop',
+    'es-toolkit/prefer-take',
+    'es-toolkit/prefer-take-right',
+  ]);
 });
 
 test('partitions every rule into exactly one category', () => {
