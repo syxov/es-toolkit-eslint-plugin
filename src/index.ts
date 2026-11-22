@@ -43,6 +43,7 @@ import { preferMean } from './rules/prefer-mean.js';
 import { preferMeanBy } from './rules/prefer-mean-by.js';
 import { preferRandomInt } from './rules/prefer-random-int.js';
 import { preferRange } from './rules/prefer-range.js';
+import { preferRound } from './rules/prefer-round.js';
 import { preferSample } from './rules/prefer-sample.js';
 import { preferShuffle } from './rules/prefer-shuffle.js';
 import { preferSum } from './rules/prefer-sum.js';
@@ -103,6 +104,7 @@ const rules = {
   'prefer-mean-by': preferMeanBy,
   'prefer-random-int': preferRandomInt,
   'prefer-range': preferRange,
+  'prefer-round': preferRound,
   'prefer-sample': preferSample,
   'prefer-shuffle': preferShuffle,
   'prefer-sum': preferSum,
@@ -144,6 +146,7 @@ const mathRules = {
   'es-toolkit/prefer-mean-by': 'error',
   'es-toolkit/prefer-random-int': 'error',
   'es-toolkit/prefer-range': 'error',
+  'es-toolkit/prefer-round': 'error',
   'es-toolkit/prefer-sum': 'error',
   'es-toolkit/prefer-sum-by': 'error',
 } as const;

@@ -66,6 +66,8 @@ const cases: [code: string, rules: string[]][] = [
   ['a[Math.floor(Math.random() * (a.length - 1))];', ['prefer-random-int']],
   ['Array.from({ length: n }, (_, i) => i);', ['prefer-range']],
   ['[...Array(n).keys()];', ['prefer-range']],
+  ['Math.round(x * 100) / 100;', ['prefer-round']],
+  ['Number(x.toFixed(2));', ['prefer-round']],
   // object
   ['JSON.parse(JSON.stringify(x));', ['prefer-clone-deep']],
   // predicate

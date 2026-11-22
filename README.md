@@ -118,16 +118,17 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 
 ## Math rules
 
-| Rule                                                   | Description                                                                 |
-| ------------------------------------------------------ | --------------------------------------------------------------------------- |
-| [`prefer-clamp`](docs/rules/prefer-clamp.md)           | Enforce using `clamp` instead of nested `Math.min`/`Math.max`.              |
-| [`prefer-in-range`](docs/rules/prefer-in-range.md)     | Enforce using `inRange` instead of manual range-bound checks.               |
-| [`prefer-mean`](docs/rules/prefer-mean.md)             | Enforce using `mean` instead of a `reduce` sum divided by `.length`.        |
-| [`prefer-mean-by`](docs/rules/prefer-mean-by.md)       | Enforce using `meanBy` instead of averaging an item property with `reduce`. |
-| [`prefer-random-int`](docs/rules/prefer-random-int.md) | Enforce using `randomInt` instead of `Math.floor(Math.random() * …)`.       |
-| [`prefer-range`](docs/rules/prefer-range.md)           | Enforce using `range` instead of manual index-array construction.           |
-| [`prefer-sum`](docs/rules/prefer-sum.md)               | Enforce using `sum` instead of `reduce((a, b) => a + b, 0)`.                |
-| [`prefer-sum-by`](docs/rules/prefer-sum-by.md)         | Enforce using `sumBy` instead of summing an item property with `reduce`.    |
+| Rule                                                   | Description                                                                             |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| [`prefer-clamp`](docs/rules/prefer-clamp.md)           | Enforce using `clamp` instead of nested `Math.min`/`Math.max`.                          |
+| [`prefer-in-range`](docs/rules/prefer-in-range.md)     | Enforce using `inRange` instead of manual range-bound checks.                           |
+| [`prefer-mean`](docs/rules/prefer-mean.md)             | Enforce using `mean` instead of a `reduce` sum divided by `.length`.                    |
+| [`prefer-mean-by`](docs/rules/prefer-mean-by.md)       | Enforce using `meanBy` instead of averaging an item property with `reduce`.             |
+| [`prefer-random-int`](docs/rules/prefer-random-int.md) | Enforce using `randomInt` instead of `Math.floor(Math.random() * …)`.                   |
+| [`prefer-range`](docs/rules/prefer-range.md)           | Enforce using `range` instead of manual index-array construction.                       |
+| [`prefer-round`](docs/rules/prefer-round.md)           | Enforce using `round` instead of `Math.round(x * 100) / 100` or `Number(x.toFixed(n))`. |
+| [`prefer-sum`](docs/rules/prefer-sum.md)               | Enforce using `sum` instead of `reduce((a, b) => a + b, 0)`.                            |
+| [`prefer-sum-by`](docs/rules/prefer-sum-by.md)         | Enforce using `sumBy` instead of summing an item property with `reduce`.                |
 
 ## Object rules
 
