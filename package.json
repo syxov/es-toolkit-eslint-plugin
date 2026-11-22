@@ -44,7 +44,9 @@
     "format:check": "prettier --check . --experimental-cli --log-level=warn",
     "check": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run test",
     "prepublishOnly": "pnpm run check && pnpm run build",
-    "release": "pnpm publish --access public"
+    "release": "pnpm publish --access public",
+    "corpus": "pnpm run build && node scripts/lint-corpus.ts",
+    "corpus:update": "git submodule update --init --remote --depth 1 corpus"
   },
   "dependencies": {
     "@typescript-eslint/utils": "^8.73.0"

@@ -1,0 +1,40 @@
+[submodule "corpus/material-ui"]
+	path = corpus/material-ui
+	url = https://github.com/mui/material-ui.git
+	shallow = true
+[submodule "corpus/mui-x"]
+	path = corpus/mui-x
+	url = https://github.com/mui/mui-x.git
+	shallow = true
+[submodule "corpus/storybook"]
+	path = corpus/storybook
+	url = https://github.com/storybookjs/storybook.git
+	shallow = true
+[submodule "corpus/mermaid"]
+	path = corpus/mermaid
+	url = https://github.com/mermaid-js/mermaid.git
+	shallow = true
+[submodule "corpus/recharts"]
+	path = corpus/recharts
+	url = https://github.com/recharts/recharts.git
+	shallow = true
+[submodule "corpus/ckeditor5"]
+	path = corpus/ckeditor5
+	url = https://github.com/ckeditor/ckeditor5.git
+	shallow = true
+[submodule "corpus/fabric.js"]
+	path = corpus/fabric.js
+	url = https://github.com/fabricjs/fabric.js.git
+	shallow = true
+[submodule "corpus/insomnia"]
+	path = corpus/insomnia
+	url = https://github.com/Kong/insomnia.git
+	shallow = true
+[submodule "corpus/commitlint"]
+	path = corpus/commitlint
+	url = https://github.com/conventional-changelog/commitlint.git
+	shallow = true
+[submodule "corpus/ink"]
+	path = corpus/ink
+	url = https://github.com/vadimdemedes/ink.git
+	shallow = true
