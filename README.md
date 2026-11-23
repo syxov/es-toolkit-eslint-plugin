@@ -196,12 +196,15 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 
 ## String rules
 
-| Rule                                                           | Description                                                                      | ✅  |
-| -------------------------------------------------------------- | -------------------------------------------------------------------------------- | :-: |
-| [`prefer-capitalize`](docs/rules/prefer-capitalize.md)         | Enforce using `capitalize` instead of upper-casing the first char by hand.       | ✅  |
-| [`prefer-escape-reg-exp`](docs/rules/prefer-escape-reg-exp.md) | Enforce using `escapeRegExp` instead of escaping regex specials with `.replace`. | ✅  |
-| [`prefer-lower-first`](docs/rules/prefer-lower-first.md)       | Enforce using `lowerFirst` instead of lower-casing the first char by hand.       | ✅  |
-| [`prefer-upper-first`](docs/rules/prefer-upper-first.md)       | Enforce using `upperFirst` instead of upper-casing the first char by hand.       | ✅  |
+| Rule                                                           | Description                                                                          | ✅  |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------------------ | :-: |
+| [`prefer-capitalize`](docs/rules/prefer-capitalize.md)         | Enforce using `capitalize` instead of upper-casing the first char by hand.           | ✅  |
+| [`prefer-escape-reg-exp`](docs/rules/prefer-escape-reg-exp.md) | Enforce using `escapeRegExp` instead of escaping regex specials with `.replace`.     | ✅  |
+| [`prefer-lower-first`](docs/rules/prefer-lower-first.md)       | Enforce using `lowerFirst` instead of lower-casing the first char by hand.           | ✅  |
+| [`prefer-trim`](docs/rules/prefer-trim.md)                     | Enforce using `trim` instead of stripping characters from both ends with `.replace`. | ✅  |
+| [`prefer-trim-end`](docs/rules/prefer-trim-end.md)             | Enforce using `trimEnd` instead of stripping trailing characters with `.replace`.    | ✅  |
+| [`prefer-trim-start`](docs/rules/prefer-trim-start.md)         | Enforce using `trimStart` instead of stripping leading characters with `.replace`.   | ✅  |
+| [`prefer-upper-first`](docs/rules/prefer-upper-first.md)       | Enforce using `upperFirst` instead of upper-casing the first char by hand.           | ✅  |
 
 ## Development
 
