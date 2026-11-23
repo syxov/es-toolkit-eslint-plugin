@@ -57,6 +57,14 @@ ruleTester.run('prefer-difference', preferDifference, {
         'es-toolkit': { arrayMethods: { chainPosition: 'chain-end' } },
       },
     },
+    // A string or a call result: `.includes` is (or may be) a substring test.
+    'words.filter((w) => !databaseText().includes(w));',
+    "words.filter((w) => !'abcdef'.includes(w));",
+    // An inline list of excluded values is `without(xs, '{', '}')`.
+    "getFunctionParamNames(child).filter((param) => !['{', '}'].includes(param));",
+    // An optional call yields `undefined` on a nil receiver; `difference` would throw.
+    'xs?.filter((x) => !b.includes(x));',
+    'a?.b.filter((x) => !c.includes(x));',
   ],
   invalid: [
     {
@@ -74,6 +82,14 @@ ruleTester.run('prefer-difference', preferDifference, {
     },
     {
       code: 'a.filter((x) => !b.includes(x));',
+      errors: [{ messageId: 'preferDifference' }],
+    },
+    {
+      code: 'sheets.filter((sheet) => !Array.from(themes.values()).includes(sheet));',
+      errors: [{ messageId: 'preferDifference' }],
+    },
+    {
+      code: 'criteria.filter((n) => !(layout.skip ?? []).includes(n));',
       errors: [{ messageId: 'preferDifference' }],
     },
     {

@@ -1,16 +1,11 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
-
-// `new Set([...a, ...b])` (exactly two spreads) is a union, owned by `prefer-union`, so that
-// one shape is excluded here. Three spreads or a spread plus a value stay a plain dedupe.
-const notUnion = (path: string) =>
-  `:not([${path}.type="ArrayExpression"][${path}.elements.length=2][${path}.elements.0.type="SpreadElement"][${path}.elements.1.type="SpreadElement"])`;
-
-const set = `NewExpression[callee.name="Set"][arguments.length=1]${notUnion('arguments.0')}`;
-
-// Both `[...new Set(arr)]` and `Array.from(new Set(arr))` deduplicate an array.
-const spreadSet = `ArrayExpression[elements.length=1][elements.0.type="SpreadElement"][elements.0.argument.type="NewExpression"][elements.0.argument.callee.name="Set"][elements.0.argument.arguments.length=1]${notUnion('elements.0.argument.arguments.0')}`;
-const arrayFromSet = `CallExpression[callee.object.name="Array"][callee.property.name="from"][arguments.length=1]:has(> ${set})`;
+import {
+  isArrayUnion,
+  isMatchCall,
+  roundTripOf,
+  setRoundTrip,
+} from '../utils/set-round-trip.js';
 
 export const preferUniq = createRule({
   name: 'prefer-uniq',
@@ -27,12 +22,13 @@ export const preferUniq = createRule({
     },
   },
   create(context) {
-    const report = (node: TSESTree.Node) =>
-      context.report({ node, messageId: 'preferUniq' });
-
     return {
-      [spreadSet]: report,
-      [arrayFromSet]: report,
+      // `new Set([...a, ...b])` over two arrays is a union, owned by `prefer-union`.
+      [setRoundTrip](set: TSESTree.NewExpression) {
+        const [values] = set.arguments;
+        if (!isArrayUnion(context.sourceCode, values) && !isMatchCall(values))
+          context.report({ node: roundTripOf(set), messageId: 'preferUniq' });
+      },
     };
   },
 });

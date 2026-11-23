@@ -57,6 +57,14 @@ ruleTester.run('prefer-intersection', preferIntersection, {
         'es-toolkit': { arrayMethods: { chainPosition: 'chain-end' } },
       },
     },
+    // A string or a call result: `.includes` is (or may be) a substring test.
+    'secrets.filter((secret) => databaseText().includes(secret));',
+    "words.filter((w) => 'abcdef'.includes(w));",
+    'words.filter((w) => `${prefix}-x`.includes(w));',
+    'words.filter((w) => text.trim().includes(w));',
+    // An optional call yields `undefined` on a nil receiver; `intersection` would throw.
+    "entry.tags?.filter((tag) => ['autodocs', 'dev'].includes(tag));",
+    'a?.b.filter((x) => c.includes(x));',
   ],
   invalid: [
     {
@@ -74,6 +82,22 @@ ruleTester.run('prefer-intersection', preferIntersection, {
     },
     {
       code: 'a.filter((x) => b.includes(x));',
+      errors: [{ messageId: 'preferIntersection' }],
+    },
+    {
+      code: "sticky.filter((id) => ['a1', 'a2', 'b1'].includes(id));",
+      errors: [{ messageId: 'preferIntersection' }],
+    },
+    {
+      code: 'a.filter((x) => Array.from(set.values()).includes(x));',
+      errors: [{ messageId: 'preferIntersection' }],
+    },
+    {
+      code: 'keys.filter((k) => Object.keys(o).includes(k));',
+      errors: [{ messageId: 'preferIntersection' }],
+    },
+    {
+      code: 'a.filter((x) => (b ?? []).includes(x));',
       errors: [{ messageId: 'preferIntersection' }],
     },
     {

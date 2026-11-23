@@ -18,6 +18,16 @@ ruleTester.run('prefer-union', preferUnion, {
     '[...new Set([...a, x])];',
     '[...new Set([x, ...a])];',
     'Array.from(new Set([...a, ...b]), (x) => x * 2);',
+    // A Map/Set iterator or a Set is not an array: `union` calls `arr1.concat` (`prefer-uniq`).
+    '[...new Set([...baseline.keys(), ...current.keys()])];',
+    'Array.from(new Set([...Object.keys(previous), ...captured.keys()]));',
+    '[...new Set([...this.rootFileNames(), ...this.imports.values()])];',
+    '[...new Set([...a, ...m.entries()])];',
+    '[...new Set([...new Set(a), ...b])];',
+    'const seen = new Set(a); [...new Set([...seen, ...b])];',
+    'const lookup = new Map(); [...new Set([...a, ...lookup])];',
+    'const ids: ReadonlySet<string> = load(); [...new Set([...ids, ...b])];',
+    'let ids: Set<string>; [...new Set([...ids, ...b])];',
   ],
   invalid: [
     {
@@ -34,6 +44,19 @@ ruleTester.run('prefer-union', preferUnion, {
     },
     {
       code: 'const u = [...new Set([...(a as number[]), ...b])];',
+      errors: [{ messageId: 'preferUnion' }],
+    },
+    {
+      // `Object.keys` returns an array.
+      code: '[...new Set([...Object.keys(a), ...Object.values(b)])];',
+      errors: [{ messageId: 'preferUnion' }],
+    },
+    {
+      code: 'const seen = [1]; [...new Set([...seen, ...b])];',
+      errors: [{ messageId: 'preferUnion' }],
+    },
+    {
+      code: 'const ids: string[] = load(); Array.from(new Set([...ids, ...b]));',
       errors: [{ messageId: 'preferUnion' }],
     },
   ],

@@ -30,8 +30,9 @@ const cases: [code: string, rules: string[]][] = [
   ['arr.filter(x => !b.includes(x));', ['prefer-difference']],
   ['arr.filter(x => b.includes(x));', ['prefer-intersection']],
   ['arr.filter(x => x !== value);', ['prefer-without']],
-  ['arr.filter(x => x !== null);', ['prefer-without']],
-  ['arr.filter(x => x !== undefined);', ['prefer-without']],
+  // Nil exclusions narrow in TypeScript; `without` would widen them, so none reports.
+  ['arr.filter(x => x !== null);', []],
+  ['arr.filter(x => x !== undefined);', []],
   ['arr.filter(x => x != null);', ['prefer-is-not-nil']],
   ['arr.map(f).flat();', ['prefer-flat-map']],
   ['arr.map(f).flat(Infinity);', ['prefer-flat-map-deep']],
@@ -112,6 +113,15 @@ const cases: [code: string, rules: string[]][] = [
     ['prefer-capitalize'],
   ],
   ["s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');", ['prefer-escape-reg-exp']],
+  // collection
+  ['[...new Set([...a.keys(), ...b.keys()])];', ['prefer-uniq']],
+  ['arr.filter((x): x is string => x !== value);', []],
+  ['xs?.filter(x => x !== value);', []],
+  ['[a !== b, c].filter(Boolean).length;', []],
+  ["params.filter(p => !['{', '}'].includes(p));", []],
+  ['words.filter(w => text().includes(w));', []],
+  ['i >= 0 && i < xs.length;', []],
+  ['[...new Set(code.match(re))];', []],
 ];
 
 describe('rule overlap', () => {

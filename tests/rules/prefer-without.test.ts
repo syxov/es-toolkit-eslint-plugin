@@ -46,6 +46,9 @@ ruleTester.run('prefer-without', preferWithout, {
       code: 'arr.filter((x) => x !== value).map((x) => x.id);',
       options: [{ chainPosition: 'chain-end' }],
     },
+    // Type-predicate callbacks are skipped by default: `without` cannot keep the narrowing.
+    'arr.filter((x): x is string => x !== value);',
+    'results.filter((result): result is Outcome => result !== null);',
     {
       code: 'arr.filter((x): x is string => x !== value);',
       options: [{ skipTypePredicate: true }],
@@ -54,6 +57,22 @@ ruleTester.run('prefer-without', preferWithout, {
       code: 'arr.filter((item): item is number => item !== value);',
       options: [{ skipTypePredicate: true }],
     },
+    // TypeScript infers a predicate for nil / `false` exclusions; `without` widens instead.
+    'arr.filter((x) => x !== null);',
+    'arr.filter((x) => null !== x);',
+    'arr.filter((x) => x !== undefined);',
+    'arr.filter((x) => x !== void 0);',
+    'steps.filter((step) => step !== false);',
+    'const names: string[] = maybe.filter((name) => name !== null);',
+    {
+      code: 'arr.filter((x): x is string => x !== undefined);',
+      options: [{ skipTypePredicate: false }],
+    },
+    // An optional call yields `undefined` on a nil receiver; `without` would throw.
+    'state.hints?.filter((h) => h !== hint);',
+    'a?.b.filter((x) => x !== value);',
+    'arr.filter?.((x) => x !== value);',
+    'a?.b!.filter((x) => x !== value);',
   ],
   invalid: [
     {
@@ -94,6 +113,28 @@ ruleTester.run('prefer-without', preferWithout, {
     },
     {
       code: 'arr.filter((x): x is string => x !== value);',
+      options: [{ skipTypePredicate: false }],
+      errors: [{ messageId: 'preferWithout' }],
+    },
+    {
+      // A predicate on another name does not narrow the element.
+      code: 'arr.filter((x): y is string => x !== value);',
+      errors: [{ messageId: 'preferWithout' }],
+    },
+    {
+      code: 'arr.filter((x) => x !== true);',
+      errors: [{ messageId: 'preferWithout' }],
+    },
+    {
+      code: "arr.filter((x) => x !== '');",
+      errors: [{ messageId: 'preferWithout' }],
+    },
+    {
+      code: 'arr.filter((x) => x !== a?.b);',
+      errors: [{ messageId: 'preferWithout' }],
+    },
+    {
+      code: 'listeners = listeners.filter((l) => l !== listener);',
       errors: [{ messageId: 'preferWithout' }],
     },
     {
@@ -104,10 +145,6 @@ ruleTester.run('prefer-without', preferWithout, {
     {
       code: 'arr.filter((x) => x !== value);',
       options: [{ skipTypePredicate: true }],
-      errors: [{ messageId: 'preferWithout' }],
-    },
-    {
-      code: 'arr.filter((x) => x !== null);',
       errors: [{ messageId: 'preferWithout' }],
     },
     {

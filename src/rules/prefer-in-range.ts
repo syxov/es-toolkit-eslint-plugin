@@ -5,25 +5,43 @@ import { createRule } from '../utils/create-rule.js';
 interface Bound {
   kind: 'lower' | 'upper';
   value: TSESTree.Node;
+  limit: TSESTree.Node;
+  valueFirst: boolean;
 }
 
 // The bounded value of `x >= a` / `a <= x` (lower) or `x < b` / `b > x` (upper).
 // An inclusive upper bound (`x <= b`) is never one: `inRange` excludes its end.
 const boundOf = (node: TSESTree.Node): Bound | undefined => {
   if (node.type !== 'BinaryExpression') return undefined;
+  const { left, right } = node;
   switch (node.operator) {
     case '>=':
-      return { kind: 'lower', value: node.left };
+      return { kind: 'lower', value: left, limit: right, valueFirst: true };
     case '<=':
-      return { kind: 'lower', value: node.right };
+      return { kind: 'lower', value: right, limit: left, valueFirst: false };
     case '<':
-      return { kind: 'upper', value: node.left };
+      return { kind: 'upper', value: left, limit: right, valueFirst: true };
     case '>':
-      return { kind: 'upper', value: node.right };
+      return { kind: 'upper', value: right, limit: left, valueFirst: false };
     default:
       return undefined;
   }
 };
+
+// `10`, `-1.5`: `inRange` throws when `min >= max`, so only literal bounds are provably safe.
+const numberOf = (node: TSESTree.Node): number | undefined => {
+  if (node.type === 'Literal')
+    return typeof node.value === 'number' ? node.value : undefined;
+  if (node.type !== 'UnaryExpression' || node.operator !== '-')
+    return undefined;
+  const magnitude = numberOf(node.argument);
+  return magnitude === undefined ? undefined : -magnitude;
+};
+
+// The value reads as the subject: `x >= a && x < b`, `x < b && x >= a` or `a <= x && x < b`.
+// `dx > eps && dy <= eps` shares the threshold, not the subject.
+const isSubjectShape = (first: Bound, second: Bound) =>
+  second.valueFirst && (first.valueFirst || first.kind === 'lower');
 
 // In `ok && x >= 0 && x < 10` the comparison before `right` is the left chain's last operand.
 const previousOperand = (node: TSESTree.LogicalExpression) =>
@@ -47,13 +65,19 @@ export const preferInRange = createRule({
   },
   create(context) {
     const isRangePair = (left: TSESTree.Node, right: TSESTree.Node) => {
-      const a = boundOf(left);
-      const b = boundOf(right);
+      const first = boundOf(left);
+      const second = boundOf(right);
+      if (!first || !second || first.kind === second.kind) return false;
+      const [lower, upper] =
+        first.kind === 'lower' ? [first, second] : [second, first];
+      const min = numberOf(lower.limit);
+      const max = numberOf(upper.limit);
       return (
-        a !== undefined
-        && b !== undefined
-        && a.kind !== b.kind
-        && isSameExpression(context.sourceCode, a.value, b.value)
+        min !== undefined
+        && max !== undefined
+        && min < max
+        && isSubjectShape(first, second)
+        && isSameExpression(context.sourceCode, first.value, second.value)
       );
     };
 

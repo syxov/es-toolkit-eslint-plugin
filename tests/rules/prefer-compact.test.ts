@@ -38,6 +38,14 @@ ruleTester.run('prefer-compact', preferCompact, {
       code: 'items.map((x) => x).filter(Boolean).map((x) => x.id);',
       options: [{ chainPosition: 'chain-boundaries' }],
     },
+    // Counting truthy values, not compacting them.
+    'const changed = [name !== defaultName, !!storage].filter(Boolean).length;',
+    'if ([a, b, c].filter((v) => v).length !== 2) {}',
+    'cells.filter(Boolean).length;',
+    // An optional call yields `undefined` on a nil receiver; `compact` would throw.
+    'model.quickFilterValues?.filter(Boolean);',
+    'a?.b.filter((x) => !!x);',
+    'arr.filter?.(Boolean);',
   ],
   invalid: [
     {
@@ -63,6 +71,19 @@ ruleTester.run('prefer-compact', preferCompact, {
     },
     {
       code: 'arr.filter((x) => Boolean(x));',
+      errors: [{ messageId: 'preferCompact' }],
+    },
+    {
+      code: "const fields = [a && 'a', b && 'b'].filter(Boolean);",
+      errors: [{ messageId: 'preferCompact' }],
+    },
+    {
+      // The first element, not a count.
+      code: 'const first = arr.filter(Boolean)[0];',
+      errors: [{ messageId: 'preferCompact' }],
+    },
+    {
+      code: 'const ids = (xs as (string | null)[]).filter((id): id is string => Boolean(id));',
       errors: [{ messageId: 'preferCompact' }],
     },
     {

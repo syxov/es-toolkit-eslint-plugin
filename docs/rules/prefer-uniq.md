@@ -30,6 +30,7 @@ uniq(arr);
 new Set(arr);
 [...arr];
 Array.from(new Set(arr), x => x * 2); // a map, not plain uniq
+[...new Set(code.match(re))]; // `match` may return null: `uniq(null)` throws
 ```
 
 ## Limitations
@@ -39,7 +40,11 @@ Array.from(new Set(arr), x => x * 2); // a map, not plain uniq
 - **Single-argument `Set` only.** `[...new Set()]` (empty) is not reported.
 - **Two-array spread-concatenation is a union.** `[...new Set([...a, ...b])]` (exactly two
   spreads) is reported by [`prefer-union`](prefer-union.md), not here. Any other literal,
-  such as three spreads or a spread plus a value, is reported here.
+  such as three spreads or a spread plus a value, is reported here, and so are two spreads
+  of a Map/Set iterator or a Set (`[...new Set([...a.keys(), ...b.keys()])]`), which `union`
+  cannot take.
+- **Nullable arguments.** `new Set(null)` is empty, but `uniq(null)` throws. A `.match(…)`
+  argument is skipped; other nullable values are not detected.
 - **`Array.from(set, mapFn)`** is intentionally skipped — the second argument transforms
   the result, so it is not a plain `uniq`.
 - **No auto-fix by design.** The fix requires adding an `import { uniq } from 'es-toolkit'`.

@@ -29,6 +29,9 @@ difference(a, b);
 a.filter(x => b.includes(x)); // that is `intersection`
 a.filter(x => !b.includes(x.id)); // compares a property, not the element
 a.filter(x => !x.children.includes(x)); // the receiver depends on the element
+a.filter(x => !['{', '}'].includes(x)); // inline list of values: `without(a, '{', '}')` fits
+words.filter(w => !getText().includes(w)); // a call result may be a string: substring test
+xs?.filter(x => !b.includes(x)); // optional call: `difference(undefined, b)` throws
 ```
 
 ## Configuring method-call chains
@@ -44,8 +47,16 @@ with `settings['es-toolkit'].arrayMethods.chainPosition`, or override this rule 
   own parameter is reported, so `!b.includes(x.id)` is left alone.
 - **The receiver must not depend on the element.** `x => !x.children.includes(x)` or
   `x => !lookup[x].includes(x)` reads the parameter on the receiver side, so it is skipped.
-- **String receivers look the same.** `words.filter(w => !text.includes(w))` is a substring
-  check, not array membership, but it is syntactically identical and is still reported.
+- **Inline value lists are skipped.** `!['a', 'b'].includes(x)` excludes a few listed values,
+  which reads better as [`without(xs, 'a', 'b')`](prefer-without.md) than as `difference`.
+  Neither rule reports it.
+- **String receivers.** A string or template literal receiver is skipped, and so is any call
+  result other than `Array.from(…)`, `Object.keys(…)` and `Object.values(…)`, since it may
+  return a string (`!getText().includes(w)` is a substring check). A string held in a
+  variable (`words.filter(w => !text.includes(w))`) looks the same as an array and is still
+  reported.
+- **Optional calls are skipped.** `xs?.filter(x => !b.includes(x))` returns `undefined` for a
+  nil `xs`, while `difference(xs, b)` throws; a rewrite needs a guard.
 - **Arrow predicates only.** A `function` callback (`arr.filter(function (x) { … })`) or a
   block-body arrow is not matched.
 - **`includes` only.** The `b.indexOf(x) === -1` / `b.indexOf(x) < 0` variants are not
