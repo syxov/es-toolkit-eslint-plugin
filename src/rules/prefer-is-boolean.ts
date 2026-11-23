@@ -1,14 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
-
-const typeofOn = (
-  typeofSide: 'left' | 'right',
-  literalSide: 'left' | 'right',
-) =>
-  `[${typeofSide}.type="UnaryExpression"][${typeofSide}.operator="typeof"][${literalSide}.type="Literal"][${literalSide}.value="boolean"]`;
-
-// `typeof` always yields a string, so loose and strict (in)equality are equivalent.
-const typeofComparison = `BinaryExpression[operator=/^[!=]==?$/]:matches(${typeofOn('left', 'right')}, ${typeofOn('right', 'left')})`;
+import { isReplaceableTypeTest, typeofComparison } from '../utils/type-test.js';
 
 export const preferIsBoolean = createRule({
   name: 'prefer-is-boolean',
@@ -26,8 +18,10 @@ export const preferIsBoolean = createRule({
   },
   create(context) {
     return {
-      [typeofComparison]: (node: TSESTree.BinaryExpression) =>
-        context.report({ node, messageId: 'preferIsBoolean' }),
+      [typeofComparison('boolean')](node: TSESTree.BinaryExpression) {
+        if (isReplaceableTypeTest(context.sourceCode, node, 'isBoolean'))
+          context.report({ node, messageId: 'preferIsBoolean' });
+      },
     };
   },
 });

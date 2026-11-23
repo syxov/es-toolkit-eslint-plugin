@@ -1,5 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
+import { isReplaceableTypeTest } from '../utils/type-test.js';
 
 export const preferIsMap = createRule({
   name: 'prefer-is-map',
@@ -17,9 +18,12 @@ export const preferIsMap = createRule({
   },
   create(context) {
     return {
-      'BinaryExpression[operator="instanceof"][right.type="Identifier"][right.name="Map"]':
-        (node: TSESTree.BinaryExpression) =>
-          context.report({ node, messageId: 'preferIsMap' }),
+      'BinaryExpression[operator="instanceof"][right.type="Identifier"][right.name="Map"]'(
+        node: TSESTree.BinaryExpression,
+      ) {
+        if (isReplaceableTypeTest(context.sourceCode, node, 'isMap'))
+          context.report({ node, messageId: 'preferIsMap' });
+      },
     };
   },
 });

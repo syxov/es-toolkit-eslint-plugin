@@ -40,7 +40,17 @@ JSON.stringify(a, replacer) === JSON.stringify(b, replacer);
   something else is not reported.
 - **Single argument only.** A replacer or indentation argument changes what is compared, so
   `JSON.stringify(a, replacer) === JSON.stringify(b, replacer)` is not reported.
-- **Key-order caveat is the point.** `JSON.stringify` equality is order-sensitive and
-  lossy — that fragility is exactly why this rule flags it in favor of `isEqual`.
+- **Not a drop-in replacement.** `isEqual` ignores key order (usually wanted) but, unlike
+  `JSON.stringify`, tells `{ a: undefined }` from `{}`, compares functions by identity, ignores
+  `toJSON` (date-library objects are compared by their internals), treats `NaN` as equal to
+  `NaN`, sees `Map` / `Set` contents and does not throw on cycles. A deliberately approximate
+  comparison — such as a dev warning that a default value changed between renders — changes
+  meaning with `isEqual`; keep `JSON.stringify` there. The rule cannot tell that intent.
+- **Test assertions.** A check passed straight to `expect(…)` is not reported; a matcher
+  states it better.
+- **Own helper in scope.** When the code already sees a binding named `isEqual` (a local
+  flag, a project helper with other semantics, or a re-implementation), the check is not
+  reported: the suggestion would clash with it. An import of `isEqual` from `es-toolkit` does
+  not count.
 - **No auto-fix by design.** The fix requires adding an `import { isEqual } from 'es-toolkit'`
   (and inverting with `!` for the `!==` case).

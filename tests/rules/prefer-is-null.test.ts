@@ -23,11 +23,49 @@ ruleTester.run('prefer-is-null', preferIsNull, {
     'ready || value === null || value === undefined;',
     'value === null || value === undefined || ready;',
     'a || value === null || value === undefined || b;',
-    // `arr.filter(x => x !== null)` belongs to prefer-without.
-    'arr.filter(x => x !== null);',
-    'arr.filter((item: string | null) => null !== item);',
+    // An object probe (`isObjectLike`), not a null check of its own.
+    "if (typeof environment === 'object' && environment !== null) use(environment);",
+    "const plain = typeof value === 'object' && value !== null && !Array.isArray(value);",
+    "if (typeof options !== 'object' || options === null) throw new TypeError('options');",
+    "function isRecord(value: unknown): value is Record<string, unknown> { return typeof value === 'object' && value !== null; }",
+    "const callable = (typeof x === 'object' || typeof x === 'function') && x !== null;",
+    "const tagged = x !== null && 'tag' in x;",
+    // `??`, `??=` and `?.` express these.
+    'const v = value === null ? undefined : value;',
+    'if (state.eventEmitter === null) state.eventEmitter = create();',
+    "const s = value === null ? null : value.format('L');",
+    // An assignment in the test.
+    'while ((match = re.exec(text)) !== null) use(match);',
+    // A test assertion, and a local `isNull` helper.
+    'expect(x === null).toBe(true);',
+    'function isNull(v: unknown) { return v === null; }',
   ],
   invalid: [
+    {
+      code: "if (typeof other === 'object' && value !== null) use(value);",
+      errors: [{ messageId: 'preferIsNull' }],
+    },
+    {
+      code: 'const v = x === null ? fallback : y;',
+      errors: [{ messageId: 'preferIsNull' }],
+    },
+    {
+      code: 'while (match !== null) match = next();',
+      errors: [{ messageId: 'preferIsNull' }],
+    },
+    {
+      code: "const v = x === null ? 'none' : x.name;",
+      errors: [{ messageId: 'preferIsNull' }],
+    },
+    // TypeScript infers the same type predicate from `x => !isNull(x)`.
+    {
+      code: 'arr.filter(x => x !== null);',
+      errors: [{ messageId: 'preferIsNull' }],
+    },
+    {
+      code: 'arr.filter((item: string | null) => null !== item);',
+      errors: [{ messageId: 'preferIsNull' }],
+    },
     {
       code: 'arr.filter(x => x === null);',
       errors: [{ messageId: 'preferIsNull' }],

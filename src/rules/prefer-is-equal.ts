@@ -1,5 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
+import { isExcludedPredicateSite } from '../utils/predicate-site.js';
 
 // A replacer or indentation argument changes what is compared, so only plain calls count.
 const stringify = (side: 'left' | 'right') =>
@@ -24,8 +25,10 @@ export const preferIsEqual = createRule({
   },
   create(context) {
     return {
-      [stringifyComparison]: (node: TSESTree.Node) =>
-        context.report({ node, messageId: 'preferIsEqual' }),
+      [stringifyComparison](node: TSESTree.Node) {
+        if (!isExcludedPredicateSite(context.sourceCode, node, 'isEqual'))
+          context.report({ node, messageId: 'preferIsEqual' });
+      },
     };
   },
 });

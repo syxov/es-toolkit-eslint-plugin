@@ -1,5 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
+import { isReplaceableTypeTest } from '../utils/type-test.js';
 
 export const preferIsError = createRule({
   name: 'prefer-is-error',
@@ -17,9 +18,12 @@ export const preferIsError = createRule({
   },
   create(context) {
     return {
-      'BinaryExpression[operator="instanceof"][right.type="Identifier"][right.name="Error"]':
-        (node: TSESTree.BinaryExpression) =>
-          context.report({ node, messageId: 'preferIsError' }),
+      'BinaryExpression[operator="instanceof"][right.type="Identifier"][right.name="Error"]'(
+        node: TSESTree.BinaryExpression,
+      ) {
+        if (isReplaceableTypeTest(context.sourceCode, node, 'isError'))
+          context.report({ node, messageId: 'preferIsError' });
+      },
     };
   },
 });

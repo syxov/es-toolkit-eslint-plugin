@@ -18,8 +18,15 @@ ruleTester.run('prefer-is-equal', preferIsEqual, {
     'JSON.stringify(a, replacer) === JSON.stringify(b, replacer);',
     'JSON.stringify(a, null, 2) === JSON.stringify(b);',
     'obj.JSON.stringify(a) === obj.JSON.stringify(b);',
+    // A test assertion, and a local `isEqual` helper.
+    'expect(JSON.stringify(a) === JSON.stringify(b)).toBe(true);',
+    'const isEqual = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);',
   ],
   invalid: [
+    {
+      code: "import { isEqual } from 'es-toolkit'; JSON.stringify(a) === JSON.stringify(b);",
+      errors: [{ messageId: 'preferIsEqual' }],
+    },
     {
       code: 'JSON.stringify(a) === JSON.stringify(b);',
       errors: [{ messageId: 'preferIsEqual' }],

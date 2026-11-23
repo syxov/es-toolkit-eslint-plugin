@@ -1,5 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
+import { isReplaceableTypeTest } from '../utils/type-test.js';
 
 export const preferIsSet = createRule({
   name: 'prefer-is-set',
@@ -17,9 +18,12 @@ export const preferIsSet = createRule({
   },
   create(context) {
     return {
-      'BinaryExpression[operator="instanceof"][right.type="Identifier"][right.name="Set"]':
-        (node: TSESTree.BinaryExpression) =>
-          context.report({ node, messageId: 'preferIsSet' }),
+      'BinaryExpression[operator="instanceof"][right.type="Identifier"][right.name="Set"]'(
+        node: TSESTree.BinaryExpression,
+      ) {
+        if (isReplaceableTypeTest(context.sourceCode, node, 'isSet'))
+          context.report({ node, messageId: 'preferIsSet' });
+      },
     };
   },
 });

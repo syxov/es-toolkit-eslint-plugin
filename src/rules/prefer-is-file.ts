@@ -1,5 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
+import { isReplaceableTypeTest } from '../utils/type-test.js';
 
 export const preferIsFile = createRule({
   name: 'prefer-is-file',
@@ -17,9 +18,12 @@ export const preferIsFile = createRule({
   },
   create(context) {
     return {
-      'BinaryExpression[operator="instanceof"][right.type="Identifier"][right.name="File"]':
-        (node: TSESTree.BinaryExpression) =>
-          context.report({ node, messageId: 'preferIsFile' }),
+      'BinaryExpression[operator="instanceof"][right.type="Identifier"][right.name="File"]'(
+        node: TSESTree.BinaryExpression,
+      ) {
+        if (isReplaceableTypeTest(context.sourceCode, node, 'isFile'))
+          context.report({ node, messageId: 'preferIsFile' });
+      },
     };
   },
 });

@@ -1,6 +1,11 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
-import { nilPairIn, nullLiteral, undefinedValue } from '../utils/nil-check.js';
+import {
+  isReplaceableNilComparison,
+  nilPairIn,
+  nullLiteral,
+  undefinedValue,
+} from '../utils/nil-check.js';
 
 const looseNotNilComparison = `BinaryExpression[operator="!="]:matches(${nullLiteral('left')}, ${nullLiteral('right')}, ${undefinedValue('left')}, ${undefinedValue('right')})`;
 
@@ -20,10 +25,12 @@ export const preferIsNotNil = createRule({
   },
   create(context) {
     return {
-      [looseNotNilComparison]: (node: TSESTree.BinaryExpression) =>
-        context.report({ node, messageId: 'preferIsNotNil' }),
+      [looseNotNilComparison](node: TSESTree.BinaryExpression) {
+        if (isReplaceableNilComparison(context.sourceCode, node, 'isNotNil'))
+          context.report({ node, messageId: 'preferIsNotNil' });
+      },
       'LogicalExpression[operator="&&"]'(node: TSESTree.LogicalExpression) {
-        const loc = nilPairIn(context.sourceCode, node);
+        const loc = nilPairIn(context.sourceCode, node, 'isNotNil');
         if (loc) context.report({ loc, messageId: 'preferIsNotNil' });
       },
     };

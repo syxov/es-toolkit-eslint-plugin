@@ -54,5 +54,11 @@ arr.length === 0;
 - **Literal `0` only.** Other spellings such as `length >= 1`, `length < 1` or `!!length` are
   not reported (the inner `!Object.keys(obj).length` of `!!…` still is).
 - **Syntactic match.** A shadowed local `Object` could produce a false positive.
+- **Test assertions.** A check passed straight to `expect(…)` is not reported; a matcher
+  states it better.
+- **Own helper in scope.** When the code already sees a binding named `isEmpty` (a local
+  flag, a project helper with other semantics, or a re-implementation), the check is not
+  reported: the suggestion would clash with it. An import of `isEmpty` from `es-toolkit/compat` does
+  not count.
 - **No auto-fix by design.** The fix requires adding an
   `import { isEmpty } from 'es-toolkit/compat'`.

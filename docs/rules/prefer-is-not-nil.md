@@ -44,6 +44,19 @@ value !== null && other !== undefined; // different expressions
 value != 'null'; // a string, not the null literal
 ```
 
+### Not reported
+
+```ts
+// An object probe: on `unknown`, `isNotNil` would not narrow for the probe that follows.
+value != null && typeof value === 'object' && 'fill' in value;
+value !== null && value !== undefined && typeof value === 'object';
+// `??` and `?.` express these.
+value != null ? value : fallback;
+value != null ? value.name : undefined;
+// An assignment in the test.
+while ((node = node.parent) != null) {}
+```
+
 ## Limitations
 
 - **Adjacent pairs only.** `value !== null && ready && value !== undefined` is not reported as
@@ -52,4 +65,25 @@ value != 'null'; // a string, not the null literal
   `obj['a']` are treated as different expressions.
 - **Syntactic match.** `undefined` is matched by name, so a shadowed local `undefined`
   binding could produce a false positive.
+- **Native shorthands.** `x != null ? x : d` (`??`) and `x != null ? x.y : undefined` (`?.`)
+  are not reported: the operator is the better rewrite. `x != null ? x.length : 0` is still reported.
+- **Object probes.** A check that sits in one condition with `typeof x === 'object'`,
+  `typeof x === 'function'` or `'key' in x` on the same expression is part of an
+  `isObjectLike`-style probe and is not reported.
+- **Assignment operand.** `(match = re.exec(s)) !== null` is not reported.
+- **Test assertions.** A check passed straight to `expect(…)` is not reported; a matcher
+  states it better.
+- **Own helper in scope.** When the code already sees a binding named `isNotNil` (a local
+  flag, a project helper with other semantics, or a re-implementation), the check is not
+  reported: the suggestion would clash with it. An import of `isNotNil` from `es-toolkit` does
+  not count.
+- **`unknown` operands (TypeScript).** `isNotNil<T>(x: T | null | undefined): x is T` infers
+  `T = unknown` from an `unknown` or `any` argument and narrows nothing, while `x != null`
+  narrows `unknown` to `{}`. The object-probe shape is skipped; other `unknown` operands
+  cannot be told apart without types.
+- **Narrowing needs types (TypeScript).** The guard narrows only its argument:
+  `isNotNil(shape.kind)` does not narrow a discriminated union `shape`, and neither do
+  destructured discriminants or a condition stored in a variable. A negated guard does not
+  narrow a generic `T` / `T[K]` operand either, where `!==` does. The rule has no type
+  information to tell; keep the comparison there.
 - **No auto-fix by design.** The fix requires adding an `import { isNotNil } from 'es-toolkit'`.

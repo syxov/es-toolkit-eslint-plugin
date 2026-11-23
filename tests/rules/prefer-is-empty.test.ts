@@ -22,8 +22,15 @@ ruleTester.run('prefer-is-empty', preferIsEmpty, {
     '!Object.values(obj).length;',
     '!Object.keys(obj).size;',
     'Object.keys(obj);',
+    // A test assertion, and a local `isEmpty` helper.
+    'expect(Object.keys(obj).length === 0).toBe(true);',
+    'const isEmpty = (obj: object) => Object.keys(obj).length === 0;',
   ],
   invalid: [
+    {
+      code: "import { isEmpty } from 'es-toolkit/compat'; Object.keys(obj).length === 0;",
+      errors: [{ messageId: 'preferIsEmpty' }],
+    },
     {
       code: 'Object.keys(obj).length === 0;',
       errors: [{ messageId: 'preferIsEmpty' }],
