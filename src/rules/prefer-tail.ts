@@ -1,5 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
+import { isNonArraySlice } from '../utils/non-array-receiver.js';
 import { stringContext } from '../utils/selectors.js';
 
 // `raw` rather than `value`: esquery compares values as strings, so `slice('1')` would match too.
@@ -20,8 +21,10 @@ export const preferTail = createRule({
   },
   create(context) {
     return {
-      [tailSlice]: (node: TSESTree.CallExpression) =>
-        context.report({ node, messageId: 'preferTail' }),
+      [tailSlice](node: TSESTree.CallExpression) {
+        if (!isNonArraySlice(context.sourceCode, node))
+          context.report({ node, messageId: 'preferTail' });
+      },
     };
   },
 });

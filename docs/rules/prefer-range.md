@@ -56,6 +56,9 @@ Array(n)
 - **Identity-mapper only.** Only a mapper whose body is (or whose single statement returns)
   its index parameter is reported; transformed mappers and `range`'s `start`/`step` variants
   are not.
+- **Length semantics.** `range(n)` rounds a fractional `n` up and throws a `RangeError` for
+  `NaN`, while `Array.from({ length: n })` truncates it and returns `[]` for `NaN`. When the
+  length is computed (`Math.max(...values) + 1`), check it is an integer before rewriting.
 - **Syntactic match.** A shadowed local `Array` could produce a false positive. This is
   rare in practice.
 - **No auto-fix by design.** The fix requires adding an `import { range } from 'es-toolkit'`.

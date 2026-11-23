@@ -146,6 +146,12 @@ const cases: [code: string, rules: string[]][] = [
   ['expect(JSON.parse(JSON.stringify(ast))).toEqual(ast);', []],
   ["s.replace(/[-\\/\\\\^$*+?.()|[\\]{}]/g, '\\\\$&');", []],
   ['page.evaluate(() => new Promise(r => setTimeout(r, 100)));', []],
+  // slice group
+  ['xs.slice(-1)[0];', ['prefer-last']],
+  ['xs.slice(-2)[0];', ['prefer-head', 'prefer-take-right']],
+  ["const s = 'abc'; s.slice(-1)[0];", []],
+  ['[sx].flat();', []],
+  ['[x].map(f).flat();', []],
 ];
 
 describe('rule overlap', () => {

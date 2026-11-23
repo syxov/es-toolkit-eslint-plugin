@@ -12,6 +12,8 @@ ruleTester.run('prefer-flat-map', preferFlatMap, {
     'items.map(mapper, thisArg).flat();',
     'items.flat();',
     'items.flat(1);',
+    // A single value: the rewrite drops the array.
+    '[testConfig].map(config => config().specFiles).flat();',
   ],
   invalid: [
     {
@@ -20,6 +22,10 @@ ruleTester.run('prefer-flat-map', preferFlatMap, {
     },
     {
       code: 'items.map(mapper).flat(1);',
+      errors: [{ messageId: 'preferFlatMap' }],
+    },
+    {
+      code: '[a, b].map(mapper).flat();',
       errors: [{ messageId: 'preferFlatMap' }],
     },
     {

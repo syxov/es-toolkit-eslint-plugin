@@ -9,12 +9,13 @@ Prefer [`takeRight`](https://es-toolkit.dev/reference/array/takeRight.html) over
 > `'es-toolkit/prefer-take-right': 'error'`.
 
 It is opt-in because `.slice(-n)` is idiomatic and is just as common on strings as on
-arrays (a file extension is `name.slice(-4)`). The rule is syntactic, so outside the
-recognised string contexts below it cannot tell a string receiver from an array.
+arrays (a file extension is `name.slice(-4)`). Without type information the rule cannot
+recognise every string receiver.
 
 This rule reports — it does **not** auto-fix — a `.slice(-n)` call with exactly one
-argument that is a negative (unary minus) expression, unless its context shows the receiver
-is a string. A second argument makes it a range (`arr.slice(-n, -1)`), which is left alone.
+argument that is a negative (unary minus) expression, unless the code shows that the
+receiver is not an array (see below). A second argument makes it a range
+(`arr.slice(-n, -1)`), which is left alone.
 
 ### ❌ Incorrect
 
@@ -34,6 +35,7 @@ takeRight(history, count).map(render);
 // Not a takeRight — left untouched:
 items.slice(-3, -1);
 items.slice(n);
+items.slice(-1)[0]; // the last element: see prefer-last
 
 // String contexts — left untouched:
 s.slice(-1).toUpperCase();
@@ -41,15 +43,30 @@ s.slice(-3) + '…';
 `…${s.slice(-3)}`;
 ```
 
+### Not reported: the receiver is not an array
+
+es-toolkit's `takeRight` takes an array (`readonly T[]`); a string, a typed array or a
+`Buffer` does not type-check (and `takeRight('', n)` returns `[]`, not `''`). A
+`.slice(-n)` is skipped when the syntax or an in-file declaration shows such a receiver:
+
+```ts
+// The receiver is visibly a string: the zero-padding idiom.
+`000${date.getFullYear()}`.slice(-4);
+('0' + n).slice(-2);
+date.getFullYear().toString().slice(-2);
+
+// The result is read as a string.
+textarea.value.slice(-1) === '\n';
+
+// The in-file declaration shows a string or a Buffer.
+const authTag = Buffer.from(token, 'base64').slice(-16);
+```
+
 ## Limitations
 
-- The rule matches the syntax only and does not check the receiver type, so it does not
-  prove that the receiver is an array.
-- **String heuristic.** Arrays are not case-converted, concatenated with `+` or
-  interpolated, so a `.slice(-n)` that is directly the receiver of
-  `toUpperCase`/`toLowerCase`/`toLocaleUpperCase`/`toLocaleLowerCase`, an operand of binary
-  `+`, or an expression of a template literal is skipped. Any other string `.slice(-n)`
-  (`const ext = name.slice(-4)`, `s.slice(-3).trim() + suffix`) is still reported.
+- **No type information.** A string that only its type reveals — a callback parameter, a
+  property (`node.data.slice(-1)`), the return value of a call or an imported constant —
+  is still reported.
 - Only a literal unary minus marks a negative start. A start that is negative only at
   runtime (`arr.slice(offset)`) is not reported.
 - **Zero behaves differently.** `takeRight(arr, 0)` returns `[]`, while `arr.slice(-0)`

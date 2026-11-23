@@ -18,6 +18,10 @@ export const stringContext = `${caseConversionReceiver}, BinaryExpression[operat
 export const arraySliceCall = (attributes: string) =>
   `CallExpression[callee.type="MemberExpression"][callee.computed=false][callee.property.name="slice"]${attributes}:not(${stringContext})`;
 
+// `xs.slice(-1)[0]`: the last element, owned by prefer-last.
+export const lastSliceElement =
+  'MemberExpression[computed=true][property.type="Literal"][property.raw="0"][object.type="CallExpression"][object.callee.type="MemberExpression"][object.callee.computed=false][object.callee.property.name="slice"][object.arguments.length=1][object.arguments.0.type="UnaryExpression"][object.arguments.0.operator="-"][object.arguments.0.argument.type="Literal"][object.arguments.0.argument.raw="1"]';
+
 // The function of a class or object method, constructor, getter or setter: a named member,
 // not an inline function value. For use inside `:not(…)`.
 export const memberFunction =

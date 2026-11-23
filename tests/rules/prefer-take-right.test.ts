@@ -24,6 +24,19 @@ ruleTester.run('prefer-take-right', preferTakeRight, {
     "s.slice(-3) + '…';",
     "'…' + s.slice(-3);",
     'const label = `…${s.slice(-3)}`;',
+    // Strings: receiver, result, guard or declaration.
+    's.slice(-3).trim() + suffix;',
+    '`000${date.getFullYear()}`.slice(-4);',
+    "('0' + n).slice(-2);",
+    'date.getFullYear().toString().slice(-2);',
+    "hiddenTextarea.value.slice(-1) === '\\n';",
+    "s.endsWith('/') ? s.slice(-2) : s;",
+    'const ext: string = getExt(); ext.slice(-3);',
+    // Typed arrays and `Buffer`.
+    "const encryptedBuf = Buffer.from(token, 'base64'); encryptedBuf.slice(-16);",
+    // `xs.slice(-1)[0]` is the last element: prefer-last owns it.
+    'xs.slice(-1)[0];',
+    'this.focusables.filter(isDomFocusable).slice(-1)[0];',
   ],
   invalid: [
     { code: 'arr.slice(-n);', errors: [{ messageId: 'preferTakeRight' }] },
@@ -54,9 +67,21 @@ ruleTester.run('prefer-take-right', preferTakeRight, {
       code: 'const ext = name.slice(-4);',
       errors: [{ messageId: 'preferTakeRight' }],
     },
-    // Only direct string contexts are skipped.
+    // Not the last element.
     {
-      code: 's.slice(-3).trim() + suffix;',
+      code: 'xs.slice(-2)[0];',
+      errors: [{ messageId: 'preferTakeRight' }],
+    },
+    {
+      code: 'xs.slice(-1)[1];',
+      errors: [{ messageId: 'preferTakeRight' }],
+    },
+    {
+      code: 'const [lastItem] = xs.slice(-1);',
+      errors: [{ messageId: 'preferTakeRight' }],
+    },
+    {
+      code: "const parts = s.split('.'); parts.slice(-2);",
       errors: [{ messageId: 'preferTakeRight' }],
     },
     // TypeScript.

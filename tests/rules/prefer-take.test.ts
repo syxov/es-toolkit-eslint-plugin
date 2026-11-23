@@ -25,6 +25,31 @@ ruleTester.run('prefer-take', preferTake, {
     "s.slice(0, 3) + '…';",
     "'…' + s.slice(0, 3);",
     'const preview = `${s.slice(0, 3)}…`;',
+    // Strings: receiver, result, guard or declaration.
+    'date.toISOString().slice(0, 10);',
+    "createHash('sha1').update(s).digest('hex').slice(0, 8);",
+    "underscore > 0 ? id.slice(0, underscore) : 'Item';",
+    "valueStr.slice(0, valueStr.indexOf('(')).trim();",
+    'parseFloat(value.slice(0, numberEnd));',
+    'function f(value: string) { const number = value.slice(0, numberEnd); }',
+    "const slug = 'abc'; slug.slice(0, 2);",
+    "const [, rest = ''] = s.split(':'); rest.slice(0, 3);",
+    'const url = new URL(href); url.pathname.slice(0, n);',
+    // Typed arrays and `Buffer`.
+    'const succStart = new Int32Array(n + 1); const sf = succStart.slice(0, n);',
+    'const buffer = Buffer.alloc(8); body += buffer.slice(0, bytes);',
+    'const [body, setBody] = useState<Uint8Array | null>(null); body.slice(0, 100);',
+    // `xs.slice(0, xs.length - k)` drops from the end: `initial` / `dropRight`.
+    'xs.slice(0, xs.length - 1);',
+    'errorMessage.slice(0, errorMessage.length - linkText.length);',
+    // A runtime-negative end.
+    'points.slice(0, railEndIsAdjacent ? -2 : -1);',
+    // Half of a splice or a rotation.
+    '[...list.slice(0, before), item, ...list.slice(before)];',
+    '[story, ...items.slice(0, index), ...items.slice(index + 1)];',
+    'const rotated = [...array.slice(amount), ...array.slice(0, amount)];',
+    's.slice(0, 3).trim() + suffix;',
+    'this.list = [...this.list.slice(0, i), item, ...this.list.slice(i + 1)];',
   ],
   invalid: [
     { code: 'arr.slice(0, n);', errors: [{ messageId: 'preferTake' }] },
@@ -63,9 +88,30 @@ ruleTester.run('prefer-take', preferTake, {
       code: 'const prefix = s.slice(0, 3);',
       errors: [{ messageId: 'preferTake' }],
     },
-    // Only direct string contexts are skipped.
+    // A different array's length is a plain count.
     {
-      code: 's.slice(0, 3).trim() + suffix;',
+      code: 'xs.slice(0, ys.length - 1);',
+      errors: [{ messageId: 'preferTake' }],
+    },
+    {
+      code: 'xs.slice(0, c ? n : m);',
+      errors: [{ messageId: 'preferTake' }],
+    },
+    // Independent slices of the same array: a takeRight half or the other branch.
+    {
+      code: '[...lines.slice(0, n), sep, ...lines.slice(-n)];',
+      errors: [{ messageId: 'preferTake' }],
+    },
+    {
+      code: 'calls = n < 0 ? calls.slice(n) : calls.slice(0, n);',
+      errors: [{ messageId: 'preferTake' }],
+    },
+    {
+      code: '[...a.slice(0, i), ...b.slice(i)];',
+      errors: [{ messageId: 'preferTake' }],
+    },
+    {
+      code: 'const rows = data.split("\\n"); rows.slice(0, 10);',
       errors: [{ messageId: 'preferTake' }],
     },
     // TypeScript.
