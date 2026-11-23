@@ -61,10 +61,10 @@ Rules that replace `.filter(...)` or `.reduce(...)`:
   For chain-aware rules, document `chainPosition` as `docs/rules/prefer-compact.md` does.
 - `README.md`: add a row to the rules table in the matching category, in the same format
   as the surrounding rows. Create the category's table (heading `## <Category> rules`, in
-  alphabetical order among the others) if it does not exist yet.
+  alphabetical order among the others) if it does not exist yet. The last column holds ✅
+  for a rule the bundled configs enable and stays empty for an opt-in rule.
 - Opt-in rules: start the doc's rule-details section with a note that the rule is off in
-  every bundled config and how to enable it, and end the README description with
-  ` (opt-in)`.
+  every bundled config and how to enable it.
 
 ## Verify
 

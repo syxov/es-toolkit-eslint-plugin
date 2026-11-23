@@ -107,7 +107,8 @@ used as `es-toolkit/<name>`.
    a `valid`/`invalid` matrix. Assert only `messageId` (no `output` — report-only).
    Include at least one TypeScript sample and the obvious false-positive cases as `valid`.
 4. **`docs/rules/<name>.md`** — what/why, ✅/❌ examples, and a **Limitations** section.
-5. **README.md** — add a row to the rules table.
+5. **README.md** — add a row to the rules table: ✅ in the last column when the rule is
+   on in the bundled configs, empty for an opt-in rule.
 
 ### Array-method replacement rules
 
