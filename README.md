@@ -39,20 +39,26 @@ pnpm add -D es-toolkit-eslint-plugin
 import { defineConfig } from 'eslint/config';
 import esToolkit from 'es-toolkit-eslint-plugin';
 
-export default defineConfig([
-  esToolkit.configs.all,
-  { rules: { 'es-toolkit/prefer-noop': 'error' } }, // an opt-in rule
-]);
+export default defineConfig([esToolkit.configs.all]);
 ```
 
 ## Configs
 
 - `configs.all` enables every rule marked ✅ below.
-- `configs.array`, `function`, `math`, `object`, `predicate`, `promise` and `string` enable
-  the ✅ rules of one category.
+- `configs.array`, `configs.function`, `configs.math`, `configs.object`,
+  `configs.predicate`, `configs.promise` and `configs.string` enable the ✅ rules of one
+  category.
 
 Rules without ✅ are **opt-in**: they match idioms that are often written on purpose
-(`arr[0]`, `arr.slice(0, n)`, `() => {}`), so no config enables them, `all` included.
+(`arr[0]`, `arr.slice(0, n)`, `() => {}`), so no config enables them, `all` included. Turn
+one on by name:
+
+```js
+export default defineConfig([
+  esToolkit.configs.all,
+  { rules: { 'es-toolkit/prefer-noop': 'error' } },
+]);
+```
 
 ## Rules
 
