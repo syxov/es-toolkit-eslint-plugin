@@ -1,3 +1,5 @@
+// `Object.fromEntries(…)`, `.map(cb)`, entry callbacks; mapValues/mapKeys/invert split
+
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { isIdentifierNamed } from './ast.js';
 

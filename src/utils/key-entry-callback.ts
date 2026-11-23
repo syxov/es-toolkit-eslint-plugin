@@ -1,3 +1,5 @@
+// `xs.map(p => [key, p])` entry callbacks: prefer-key-by, prefer-uniq-by
+
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { isIdentifierNamed, referencesParam } from './ast.js';
 import { entryCallback, mapCall, returnedExpression } from './entries-map.js';

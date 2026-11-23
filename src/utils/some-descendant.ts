@@ -1,3 +1,5 @@
+// depth-first "does any node below match" walk
+
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 
 const isNode = (value: unknown): value is TSESTree.Node =>

@@ -1,3 +1,5 @@
+// `Object.fromEntries(Object.entries(o).filter(…))`: pick/pickBy vs omit/omitBy
+
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { isIdentifierNamed, referencesParam } from './ast.js';
 import {

@@ -29,6 +29,8 @@ pnpm lint         # eslint . (typescript-eslint strict + eslint-plugin-eslint-pl
 pnpm typecheck    # tsc --noEmit over src/ and tests/
 pnpm format       # prettier --write .
 pnpm check        # format:check + lint + typecheck + test; run before committing
+pnpm corpus       # build, lint corpus/ with every rule, write corpus/report.{md,json}
+pnpm corpus --rules prefer-a,prefer-b [repo …]  # print each hit of these rules only
 ```
 
 ## Layout
@@ -36,37 +38,8 @@ pnpm check        # format:check + lint + typecheck + test; run before committin
 ```
 src/
   index.ts                  # plugin object: meta, rules, configs.array/function/math/object/predicate/promise/string/all
-  utils/create-rule.ts      # shared RuleCreator factory — reuse for every rule
-  utils/ast.ts              # isIdentifierNamed, isLiteralValue, isSameExpression, isWriteTarget, referencesParam
-  utils/selectors.ts        # shared esquery fragments (filterArrow, mapReceiver, stringContext)
-  utils/array-method-chain.ts # shared chain-position policy, option schema and types
-  utils/sum-reducer.ts      # sum / sumBy reduce shapes shared by the sum and mean rules
-  utils/is-mean-numerator.ts  # `xs.reduce(…) / xs.length`: owned by the mean rules, skipped by sum rules
-  utils/is-sample-index.ts  # `a[Math.floor(Math.random() * a.length)]`: prefer-sample vs prefer-random-int
-  utils/nil-check.ts        # null/undefined comparisons and `x === null || x === undefined` pairs
-  utils/string-case.ts      # first-character / rest helpers for the string rules
-  utils/entries-map.ts      # `Object.fromEntries(…)`, `.map(cb)`, entry callbacks; mapValues/mapKeys/invert split
-  utils/entries-filter.ts   # `Object.fromEntries(Object.entries(o).filter(…))`: pick/pickBy vs omit/omitBy
-  utils/key-entry-callback.ts # `xs.map(p => [key, p])` entry callbacks: prefer-key-by, prefer-uniq-by
-  utils/scope.ts            # isDeclaredInCode / isUndeclaredIdentifier (`typeof window`), bindsHelperName
-  utils/variable-sources.ts # where a local variable's value comes from (init, for…of element, callback param)
-  utils/statement.ts        # enclosing statement and descendant search for same-statement checks
-  utils/some-descendant.ts  # depth-first "does any node below match" walk
-  utils/type-test.ts        # typeof/instanceof tests: shared selector, multi-type dispatch chains
-  utils/predicate-site.ts   # sites a predicate rule skips (`expect(typeof x === …)`, helper name taken)
-  utils/non-array-receiver.ts # strings, typed arrays, Buffer, DOM collections: the slice/last rules
-  utils/positional-receiver.ts # `xs[0]` slot reads (tuples, regex matches, argument lists): prefer-head
-  utils/optional-chain.ts   # `xs?.filter(…)` receivers, which a rewrite would dereference
-  utils/includes-receiver.ts # `b.includes(x)` receivers that are certainly arrays: difference/intersection
-  utils/set-round-trip.ts   # `[...new Set(x)]` / `Array.from(new Set(x))`: prefer-uniq, prefer-union
-  utils/trim-replace.ts     # `s.replace(/^X+|X+$/g, '')` parsing and chained-pair ownership: the trim rules
-  utils/browser-evaluation.ts # callbacks serialised to a page (`page.evaluate`): the promise rules
-  utils/timer-promise.ts    # `new Promise` + `setTimeout` reject shapes, `Promise.race` timeouts: prefer-timeout vs prefer-with-timeout
-  utils/difference-filter.ts # `a.filter(x => !b.some(y => …))`: prefer-difference-by vs -with
-  utils/string-name.ts      # receivers named like one string (`text`, `expose.type`): chunk, is-subset
-  utils/logical-pair.ts     # adjacent `a && b` / `a || b` operand pairs reported as one
-  utils/plain-object-test.ts # prototype / constructor / tag plain-object tests; nil rules skip their guards
-  utils/browser-check.ts    # `typeof window` checks and window + document pairs; nil rules skip the halves
+  utils/*.ts                # shared helpers; the first line of each says what it is for:
+                            # `head -n1 src/utils/*.ts`; give a new util such a line
   rules/<name>.ts           # one file per rule
 tests/rules/<name>.test.ts  # RuleTester valid/invalid matrix per rule
 tests/overlap.test.ts       # every rule (opt-in too) over snippets: exactly which rules fire on each
@@ -77,6 +50,11 @@ docs/rules/<name>.md        # one doc per rule
 
 Naming: `prefer-<utility>` (e.g. `prefer-clamp`, `prefer-uniq`, `prefer-debounce`),
 used as `es-toolkit/<name>`.
+
+0. **Read the utility's source** in `node_modules/es-toolkit/dist/` (a devDependency) before
+   encoding what counts as equivalent: `isPromise` is `instanceof Promise`, not a thenable
+   check; `withTimeout` clears its timer. Hand-written code that differs goes to `valid` or
+   to the doc's **Limitations**.
 
 1. **`src/rules/<name>.ts`** — build the rule with the shared factory:
 
@@ -118,6 +96,11 @@ used as `es-toolkit/<name>`.
 4. **`docs/rules/<name>.md`** — what/why, ✅/❌ examples, and a **Limitations** section.
 5. **README.md** — add a row to the rules table: ✅ in the last column when the rule is
    on in the bundled configs, empty for an opt-in rule.
+6. **Corpus** — `pnpm corpus --rules <name>,<siblings>` and read every hit. Each false
+   positive becomes a rule fix plus a `valid` case. The rule ships as `'error'` unless the
+   hits that remain are mostly deliberate idioms; then it is opt-in.
+
+CHANGELOG.md is written in the release commit, not with each rule.
 
 ### Array-method replacement rules
 
@@ -170,6 +153,23 @@ helper in `src/utils/` (e.g. `prefer-flatten` skips `arr.map(f).flat()`, which b
 `prefer-flat-map`; `prefer-head`/`prefer-tail` skip string idioms owned by the string
 rules). Add the snippet to `tests/overlap.test.ts`, which asserts the exact set of rules
 that fire.
+
+A rule that replaces an enclosing frame yields when its inner part is wholly another
+rule's shape: `Object.fromEntries(Object.entries(o).filter(([, v]) => v != null))` is
+reported by `prefer-is-not-nil` only, and once rewritten to `isNotNil(v)` by
+`prefer-pick-by`. A compound inner part (`v != null && k !== 'x'`) is reported by both.
+The yielding rule asks the owner through an `isReported…` helper built from the owner's own
+checks (`isReportedNilCheck`, `isReportedTypeTest`), so the two cannot drift apart.
+
+## Parallel work in git worktrees
+
+Agent worktrees live in `.claude/worktrees/` (ignored by git, Prettier and ESLint).
+
+- Run `pnpm install` first: `node_modules` is per worktree.
+- `pnpm corpus --rules …` reads the corpus from the main checkout; the submodules inside a
+  worktree stay empty.
+- Conflicts when merging branches back are mostly additive (`src/index.ts`, README tables,
+  `tests/overlap.test.ts`, `tests/index.test.ts`): keep both sides, in alphabetical order.
 
 ## Project notes / gotchas
 

@@ -1,3 +1,5 @@
+// first-character / rest helpers for the string rules
+
 import type { TSESTree } from '@typescript-eslint/utils';
 import { isLiteralValue } from './ast.js';
 

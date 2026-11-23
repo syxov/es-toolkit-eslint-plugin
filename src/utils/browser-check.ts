@@ -1,3 +1,5 @@
+// `typeof window` checks and window + document pairs; nil rules skip the halves
+
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { isIdentifierNamed } from './ast.js';
 import { isPairOperand, pairEndingAt } from './logical-pair.js';

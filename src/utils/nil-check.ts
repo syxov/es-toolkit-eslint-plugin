@@ -1,3 +1,5 @@
+// null/undefined comparisons and `x === null || x === undefined` pairs
+
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { isIdentifierNamed, isLiteralValue, isSameExpression } from './ast.js';
 import { isBrowserPairOperand } from './browser-check.js';

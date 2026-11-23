@@ -1,3 +1,5 @@
+// shared esquery fragments (filterArrow, mapReceiver, stringContext)
+
 // `.filter(x => …)` with a single single-parameter arrow predicate; rules check its body.
 export const filterArrow =
   'CallExpression[callee.property.name="filter"][arguments.length=1][arguments.0.type="ArrowFunctionExpression"][arguments.0.params.length=1][arguments.0.params.0.type="Identifier"]';

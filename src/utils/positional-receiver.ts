@@ -1,3 +1,5 @@
+// `xs[0]` slot reads (tuples, regex matches, argument lists): prefer-head
+
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import {
   findVariable,

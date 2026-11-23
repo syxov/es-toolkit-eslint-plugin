@@ -1,3 +1,5 @@
+// adjacent `a && b` / `a || b` operand pairs reported as one
+
 import type { TSESTree } from '@typescript-eslint/utils';
 
 type Operator = TSESTree.LogicalExpression['operator'];

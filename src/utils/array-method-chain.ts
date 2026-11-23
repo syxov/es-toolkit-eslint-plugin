@@ -1,3 +1,5 @@
+// shared chain-position policy, option schema and types
+
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import type { JSONSchema4 } from '@typescript-eslint/utils/json-schema';
 

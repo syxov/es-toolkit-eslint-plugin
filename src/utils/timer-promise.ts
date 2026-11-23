@@ -1,3 +1,5 @@
+// `new Promise` + `setTimeout` reject shapes, `Promise.race` timeouts: prefer-timeout vs prefer-with-timeout
+
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { isIdentifierNamed } from './ast.js';
 import { importsEsToolkitHelper } from './scope.js';

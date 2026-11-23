@@ -1,3 +1,5 @@
+// `xs?.filter(…)` receivers, which a rewrite would dereference
+
 import type { TSESTree } from '@typescript-eslint/utils';
 
 // `xs?.filter(f)`, `a?.b.filter(f)` or `xs.filter?.(f)` short-circuits to `undefined`, while a

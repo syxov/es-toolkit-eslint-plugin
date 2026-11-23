@@ -1,3 +1,5 @@
+// `b.includes(x)` receivers that are certainly arrays: difference/intersection
+
 import type { TSESTree } from '@typescript-eslint/utils';
 import { isIdentifierNamed } from './ast.js';
 

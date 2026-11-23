@@ -1,3 +1,5 @@
+// `[...new Set(x)]` / `Array.from(new Set(x))`: prefer-uniq, prefer-union
+
 import {
   ASTUtils,
   type TSESLint,

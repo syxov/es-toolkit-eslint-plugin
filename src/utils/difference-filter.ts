@@ -1,3 +1,5 @@
+// `a.filter(x => !b.some(y => …))`: prefer-difference-by vs -with
+
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { isIdentifierNamed, isLiteralValue } from './ast.js';
 import { isNonArrayReceiver } from './non-array-receiver.js';

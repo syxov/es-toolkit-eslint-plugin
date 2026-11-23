@@ -1,3 +1,5 @@
+// shared RuleCreator factory: reuse for every rule
+
 import { ESLintUtils } from '@typescript-eslint/utils';
 
 export const createRule = ESLintUtils.RuleCreator(

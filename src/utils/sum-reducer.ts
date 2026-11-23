@@ -1,3 +1,5 @@
+// sum / sumBy reduce shapes shared by the sum and mean rules
+
 import type { TSESTree } from '@typescript-eslint/utils';
 import { isIdentifierNamed } from './ast.js';
 

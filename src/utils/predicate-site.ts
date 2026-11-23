@@ -1,3 +1,5 @@
+// sites a predicate rule skips (`expect(typeof x === …)`, helper name taken)
+
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { isIdentifierNamed } from './ast.js';
 import { bindsHelperName } from './scope.js';

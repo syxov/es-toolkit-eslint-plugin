@@ -1,3 +1,5 @@
+// enclosing statement and descendant search for same-statement checks
+
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 
 type SourceCode = Readonly<TSESLint.SourceCode>;

@@ -1,3 +1,5 @@
+// isDeclaredInCode / isUndeclaredIdentifier (`typeof window`), bindsHelperName
+
 import { ASTUtils } from '@typescript-eslint/utils';
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 

@@ -1,3 +1,5 @@
+// Small AST predicates shared by most rules: isIdentifierNamed, isLiteralValue, isSameExpression, isWriteTarget, referencesParam
+
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 
 type SourceCode = Readonly<TSESLint.SourceCode>;

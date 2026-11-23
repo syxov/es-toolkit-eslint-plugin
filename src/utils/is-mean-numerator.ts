@@ -1,3 +1,5 @@
+// `xs.reduce(…) / xs.length`: owned by the mean rules, skipped by sum rules
+
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { isIdentifierNamed, isSameExpression } from './ast.js';
 

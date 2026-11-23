@@ -1,3 +1,5 @@
+// strings, typed arrays, Buffer, DOM collections: the slice/last rules
+
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { isIdentifierNamed, isLiteralValue, isSameExpression } from './ast.js';
 import { findDescendants, statementScope } from './statement.js';

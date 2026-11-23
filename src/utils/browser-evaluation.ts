@@ -1,3 +1,5 @@
+// callbacks serialised to a page (`page.evaluate`): the promise rules
+
 import type { TSESTree } from '@typescript-eslint/utils';
 
 // Puppeteer / Playwright serialise these callbacks and run them in the page, where an

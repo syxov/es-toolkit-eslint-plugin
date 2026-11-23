@@ -1,3 +1,5 @@
+// `s.replace(/^X+|X+$/g, '')` parsing and chained-pair ownership: the trim rules
+
 import type { TSESTree } from '@typescript-eslint/utils';
 import { isOptionalCall } from './optional-chain.js';
 

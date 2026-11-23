@@ -1,3 +1,5 @@
+// where a local variable's value comes from (init, for…of element, callback param)
+
 import {
   ASTUtils,
   type TSESLint,

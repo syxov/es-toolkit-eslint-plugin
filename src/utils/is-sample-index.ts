@@ -1,3 +1,5 @@
+// `a[Math.floor(Math.random() * a.length)]`: prefer-sample vs prefer-random-int
+
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import {
   isIdentifierNamed,

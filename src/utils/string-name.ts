@@ -1,3 +1,5 @@
+// receivers named like one string (`text`, `expose.type`): chunk, is-subset
+
 import type { TSESTree } from '@typescript-eslint/utils';
 
 const stringNames =

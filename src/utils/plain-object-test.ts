@@ -1,3 +1,5 @@
+// prototype / constructor / tag plain-object tests; nil rules skip their guards
+
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import {
   isIdentifierNamed,

@@ -1,3 +1,5 @@
+// typeof/instanceof tests: shared selector, multi-type dispatch chains
+
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { isSameExpression } from './ast.js';
 import { isExcludedPredicateSite } from './predicate-site.js';
