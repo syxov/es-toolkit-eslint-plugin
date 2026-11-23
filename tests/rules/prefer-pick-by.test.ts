@@ -20,6 +20,11 @@ ruleTester.run('prefer-pick-by', preferPickBy, {
     "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v !== 'undefined'));",
     'Object.fromEntries(Object.entries(o).filter(([, v]) => v !== null && v !== undefined));',
     'Object.fromEntries(Object.entries(props).filter(([k, v]: [string, unknown]) => v !== undefined)) as Partial<Props>;',
+    // A predicate that is a single type test is left to the type predicate rules.
+    "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === 'string'));",
+    "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v !== 'function'));",
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v instanceof Date));',
+    'Object.fromEntries(Object.entries(o).filter(([, v]: [string, unknown]) => v instanceof Map));',
     // The predicate reads neither the key nor the value.
     'Object.fromEntries(Object.entries(o).filter(() => true));',
     'Object.fromEntries(Object.entries(o).filter(([k, v]) => flag));',
@@ -89,7 +94,32 @@ ruleTester.run('prefer-pick-by', preferPickBy, {
       errors: [{ messageId: 'preferPickBy' }],
     },
     {
-      code: "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === 'string'));",
+      // The type test rewritten with the helper.
+      code: 'Object.fromEntries(Object.entries(o).filter(([, v]) => isString(v)));',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // A compound predicate is not a single type test.
+      code: "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === 'string' && v !== ''));",
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // A type dispatch, which no type predicate rule reports.
+      code: "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === 'string' || typeof v === 'number'));",
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // No predicate rule covers these types.
+      code: "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === 'object'));",
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      code: 'Object.fromEntries(Object.entries(o).filter(([, v]) => v instanceof Widget));',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // A local `isDate` keeps prefer-is-date quiet, so the frame is reported here.
+      code: 'function f(o, isDate) { return Object.fromEntries(Object.entries(o).filter(([, v]) => v instanceof Date)); }',
       errors: [{ messageId: 'preferPickBy' }],
     },
     {

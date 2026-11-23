@@ -17,6 +17,9 @@ ruleTester.run('prefer-omit-by', preferOmitBy, {
     'Object.fromEntries(Object.entries(o).filter(([, v]) => !(v == null)));',
     'Object.fromEntries(Object.entries(o).filter(([, v]) => !(v === undefined)));',
     "Object.fromEntries(Object.entries(o).filter(([, v]) => !(typeof v === 'undefined')));",
+    // A negated type test is left to the type predicate rules.
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => !(v instanceof Date)));',
+    "Object.fromEntries(Object.entries(o).filter(([, v]) => !(typeof v === 'function')));",
     // A partial negation is not `!pred`.
     'Object.fromEntries(Object.entries(o).filter(([k, v]) => !keys.includes(k) && v));',
     'Object.fromEntries(Object.entries(o).filter(([k, v]) => !k.startsWith("_") || v));',
@@ -71,6 +74,14 @@ ruleTester.run('prefer-omit-by', preferOmitBy, {
     {
       // The nil check rewritten with the helper.
       code: 'Object.fromEntries(Object.entries(o).filter(([, v]) => !isNil(v) && !isEmpty(v)));',
+      errors: [{ messageId: 'preferOmitBy' }],
+    },
+    {
+      code: 'Object.fromEntries(Object.entries(o).filter(([, v]) => !isFunction(v)));',
+      errors: [{ messageId: 'preferOmitBy' }],
+    },
+    {
+      code: 'Object.fromEntries(Object.entries(o).filter(([, v]) => !(v instanceof Widget)));',
       errors: [{ messageId: 'preferOmitBy' }],
     },
     // Key exclusion: `omit`.

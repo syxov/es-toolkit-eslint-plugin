@@ -38,6 +38,13 @@ rule, so each snippet gets one report. Once the check reads `isNotNil(v)`, this 
 the frame (`pickBy(o, isNotNil)`). A compound predicate such as `v != null && k !== 'x'` is
 reported by both: the nil rule on the comparison, this rule on the frame.
 
+Single type tests are staged the same way: `typeof v === 'string'`, `typeof v !== 'function'`
+or `v instanceof Date` (also negated) goes to `prefer-is-string`, `prefer-is-function`,
+`prefer-is-date` and the other type predicate rules first, and this rule reports
+`filter(([, v]) => isString(v))` afterwards. Type tests no predicate rule reports, such as
+`typeof v === 'object'`, `v instanceof Widget` or a dispatch over several types
+(`typeof v === 'string' || typeof v === 'number'`), are reported here directly.
+
 This rule does not use the `chainPosition` setting of the array-method rules: it replaces
 the whole `Object.fromEntries(Object.entries(o).filter(…))` frame, never a member of a
 method chain.
@@ -70,6 +77,7 @@ pick(o, ['a', 'b']);
 // Not reported:
 Object.fromEntries(Object.entries(o).filter(([, v]) => !v)); // prefer-omit-by
 Object.fromEntries(Object.entries(o).filter(([, v]) => v != null)); // prefer-is-not-nil first
+Object.fromEntries(Object.entries(o).filter(([, v]) => v instanceof Date)); // prefer-is-date first
 Object.fromEntries(Object.entries(o).filter(isWanted)); // the callback is not inline
 Object.fromEntries(Object.entries(o).filter(([k, v], i) => i > 0)); // the index is used
 ```

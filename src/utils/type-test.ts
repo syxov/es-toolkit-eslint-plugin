@@ -116,3 +116,36 @@ export const isReplaceableTypeTest = (
   !probesUndeclared(sourceCode, node)
   && !isTypeDispatch(sourceCode, node)
   && !isExcludedPredicateSite(sourceCode, node, helper);
+
+// The single type tests a predicate rule reports, with the helper it suggests
+// (`tests/type-test-helpers.test.ts` keeps this in step with the rules).
+export const typeTestHelpers: Readonly<Partial<Record<string, string>>> = {
+  'typeof boolean': 'isBoolean',
+  'typeof function': 'isFunction',
+  'typeof number': 'isNumber',
+  'typeof string': 'isString',
+  'typeof symbol': 'isSymbol',
+  'instanceof ArrayBuffer': 'isArrayBuffer',
+  'instanceof Blob': 'isBlob',
+  'instanceof Date': 'isDate',
+  'instanceof Error': 'isError',
+  'instanceof File': 'isFile',
+  'instanceof Map': 'isMap',
+  'instanceof RegExp': 'isRegExp',
+  'instanceof Set': 'isSet',
+  'instanceof WeakMap': 'isWeakMap',
+  'instanceof WeakSet': 'isWeakSet',
+};
+
+// One of the type predicate rules (`prefer-is-string`, `prefer-is-date`, …) reports `node`
+// as a whole. Rules whose rewrite would wrap the test (`pickBy(o, v => typeof v === 'string')`)
+// yield it, so the predicate helper is suggested first.
+export const isReportedTypeTest = (
+  sourceCode: SourceCode,
+  node: TSESTree.Node,
+) => {
+  if (node.type !== 'BinaryExpression') return false;
+  const test = parseTypeTest(node);
+  const helper = test && typeTestHelpers[test.type];
+  return !!helper && isReplaceableTypeTest(sourceCode, node, helper);
+};

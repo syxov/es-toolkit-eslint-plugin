@@ -10,6 +10,7 @@ import {
 } from './entries-map.js';
 import { isReportedNilCheck } from './nil-check.js';
 import { unwrapTypes } from './positional-receiver.js';
+import { isReportedTypeTest } from './type-test.js';
 
 type SourceCode = Readonly<TSESLint.SourceCode>;
 type Callback = TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression;
@@ -114,8 +115,9 @@ const withoutNegations = (node: TSESTree.Node): TSESTree.Node =>
 
 // How a `fromEntriesOfFilteredEntries` match selects its entries, or null when the callback
 // is not a predicate over a destructured `[k, v]` entry. A predicate that is a single nil
-// check (`v != null`, `!(v === undefined)`) is left to the nil predicate rules: once it reads
-// `isNotNil(v)`, the frame is reported here.
+// check (`v != null`, `!(v === undefined)`) or type test (`typeof v === 'string'`,
+// `!(v instanceof Date)`) is left to the predicate rules: once it reads `isNotNil(v)`, the
+// frame is reported here.
 export const entryFilter = (
   sourceCode: SourceCode,
   fromEntries: TSESTree.CallExpression,
@@ -128,6 +130,7 @@ export const entryFilter = (
     || !predicate
     || !referencesParam(sourceCode, callback, predicate)
     || isReportedNilCheck(sourceCode, withoutNegations(predicate))
+    || isReportedTypeTest(sourceCode, withoutNegations(predicate))
   )
     return null;
   const context = { sourceCode, callback, key: params.key };

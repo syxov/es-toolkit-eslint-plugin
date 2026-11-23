@@ -168,7 +168,40 @@ const cases: [code: string, rules: string[]][] = [
     'Object.fromEntries(Object.entries(o).filter(([, v]) => isNotNil(v)));',
     ['prefer-pick-by'],
   ],
-  // Compound predicates: the frame and the nil check inside are separate rewrites.
+  // Single type tests go to the type predicate rule first, like nil checks.
+  [
+    "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === 'string'));",
+    ['prefer-is-string'],
+  ],
+  [
+    "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v !== 'function'));",
+    ['prefer-is-function'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => !(v instanceof Date)));',
+    ['prefer-is-date'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => isString(v)));',
+    ['prefer-pick-by'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => !isDate(v)));',
+    ['prefer-omit-by'],
+  ],
+  [
+    "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === 'string' || typeof v === 'number'));",
+    ['prefer-pick-by'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v instanceof Widget));',
+    ['prefer-pick-by'],
+  ],
+  // Compound predicates: the frame and the nil check or type test inside are separate rewrites.
+  [
+    "Object.fromEntries(Object.entries(o).filter(([k, v]) => typeof v === 'string' && k !== 'x'));",
+    ['prefer-is-string', 'prefer-pick-by'],
+  ],
   [
     "Object.fromEntries(Object.entries(o).filter(([k, v]) => v != null && k !== 'x'));",
     ['prefer-is-not-nil', 'prefer-pick-by'],
