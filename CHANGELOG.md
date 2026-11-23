@@ -4,6 +4,64 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org); while it is `0.x`, minor releases may contain
 breaking changes.
 
+## [Unreleased]
+
+False positives found by linting a corpus of 10 popular repositories (`pnpm corpus`) are
+removed. Every default-on rule together reports 14,105 instead of 32,815 hits there.
+
+### Breaking changes
+
+- **`prefer-head` and `prefer-clone-deep` are opt-in** (`'off'` even in `configs.all`).
+  `head(xs)` behaves exactly like `xs[0]` and returns `T | undefined`, so most reports were
+  noise; the JSON round-trip is often deliberate serialisation, not a clone.
+- **`prefer-in-range` reports numeric-literal bounds only** (`lower < upper`): es-toolkit's
+  `inRange` throws when `lower >= upper`, so `i >= 0 && i < xs.length` would throw on an
+  empty array.
+- **`prefer-round` no longer reports `Number(x.toFixed(n))`**: it rounds decimal ties
+  differently from `round`.
+- **`prefer-without` skips type-predicate callbacks by default** (`skipTypePredicate: true`)
+  and never reports `null`, `undefined`, `void 0` or `false` exclusions, which TypeScript
+  narrows and `without` would widen. `xs.filter(x => x !== null)` is now reported by
+  `prefer-is-null` (`prefer-is-undefined` for `undefined`).
+
+### Fixed
+
+- **Runtime errors:** `typeof X` on an identifier the code does not declare (`window`,
+  `process`, `requestAnimationFrame`, ambient `declare const`) is no longer reported by the
+  `typeof` predicate rules — `isUndefined(window)` throws a ReferenceError where `window` is
+  missing. `prefer-head` skips optional chains (`head(undefined)` throws), `prefer-delay`
+  skips functions passed to `page.evaluate`-like calls.
+- **Non-array receivers:** `prefer-tail`, `prefer-initial`, `prefer-take`, `prefer-take-right`
+  and `prefer-last` skip strings recognisable from the expression or its in-file
+  declaration, typed arrays, `Buffer` and DOM collections. `prefer-head` skips string
+  characters, DOM collections, regex matches, `split()` segments, test-double call data,
+  argument lists and tuples (the same receiver read at another index in the function).
+- **Not the idiom:**
+  - `prefer-clamp`: interval normalisation with a mirrored `Math.min`/`Math.max` pair, and
+    `Math.min(i, Math.max(0, xs.length - 1))`; a nested clamp is reported once.
+  - Predicate rules: `typeof x === 'object' && x !== null` object probes, one value tested
+    against several types in one chain (previously 2–3 reports), `??`/`??=`/`?.` shapes,
+    `expect(typeof …)` assertions, and files that already bind the helper's name.
+  - `prefer-flatten` / `prefer-flat-map`: `[x].flat()` normalise-to-array.
+  - `prefer-take`: splice pairs and `slice(0, a.length - k)`.
+  - `prefer-debounce`: one-shot flag resets and `.unref()`'d timers.
+  - `prefer-random-int`: Fisher–Yates swap loops.
+  - `prefer-noop`: named function expressions, typed parameters, `mockImplementation(…)`.
+  - `prefer-identity`: `.map(x => x)` and typed or generic arrows.
+  - `prefer-escape-reg-exp`: a character class that also escapes `-`.
+  - Collection rules: `xs?.filter(…)` receivers, `.filter(Boolean).length` counts, string or
+    call `includes` receivers, `.match()` results; Map/Set iterators in `prefer-union` now
+    go to `prefer-uniq`.
+- **One report per snippet:** `xs.slice(-1)[0]` is reported only by `prefer-last` (was
+  `prefer-take-right` + `prefer-head`); `xs[0] == null` only by the nil predicate rules.
+
+### Documentation
+
+- Limitations now cover what needs type information: `T | undefined` from `head`/`last`,
+  narrowing of generic and discriminated-union operands, `isNotNil` on `unknown`, strings
+  known only from types, and `Math.max(lower, Math.min(v, upper))` differing from `clamp`
+  when `lower > upper`.
+
 ## [0.2.1] - 2026-11-22
 
 ### Fixed

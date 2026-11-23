@@ -47,6 +47,17 @@ src/
   utils/string-case.ts      # first-character / rest helpers for the string rules
   utils/entries-map.ts      # `Object.fromEntries(…)`, `.map(cb)` and entry-callback fragments
   utils/key-entry-callback.ts # `xs.map(p => [key, p])` entry callbacks: prefer-key-by, prefer-uniq-by
+  utils/scope.ts            # isDeclaredInCode / isUndeclaredIdentifier (`typeof window`), bindsHelperName
+  utils/variable-sources.ts # where a local variable's value comes from (init, for…of element, callback param)
+  utils/statement.ts        # enclosing statement and descendant search for same-statement checks
+  utils/some-descendant.ts  # depth-first "does any node below match" walk
+  utils/type-test.ts        # typeof/instanceof tests: shared selector, multi-type dispatch chains
+  utils/predicate-site.ts   # sites a predicate rule skips (`expect(typeof x === …)`, helper name taken)
+  utils/non-array-receiver.ts # strings, typed arrays, Buffer, DOM collections: the slice/last rules
+  utils/positional-receiver.ts # `xs[0]` slot reads (tuples, regex matches, argument lists): prefer-head
+  utils/optional-chain.ts   # `xs?.filter(…)` receivers, which a rewrite would dereference
+  utils/includes-receiver.ts # `b.includes(x)` receivers that are certainly arrays: difference/intersection
+  utils/set-round-trip.ts   # `[...new Set(x)]` / `Array.from(new Set(x))`: prefer-uniq, prefer-union
   rules/<name>.ts           # one file per rule
 tests/rules/<name>.test.ts  # RuleTester valid/invalid matrix per rule
 tests/overlap.test.ts       # every rule (opt-in too) over snippets: exactly which rules fire on each
