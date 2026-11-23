@@ -70,7 +70,17 @@ const isPositionalValue = (expression: TSESTree.Node): boolean => {
   const node = unwrapTypes(expression);
   if (node.type === 'Literal') return typeof node.value === 'string';
   if (node.type === 'TemplateLiteral') return true;
-  if (positionalMethods.test(methodName(node) ?? '')) return true;
+  const method = methodName(node) ?? '';
+  if (positionalMethods.test(method)) return true;
+  // `Object.entries(o).find(…)` is one `[key, value]` tuple.
+  if (
+    /^(find|findLast)$/.test(method)
+    && hasPositionalElements(
+      ((node as TSESTree.CallExpression).callee as TSESTree.MemberExpression)
+        .object,
+    )
+  )
+    return true;
   if (positionalFunctions.test(functionName(node) ?? '')) return true;
   if (node.type !== 'MemberExpression') return false;
   const property = propertyName(node) ?? '';

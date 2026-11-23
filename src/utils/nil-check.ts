@@ -242,6 +242,48 @@ export const nilPairIn = (
     : undefined;
 };
 
+// The helper of the rule that owns a single comparison: `x == null` is prefer-is-nil,
+// `x === null` prefer-is-null, `x === undefined` / `typeof x === 'undefined'` prefer-is-undefined.
+const helperFor = ({ kind, negated, strict }: NilComparison) =>
+  !strict
+    ? negated
+      ? 'isNotNil'
+      : 'isNil'
+    : kind === 'null'
+      ? 'isNull'
+      : 'isUndefined';
+
+// One of the nil predicate rules reports `node` as a whole: a single comparison, or a
+// two-operand pair (`x !== null && x !== undefined`). Rules whose rewrite would wrap the
+// check (`pickBy(o, v => v != null)`) yield it, so the nil helper is suggested first.
+export const isReportedNilCheck = (
+  sourceCode: SourceCode,
+  node: TSESTree.Node,
+): boolean => {
+  if (node.type === 'LogicalExpression') {
+    if (node.operator === '??') return false;
+    const loc = nilPairIn(
+      sourceCode,
+      node,
+      node.operator === '||' ? 'isNil' : 'isNotNil',
+    );
+    return (
+      !!loc
+      && loc.start.line === node.loc.start.line
+      && loc.start.column === node.loc.start.column
+    );
+  }
+  const comparison = parseNilComparison(node);
+  if (!comparison) return false;
+  const helper = helperFor(comparison);
+  return (
+    (helper === 'isNil'
+      || helper === 'isNotNil'
+      || !isNilPairHalf(sourceCode, node))
+    && isReplaceable(sourceCode, { ...comparison, node }, helper)
+  );
+};
+
 // The comparison is one half of a nil pair, which prefer-is-nil / prefer-is-not-nil report.
 export const isNilPairHalf = (
   sourceCode: SourceCode,

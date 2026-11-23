@@ -130,6 +130,152 @@ const cases: [code: string, rules: string[]][] = [
     'Object.fromEntries(Object.entries(o).map(([k, v]) => [k, v * 2]));',
     ['prefer-map-values'],
   ],
+  [
+    'Object.fromEntries(Object.entries(o).map(([k, v]) => [k.toUpperCase(), v]));',
+    ['prefer-map-keys'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).map(([k, v]) => [v, k]));',
+    ['prefer-invert'],
+  ],
+  // A plain copy, a callback that changes both, a key not taken from the old key.
+  ['Object.fromEntries(Object.entries(o).map(([k, v]) => [k, v]));', []],
+  ['Object.fromEntries(Object.entries(o).map(([k, v]) => [f(k), g(v)]));', []],
+  ['Object.fromEntries(Object.entries(o).map(([k, v]) => [v.id, v]));', []],
+  ['Object.fromEntries(Object.entries(o).map(([k, v]) => [v, f(k)]));', []],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v > 0));',
+    ['prefer-pick-by'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([k]) => keys.includes(k)));',
+    ['prefer-pick-by'],
+  ],
+  [
+    "Object.fromEntries(Object.entries(o).filter(([k]) => k === 'a'));",
+    ['prefer-pick-by'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => !!v));',
+    ['prefer-pick-by'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => !v));',
+    ['prefer-omit-by'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([k]) => !keys.includes(k)));',
+    ['prefer-omit-by'],
+  ],
+  [
+    "Object.fromEntries(Object.entries(o).filter(([k]) => k !== 'a'));",
+    ['prefer-omit-by'],
+  ],
+  [
+    "Object.fromEntries(Object.entries(o).filter(([k]) => k !== 'a' && k !== 'b'));",
+    ['prefer-omit-by'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([k]) => !a.has(k) && !isB(k)));',
+    ['prefer-omit-by'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([k, v]) => !keys.includes(k) && v));',
+    ['prefer-pick-by'],
+  ],
+  // A single nil check goes to the nil rule first; `pickBy(o, isNotNil)` follows once it reads
+  // `isNotNil(v)`.
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v != null));',
+    ['prefer-is-not-nil'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined));',
+    ['prefer-is-undefined'],
+  ],
+  [
+    "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v !== 'undefined'));",
+    ['prefer-is-undefined'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v !== null));',
+    ['prefer-is-null'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v !== null && v !== undefined));',
+    ['prefer-is-not-nil'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => !(v == null)));',
+    ['prefer-is-nil'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => isNotNil(v)));',
+    ['prefer-pick-by'],
+  ],
+  // Single type tests go to the type predicate rule first, like nil checks.
+  [
+    "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === 'string'));",
+    ['prefer-is-string'],
+  ],
+  [
+    "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v !== 'function'));",
+    ['prefer-is-function'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => !(v instanceof Date)));',
+    ['prefer-is-date'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v instanceof Promise));',
+    ['prefer-is-promise'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v.constructor === Object));',
+    ['prefer-is-plain-object'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => !(Object.getPrototypeOf(v) === Object.prototype)));',
+    ['prefer-is-plain-object'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => isPlainObject(v)));',
+    ['prefer-pick-by'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => isString(v)));',
+    ['prefer-pick-by'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => !isDate(v)));',
+    ['prefer-omit-by'],
+  ],
+  [
+    "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === 'string' || typeof v === 'number'));",
+    ['prefer-pick-by'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v instanceof Widget));',
+    ['prefer-pick-by'],
+  ],
+  // Compound predicates: the frame and the nil check or type test inside are separate rewrites.
+  [
+    "Object.fromEntries(Object.entries(o).filter(([k, v]) => typeof v === 'string' && k !== 'x'));",
+    ['prefer-is-string', 'prefer-pick-by'],
+  ],
+  [
+    "Object.fromEntries(Object.entries(o).filter(([k, v]) => v != null && k !== 'x'));",
+    ['prefer-is-not-nil', 'prefer-pick-by'],
+  ],
+  [
+    "Object.fromEntries(Object.entries(o).filter(([k, v]) => v == null || k === 'x'));",
+    ['prefer-is-nil', 'prefer-pick-by'],
+  ],
+  ['Object.keys(o).find(k => o[k] === value);', ['prefer-find-key']],
+  ["Object.keys(o).find(k => k.startsWith('x'));", []],
+  ['Object.entries(o).find(([, v]) => v === value)?.[0];', ['prefer-find-key']],
+  ['Object.entries(o).find(([, v]) => v === value)[0];', ['prefer-find-key']],
+  ['Object.entries(o).find(([, v]) => v === value)[1];', []],
   // predicate
   ['x === null;', ['prefer-is-null']],
   ['x === undefined;', ['prefer-is-undefined']],

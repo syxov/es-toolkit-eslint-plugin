@@ -12,12 +12,14 @@ import { preferDifference } from './rules/prefer-difference.js';
 import { preferDifferenceBy } from './rules/prefer-difference-by.js';
 import { preferDifferenceWith } from './rules/prefer-difference-with.js';
 import { preferEscapeRegExp } from './rules/prefer-escape-reg-exp.js';
+import { preferFindKey } from './rules/prefer-find-key.js';
 import { preferFlatMap } from './rules/prefer-flat-map.js';
 import { preferFlatMapDeep } from './rules/prefer-flat-map-deep.js';
 import { preferFlatten } from './rules/prefer-flatten.js';
 import { preferFlattenDeep } from './rules/prefer-flatten-deep.js';
 import { preferIdentity } from './rules/prefer-identity.js';
 import { preferIntersection } from './rules/prefer-intersection.js';
+import { preferInvert } from './rules/prefer-invert.js';
 import { preferHead } from './rules/prefer-head.js';
 import { preferIsEmpty } from './rules/prefer-is-empty.js';
 import { preferIsEqual } from './rules/prefer-is-equal.js';
@@ -49,10 +51,13 @@ import { preferInRange } from './rules/prefer-in-range.js';
 import { preferKeyBy } from './rules/prefer-key-by.js';
 import { preferLast } from './rules/prefer-last.js';
 import { preferLowerFirst } from './rules/prefer-lower-first.js';
+import { preferMapKeys } from './rules/prefer-map-keys.js';
 import { preferMapValues } from './rules/prefer-map-values.js';
 import { preferMean } from './rules/prefer-mean.js';
 import { preferMeanBy } from './rules/prefer-mean-by.js';
 import { preferNoop } from './rules/prefer-noop.js';
+import { preferOmitBy } from './rules/prefer-omit-by.js';
+import { preferPickBy } from './rules/prefer-pick-by.js';
 import { preferRandomInt } from './rules/prefer-random-int.js';
 import { preferRange } from './rules/prefer-range.js';
 import { preferRound } from './rules/prefer-round.js';
@@ -94,6 +99,7 @@ const rules = {
   'prefer-difference-by': preferDifferenceBy,
   'prefer-difference-with': preferDifferenceWith,
   'prefer-escape-reg-exp': preferEscapeRegExp,
+  'prefer-find-key': preferFindKey,
   'prefer-flat-map': preferFlatMap,
   'prefer-flat-map-deep': preferFlatMapDeep,
   'prefer-flatten': preferFlatten,
@@ -101,6 +107,7 @@ const rules = {
   'prefer-head': preferHead,
   'prefer-identity': preferIdentity,
   'prefer-intersection': preferIntersection,
+  'prefer-invert': preferInvert,
   'prefer-is-empty': preferIsEmpty,
   'prefer-is-equal': preferIsEqual,
   'prefer-is-error': preferIsError,
@@ -131,10 +138,13 @@ const rules = {
   'prefer-key-by': preferKeyBy,
   'prefer-last': preferLast,
   'prefer-lower-first': preferLowerFirst,
+  'prefer-map-keys': preferMapKeys,
   'prefer-map-values': preferMapValues,
   'prefer-mean': preferMean,
   'prefer-mean-by': preferMeanBy,
   'prefer-noop': preferNoop,
+  'prefer-omit-by': preferOmitBy,
+  'prefer-pick-by': preferPickBy,
   'prefer-random-int': preferRandomInt,
   'prefer-range': preferRange,
   'prefer-round': preferRound,
@@ -208,7 +218,12 @@ const mathRules = {
 
 const objectRules = {
   'es-toolkit/prefer-clone-deep': 'off',
+  'es-toolkit/prefer-find-key': 'error',
+  'es-toolkit/prefer-invert': 'error',
+  'es-toolkit/prefer-map-keys': 'error',
   'es-toolkit/prefer-map-values': 'error',
+  'es-toolkit/prefer-omit-by': 'error',
+  'es-toolkit/prefer-pick-by': 'error',
 } as const;
 
 const predicateRules = {

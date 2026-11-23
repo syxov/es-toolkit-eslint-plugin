@@ -52,9 +52,9 @@ mapValues(o, (v, k) => format(v, k));
 
 // Not a mapValues — left untouched:
 Object.fromEntries(Object.entries(o).map(([k, v]) => [k, v])); // a plain copy
-Object.fromEntries(Object.entries(o).map(([k, v]) => [v, k])); // the key changes
-Object.fromEntries(Object.entries(o).map(([k, v]) => [k.toUpperCase(), v])); // mapKeys
-Object.fromEntries(Object.entries(o).filter(([k, v]) => v)); // pickBy
+Object.fromEntries(Object.entries(o).map(([k, v]) => [v, k])); // prefer-invert
+Object.fromEntries(Object.entries(o).map(([k, v]) => [k.toUpperCase(), v])); // prefer-map-keys
+Object.fromEntries(Object.entries(o).filter(([k, v]) => v)); // prefer-pick-by
 Object.fromEntries(Object.entries(o).map(([k, v], i) => [k, v + i])); // the index is used
 Object.fromEntries(Object.entries(o).map(toEntry)); // the callback is not inline
 new Map(Object.entries(o).map(([k, v]) => [k, v * 2])); // a Map, not an object
@@ -67,9 +67,10 @@ new Map(Object.entries(o).map(([k, v]) => [k, v * 2])); // a Map, not an object
   is not reported.
 - **Destructured callback only.** A callback that indexes the entry instead of
   destructuring it, such as `entry => [entry[0], f(entry[1])]`, is not detected.
-- **Values only.** Callbacks that change the key (`mapKeys`) or entry filters such as
-  `Object.fromEntries(Object.entries(o).filter(…))` (`pickBy` / `omitBy`) are out of scope
-  for this rule.
+- **Values only.** Callbacks that change the key belong to
+  [`prefer-map-keys`](prefer-map-keys.md) and [`prefer-invert`](prefer-invert.md); entry
+  filters such as `Object.fromEntries(Object.entries(o).filter(…))` belong to
+  [`prefer-pick-by`](prefer-pick-by.md) and [`prefer-omit-by`](prefer-omit-by.md).
 - **Direct nesting only.** `Object.entries(o).map(…)` must be the direct argument of
   `Object.fromEntries`; entries built through a variable or another call are not reported.
 - **No auto-fix by design.** The fix requires adding an

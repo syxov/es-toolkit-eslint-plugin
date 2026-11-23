@@ -45,7 +45,8 @@ src/
   utils/is-sample-index.ts  # `a[Math.floor(Math.random() * a.length)]`: prefer-sample vs prefer-random-int
   utils/nil-check.ts        # null/undefined comparisons and `x === null || x === undefined` pairs
   utils/string-case.ts      # first-character / rest helpers for the string rules
-  utils/entries-map.ts      # `Object.fromEntries(…)`, `.map(cb)` and entry-callback fragments
+  utils/entries-map.ts      # `Object.fromEntries(…)`, `.map(cb)`, entry callbacks; mapValues/mapKeys/invert split
+  utils/entries-filter.ts   # `Object.fromEntries(Object.entries(o).filter(…))`: pick/pickBy vs omit/omitBy
   utils/key-entry-callback.ts # `xs.map(p => [key, p])` entry callbacks: prefer-key-by, prefer-uniq-by
   utils/scope.ts            # isDeclaredInCode / isUndeclaredIdentifier (`typeof window`), bindsHelperName
   utils/variable-sources.ts # where a local variable's value comes from (init, for…of element, callback param)

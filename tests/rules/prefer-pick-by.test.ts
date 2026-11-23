@@ -1,0 +1,189 @@
+import { RuleTester } from '@typescript-eslint/rule-tester';
+import { preferPickBy } from '../../src/rules/prefer-pick-by.js';
+
+const ruleTester = new RuleTester();
+
+ruleTester.run('prefer-pick-by', preferPickBy, {
+  valid: [
+    'pickBy(o, v => v != null);',
+    "pick(o, ['a', 'b']);",
+    // Negated predicates and key exclusions are owned by prefer-omit-by.
+    'Object.fromEntries(Object.entries(o).filter(([k, v]) => !v));',
+    'Object.fromEntries(Object.entries(o).filter(([k]) => !keys.includes(k)));',
+    "Object.fromEntries(Object.entries(o).filter(([k]) => k !== 'a'));",
+    "Object.fromEntries(Object.entries(o).filter(([k]) => k !== 'a' && k !== 'b'));",
+    'Object.fromEntries(Object.entries(o).filter(([key]) => !BUILT_IN.has(key) && !isBuiltIn(key)));',
+    // A predicate that is a single nil check is left to the nil predicate rules.
+    'Object.fromEntries(Object.entries(o).filter(([k, v]) => v != null));',
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v !== null));',
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v !== void 0));',
+    "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v !== 'undefined'));",
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v !== null && v !== undefined));',
+    'Object.fromEntries(Object.entries(props).filter(([k, v]: [string, unknown]) => v !== undefined)) as Partial<Props>;',
+    // A predicate that is a single type test is left to the type predicate rules.
+    "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === 'string'));",
+    "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v !== 'function'));",
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v instanceof Date));',
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v instanceof Promise));',
+    // A plain-object test is left to prefer-is-plain-object.
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v.constructor === Object));',
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => Object.getPrototypeOf(v) === Object.prototype));',
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v.constructor !== Object));',
+    'Object.fromEntries(Object.entries(o).filter(([, v]: [string, unknown]) => v instanceof Map));',
+    // The predicate reads neither the key nor the value.
+    'Object.fromEntries(Object.entries(o).filter(() => true));',
+    'Object.fromEntries(Object.entries(o).filter(([k, v]) => flag));',
+    // Callback shapes that are not a single destructured entry.
+    'Object.fromEntries(Object.entries(o).filter(Boolean));',
+    'Object.fromEntries(Object.entries(o).filter(isWanted));',
+    'Object.fromEntries(Object.entries(o).filter((e) => e[1]));',
+    'Object.fromEntries(Object.entries(o).filter(([k, v], i) => i > 0 && v));',
+    'Object.fromEntries(Object.entries(o).filter(([k, v = 1]) => v));',
+    'Object.fromEntries(Object.entries(o).filter(([k, ...rest]) => rest.length));',
+    'Object.fromEntries(Object.entries(o).filter(([k, { a }]) => a));',
+    'Object.fromEntries(Object.entries(o).filter(([k, v]) => { log(k); return v; }));',
+    // Not an `Object.entries(o).filter(cb)` frame.
+    'Object.fromEntries(entries.filter(([k, v]) => v));',
+    'Object.entries(o).filter(([k, v]) => v);',
+    'new Map(Object.entries(o).filter(([k, v]) => v));',
+    'Object.fromEntries(Object.entries(o).filter(([k, v]) => v, thisArg));',
+    'Object.fromEntries(Object.entries(o).filter(([k, v]) => v).map(([k, v]) => [k, v * 2]));',
+    'Object.fromEntries(Object.keys(o).filter(k => o[k]).map(k => [k, o[k]]));',
+  ],
+  invalid: [
+    {
+      // The nil check rewritten with the helper.
+      code: 'Object.fromEntries(Object.entries(o).filter(([k, v]) => isNotNil(v)));',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // A compound predicate is not a single nil check.
+      code: "Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined && v !== ''));",
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // A local `isNotNil` keeps prefer-is-not-nil quiet, so the frame is reported here.
+      code: 'function f(o, isNotNil) { return Object.fromEntries(Object.entries(o).filter(([, v]) => v != null)); }',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      code: 'Object.fromEntries(Object.entries(o).filter(([, v]) => v));',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      code: "Object.fromEntries(Object.entries(o).filter(([k, v]) => k.startsWith('_') && v));",
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      code: "Object.fromEntries(Object.entries(o).filter(([k]) => k.startsWith('data-')));",
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // A double negation is a truthiness test.
+      code: 'Object.fromEntries(Object.entries(o).filter(([, v]) => !!v));',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // Mixed key and value tests are not a plain key selection.
+      code: 'Object.fromEntries(Object.entries(o).filter(([k, v]) => keys.includes(k) && v));',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // A string receiver tests substrings, not membership.
+      code: "Object.fromEntries(Object.entries(o).filter(([k]) => 'abc'.includes(k)));",
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // The candidate list depends on the entry.
+      code: 'Object.fromEntries(Object.entries(o).filter(([k, v]) => v.includes(k)));',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      code: 'Object.fromEntries(Object.entries(o).filter(([, v]) => isPlainObject(v)));',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // A local `isPlainObject` keeps prefer-is-plain-object quiet.
+      code: 'function f(o, isPlainObject) { return Object.fromEntries(Object.entries(o).filter(([, v]) => v.constructor === Object)); }',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // The type test rewritten with the helper.
+      code: 'Object.fromEntries(Object.entries(o).filter(([, v]) => isString(v)));',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // A compound predicate is not a single type test.
+      code: "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === 'string' && v !== ''));",
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // A type dispatch, which no type predicate rule reports.
+      code: "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === 'string' || typeof v === 'number'));",
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // No predicate rule covers these types.
+      code: "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === 'object'));",
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      code: 'Object.fromEntries(Object.entries(o).filter(([, v]) => v instanceof Widget));',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // A local `isDate` keeps prefer-is-date quiet, so the frame is reported here.
+      code: 'function f(o, isDate) { return Object.fromEntries(Object.entries(o).filter(([, v]) => v instanceof Date)); }',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      code: 'Object.fromEntries(Object.entries(o).filter(function ([k, v]) { return v > 0; }));',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      code: 'Object.fromEntries(Object.entries(o).filter(([k, v]) => { return v > 0; }));',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      code: 'Object.fromEntries(Object.entries(props).filter(([k, v]: [string, unknown]) => v !== undefined && k !== v)) as Partial<Props>;',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    // Key membership: `pick`.
+    {
+      code: 'Object.fromEntries(Object.entries(o).filter(([k]) => keys.includes(k)));',
+      errors: [{ messageId: 'preferPick' }],
+    },
+    {
+      code: "Object.fromEntries(Object.entries(o).filter(([k, v]) => ['a', 'b'].includes(k)));",
+      errors: [{ messageId: 'preferPick' }],
+    },
+    {
+      code: 'Object.fromEntries(Object.entries(o).filter(([key]) => allowed.has(key)));',
+      errors: [{ messageId: 'preferPick' }],
+    },
+    {
+      code: "Object.fromEntries(Object.entries(o).filter(([k]) => k === 'a'));",
+      errors: [{ messageId: 'preferPick' }],
+    },
+    {
+      code: "Object.fromEntries(Object.entries(o).filter(([k]) => 'a' === k || k == 'b'));",
+      errors: [{ messageId: 'preferPick' }],
+    },
+    {
+      code: "Object.fromEntries(Object.entries(o).filter(([k]) => k === 'a' || k === 'b' || extra.includes(k)));",
+      errors: [{ messageId: 'preferPick' }],
+    },
+    {
+      code: 'Object.fromEntries(Object.entries(o).filter(([k]) => k === name));',
+      errors: [{ messageId: 'preferPick' }],
+    },
+    {
+      code: 'const subset = Object.fromEntries(Object.entries(o).filter(function ([k]) { return KEYS.includes(k); }));',
+      errors: [{ messageId: 'preferPick' }],
+    },
+    {
+      code: 'Object.fromEntries(Object.entries(o).filter(([k]: [string, number]) => (keys as string[]).includes(k)));',
+      errors: [{ messageId: 'preferPick' }],
+    },
+  ],
+});
