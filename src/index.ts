@@ -25,6 +25,7 @@ import { preferIsError } from './rules/prefer-is-error.js';
 import { preferIsFunction } from './rules/prefer-is-function.js';
 import { preferIsMap } from './rules/prefer-is-map.js';
 import { preferIsBoolean } from './rules/prefer-is-boolean.js';
+import { preferIsBrowser } from './rules/prefer-is-browser.js';
 import { preferIsBlob } from './rules/prefer-is-blob.js';
 import { preferIsFile } from './rules/prefer-is-file.js';
 import { preferIsArrayBuffer } from './rules/prefer-is-array-buffer.js';
@@ -32,6 +33,8 @@ import { preferIsNil } from './rules/prefer-is-nil.js';
 import { preferIsNotNil } from './rules/prefer-is-not-nil.js';
 import { preferIsNull } from './rules/prefer-is-null.js';
 import { preferIsNumber } from './rules/prefer-is-number.js';
+import { preferIsPlainObject } from './rules/prefer-is-plain-object.js';
+import { preferIsPromise } from './rules/prefer-is-promise.js';
 import { preferIsRegExp } from './rules/prefer-is-reg-exp.js';
 import { preferIsSet } from './rules/prefer-is-set.js';
 import { preferIsSubset } from './rules/prefer-is-subset.js';
@@ -104,6 +107,7 @@ const rules = {
   'prefer-is-function': preferIsFunction,
   'prefer-is-map': preferIsMap,
   'prefer-is-boolean': preferIsBoolean,
+  'prefer-is-browser': preferIsBrowser,
   'prefer-is-blob': preferIsBlob,
   'prefer-is-file': preferIsFile,
   'prefer-is-array-buffer': preferIsArrayBuffer,
@@ -111,6 +115,8 @@ const rules = {
   'prefer-is-not-nil': preferIsNotNil,
   'prefer-is-null': preferIsNull,
   'prefer-is-number': preferIsNumber,
+  'prefer-is-plain-object': preferIsPlainObject,
+  'prefer-is-promise': preferIsPromise,
   'prefer-is-reg-exp': preferIsRegExp,
   'prefer-is-set': preferIsSet,
   'prefer-is-subset': preferIsSubset,
@@ -209,6 +215,7 @@ const predicateRules = {
   'es-toolkit/prefer-is-array-buffer': 'error',
   'es-toolkit/prefer-is-blob': 'error',
   'es-toolkit/prefer-is-boolean': 'error',
+  'es-toolkit/prefer-is-browser': 'error',
   'es-toolkit/prefer-is-date': 'error',
   'es-toolkit/prefer-is-empty': 'error',
   'es-toolkit/prefer-is-equal': 'error',
@@ -220,6 +227,8 @@ const predicateRules = {
   'es-toolkit/prefer-is-not-nil': 'error',
   'es-toolkit/prefer-is-null': 'error',
   'es-toolkit/prefer-is-number': 'error',
+  'es-toolkit/prefer-is-plain-object': 'error',
+  'es-toolkit/prefer-is-promise': 'error',
   'es-toolkit/prefer-is-reg-exp': 'error',
   'es-toolkit/prefer-is-set': 'error',
   'es-toolkit/prefer-is-string': 'error',

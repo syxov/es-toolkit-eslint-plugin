@@ -1,5 +1,7 @@
 import type { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { isIdentifierNamed, isLiteralValue, isSameExpression } from './ast.js';
+import { isBrowserPairOperand } from './browser-check.js';
+import { isPartOfPlainObjectTest } from './plain-object-test.js';
 import { isExcludedPredicateSite } from './predicate-site.js';
 import { isUndeclaredIdentifier } from './scope.js';
 import {
@@ -196,6 +198,9 @@ const isReplaceable = (
   && !(check.viaTypeof && isUndeclaredIdentifier(sourceCode, check.value))
   && !isTypeDispatch(sourceCode, check.node)
   && !probesObject(sourceCode, check)
+  && !isPartOfPlainObjectTest(sourceCode, check.node, check.value)
+  // `typeof window !== 'undefined' && window.document != null` is prefer-is-browser's.
+  && !isBrowserPairOperand(sourceCode, check.node)
   && !hasNativeShorthand(sourceCode, check);
 
 // A single comparison with `null` / `undefined` that `helper` can replace.
