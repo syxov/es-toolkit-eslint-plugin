@@ -11,8 +11,9 @@ Core principles (apply to every rule):
 
 - **Report-only, never auto-fix.** `meta.type: 'suggestion'`, no `fixable`, no
   `hasSuggestions`. Rules report; the developer rewrites.
-- **esquery-first.** Push detection into the selector string; keep the `create()` body
-  minimal. A typical rule body is ~3 lines.
+- **esquery-first.** Push detection into the selector string as far as it goes. When a
+  selector alone cannot rule out a false positive, write JS in `create()` (AST walks, scope
+  lookups) — precision beats a short rule body.
 - **Self-documenting code.** Minimal comments, in English only, and only where the
   _why_ is non-obvious.
 - **ESLint 10, flat-config only.** No legacy `.eslintrc` support.
@@ -131,10 +132,14 @@ Detection lives in the selector. Useful constructs (all supported by ESLint's es
   `[right.value=null]` matches `'null'`. Match number/null literals by `raw`:
   `[x.type="Literal"][x.raw="0"]`, or use `isLiteralValue` in JS.
 
-Detection is **syntactic** — e.g. `Math` is matched by name, so a shadowed local `Math`
-is a known, accepted false-positive risk. Document such limits in the rule's doc instead
-of adding scope analysis (keep the rule minimal). The one exception is `referencesParam`,
-which asks whether a callback's own parameter is read (`x => x !== f(x)` is not a fixed value).
+Detection starts in the selector; JS takes over where a selector cannot tell a real match
+from a false positive. Scope analysis (`context.sourceCode.getScope`, e.g. "is this
+identifier declared", "what is this variable initialised with") and walks over the
+enclosing function are fine when they remove false positives found in the corpus. Keep
+such checks as small typed helpers, shared through `src/utils/` when several rules need
+them (`referencesParam` is an example). Rules do not use type information
+(`parserServices`): they must work without typed linting. What remains undetectable
+without types is documented in the rule's **Limitations**.
 
 ### One report per snippet
 

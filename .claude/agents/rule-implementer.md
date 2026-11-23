@@ -24,9 +24,12 @@ so the caller can decide.
 - Put detection in esquery selectors. Compose variants with small selector helpers and
   register several selector keys rather than branching in JS. A typical `create()` body
   is a `report` helper plus a returned selector map.
-- Use JS checks only for what esquery cannot express (for example "both operands are the
-  reducer's own params"). Keep them small, typed helpers next to the rule.
-- Detection stays syntactic. Do not add scope or type analysis; document the limit instead.
+- Use JS checks for what esquery cannot express (for example "both operands are the
+  reducer's own params"), including scope lookups (`context.sourceCode.getScope`) and walks
+  over the enclosing function when they remove false positives. Keep them small, typed
+  helpers next to the rule, or in `src/utils/` when shared.
+- No type information (`parserServices`): rules must work without typed linting. Document
+  what stays undetectable without types in the rule's Limitations.
 - Comments in English, only where the reason is not obvious from the code.
 
 Rules that replace `.filter(...)` or `.reduce(...)`:
