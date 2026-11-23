@@ -143,7 +143,7 @@ const arrayRules = {
   'es-toolkit/prefer-flat-map-deep': 'error',
   'es-toolkit/prefer-flatten': 'error',
   'es-toolkit/prefer-flatten-deep': 'error',
-  'es-toolkit/prefer-head': 'error',
+  'es-toolkit/prefer-head': 'off',
   'es-toolkit/prefer-initial': 'error',
   'es-toolkit/prefer-intersection': 'error',
   'es-toolkit/prefer-key-by': 'error',

@@ -56,7 +56,7 @@ export default [esToolkit.configs.all];
 ```
 
 Rules marked **(opt-in)** match idioms that are often written on purpose (for example
-`arr.slice(0, n)` or `() => {}`), so every bundled config, `all` included, leaves them `off`.
+`arr[0]`, `arr.slice(0, n)` or `() => {}`), so every bundled config, `all` included, leaves them `off`.
 Enable them one by one:
 
 ```js
@@ -108,7 +108,7 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 | [`prefer-flat-map-deep`](docs/rules/prefer-flat-map-deep.md) | Enforce using `flatMapDeep` instead of `.map(...).flat(Infinity)`.                        |
 | [`prefer-flatten`](docs/rules/prefer-flatten.md)             | Enforce using `flatten` instead of `.flat()`.                                             |
 | [`prefer-flatten-deep`](docs/rules/prefer-flatten-deep.md)   | Enforce using `flattenDeep` instead of `.flat(Infinity)`.                                 |
-| [`prefer-head`](docs/rules/prefer-head.md)                   | Enforce using `head` instead of indexing an array with `0`.                               |
+| [`prefer-head`](docs/rules/prefer-head.md)                   | Enforce using `head` instead of indexing an array with `0` (opt-in).                      |
 | [`prefer-initial`](docs/rules/prefer-initial.md)             | Enforce using `initial` instead of `arr.slice(0, -1)`.                                    |
 | [`prefer-intersection`](docs/rules/prefer-intersection.md)   | Enforce using `intersection` instead of `a.filter(x => b.includes(x))`.                   |
 | [`prefer-key-by`](docs/rules/prefer-key-by.md)               | Enforce using `keyBy` instead of `Object.fromEntries(xs.map(x => [key, x]))`.             |

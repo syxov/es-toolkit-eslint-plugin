@@ -16,7 +16,7 @@ test('exports category configs and an all config', () => {
 
   expect(plugin.configs.array.rules).toMatchObject({
     'es-toolkit/prefer-compact': 'error',
-    'es-toolkit/prefer-head': 'error',
+    'es-toolkit/prefer-head': 'off',
     'es-toolkit/prefer-without': 'error',
   });
   expect(plugin.configs.math.rules).toMatchObject({
@@ -56,6 +56,7 @@ test('leaves exactly the opt-in rules off, even in the all config', () => {
 
   expect(offRules.toSorted()).toEqual([
     'es-toolkit/prefer-debounce',
+    'es-toolkit/prefer-head',
     'es-toolkit/prefer-identity',
     'es-toolkit/prefer-noop',
     'es-toolkit/prefer-take',

@@ -112,6 +112,13 @@ const cases: [code: string, rules: string[]][] = [
     ['prefer-capitalize'],
   ],
   ["s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');", ['prefer-escape-reg-exp']],
+  // head: nil checks of the first element belong to the nil predicate rules
+  ['xs[0] == null;', ['prefer-is-nil']],
+  ['xs[0] != null;', ['prefer-is-not-nil']],
+  ['xs[0] === null;', ['prefer-is-null']],
+  ['xs[0] === undefined;', ['prefer-is-undefined']],
+  ["typeof xs[0] === 'undefined';", ['prefer-is-undefined']],
+  ['color[0]!.toUpperCase() + color.slice(1);', []],
 ];
 
 describe('rule overlap', () => {
