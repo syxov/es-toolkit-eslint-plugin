@@ -60,6 +60,40 @@ export default defineConfig([
 ]);
 ```
 
+## Method-call chains
+
+Rules that replace `.filter(...)` or `.reduce(...)` report by default only a call that is
+**outside a method-call chain**: `items.filter(Boolean)` is reported,
+`items.map(toId).filter(Boolean)` is not. They are `prefer-compact`, `prefer-difference`,
+`prefer-difference-by`, `prefer-difference-with`, `prefer-intersection`, `prefer-mean`,
+`prefer-mean-by`, `prefer-sum`, `prefer-sum-by` and `prefer-without`.
+
+| `chainPosition`           | Reports the call when it is …             |
+| ------------------------- | ----------------------------------------- |
+| `outside-chain` (default) | not chained to another method call        |
+| `chain-start`             | the first call of a chain, or standalone  |
+| `chain-end`               | the last call of a chain, or standalone   |
+| `chain-boundaries`        | the first or last call, or standalone     |
+| `always`                  | anywhere, including the middle of a chain |
+
+Set it for all these rules in plugin settings, and override it per rule:
+
+```js
+export default defineConfig([
+  esToolkit.configs.all,
+  {
+    settings: {
+      'es-toolkit': { arrayMethods: { chainPosition: 'chain-boundaries' } },
+    },
+    rules: {
+      'es-toolkit/prefer-compact': ['error', { chainPosition: 'always' }],
+    },
+  },
+]);
+```
+
+More examples: [Method-call chains](docs/method-call-chains.md).
+
 ## Rules
 
 ### Array
