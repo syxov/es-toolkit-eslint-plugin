@@ -103,6 +103,33 @@ const cases: [code: string, rules: string[]][] = [
   ['v instanceof Date;', ['prefer-is-date']],
   // promise
   ['new Promise(resolve => setTimeout(resolve, ms));', ['prefer-delay']],
+  ['new Promise((_, reject) => setTimeout(reject, ms));', ['prefer-timeout']],
+  ['new Promise((resolve, reject) => setTimeout(resolve, ms));', []],
+  ['new Promise(reject => setTimeout(reject, ms));', ['prefer-delay']],
+  [
+    "new Promise((_, reject) => setTimeout(() => reject(new Error('Failed')), ms));",
+    [],
+  ],
+  [
+    'Promise.race([p, new Promise((_, reject) => setTimeout(reject, ms))]);',
+    ['prefer-with-timeout'],
+  ],
+  [
+    'Promise.race([p, new Promise(resolve => setTimeout(resolve, ms))]);',
+    ['prefer-delay'],
+  ],
+  [
+    'Promise.race([a, b, new Promise((_, reject) => setTimeout(reject, ms))]);',
+    ['prefer-timeout'],
+  ],
+  [
+    "import { timeout } from 'es-toolkit'; Promise.race([p, timeout(ms)]);",
+    ['prefer-with-timeout'],
+  ],
+  [
+    'page.evaluate(() => Promise.race([p, new Promise((_, reject) => setTimeout(reject, 9))]));',
+    [],
+  ],
   // string
   ['s[0].toUpperCase() + s.slice(1);', ['prefer-upper-first']],
   ['s.charAt(0).toUpperCase() + s.slice(1);', ['prefer-upper-first']],

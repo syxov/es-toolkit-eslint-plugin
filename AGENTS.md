@@ -59,6 +59,8 @@ src/
   utils/includes-receiver.ts # `b.includes(x)` receivers that are certainly arrays: difference/intersection
   utils/set-round-trip.ts   # `[...new Set(x)]` / `Array.from(new Set(x))`: prefer-uniq, prefer-union
   utils/trim-replace.ts     # `s.replace(/^X+|X+$/g, '')` parsing and chained-pair ownership: the trim rules
+  utils/browser-evaluation.ts # callbacks serialised to a page (`page.evaluate`): the promise rules
+  utils/timer-promise.ts    # `new Promise` + `setTimeout` reject shapes, `Promise.race` timeouts: prefer-timeout vs prefer-with-timeout
   rules/<name>.ts           # one file per rule
 tests/rules/<name>.test.ts  # RuleTester valid/invalid matrix per rule
 tests/overlap.test.ts       # every rule (opt-in too) over snippets: exactly which rules fire on each

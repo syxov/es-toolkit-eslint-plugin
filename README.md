@@ -190,9 +190,11 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 
 ## Promise rules
 
-| Rule                                         | Description                                                    | ✅  |
-| -------------------------------------------- | -------------------------------------------------------------- | :-: |
-| [`prefer-delay`](docs/rules/prefer-delay.md) | Enforce using `delay` instead of `new Promise` + `setTimeout`. | ✅  |
+| Rule                                                       | Description                                                                        | ✅  |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------- | :-: |
+| [`prefer-delay`](docs/rules/prefer-delay.md)               | Enforce using `delay` instead of `new Promise` + `setTimeout`.                     | ✅  |
+| [`prefer-timeout`](docs/rules/prefer-timeout.md)           | Enforce using `timeout` instead of a `new Promise` that rejects from `setTimeout`. | ✅  |
+| [`prefer-with-timeout`](docs/rules/prefer-with-timeout.md) | Enforce using `withTimeout` instead of racing a promise against a rejecting timer. | ✅  |
 
 ## String rules
 
