@@ -113,6 +113,21 @@ const cases: [code: string, rules: string[]][] = [
     ['prefer-capitalize'],
   ],
   ["s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');", ['prefer-escape-reg-exp']],
+  // trim group: both ends belong to prefer-trim, chained one-sided replaces included
+  ["s.replace(/^\\/+|\\/+$/g, '');", ['prefer-trim']],
+  ["s.replace(/^\\/+/, '').replace(/\\/+$/, '');", ['prefer-trim']],
+  ["s.replace(/\\/+$/, '').replace(/^\\/+/, '');", ['prefer-trim']],
+  ["s.replace(/^\\/+/, '');", ['prefer-trim-start']],
+  ["s.replace(/\\/+$/, '');", ['prefer-trim-end']],
+  [
+    "s.replace(/^\\/+/, '').replace(/-+$/, '');",
+    ['prefer-trim-end', 'prefer-trim-start'],
+  ],
+  ["s.replace(/^\\/+|\\/+$/, '');", []],
+  ["s.replace(/^\\s+|\\s+$/g, '');", []],
+  ["s.replace(/^\\//, '');", []],
+  ["s.replace(/^[a-z]+/, '');", []],
+  ["s?.replace(/\\/+$/, '');", []],
   // head: nil checks of the first element belong to the nil predicate rules
   ['xs[0] == null;', ['prefer-is-nil']],
   ['xs[0] != null;', ['prefer-is-not-nil']],

@@ -45,6 +45,9 @@ test('exports category configs and an all config', () => {
     'es-toolkit/prefer-capitalize': 'error',
     'es-toolkit/prefer-escape-reg-exp': 'error',
     'es-toolkit/prefer-lower-first': 'error',
+    'es-toolkit/prefer-trim': 'error',
+    'es-toolkit/prefer-trim-end': 'error',
+    'es-toolkit/prefer-trim-start': 'error',
     'es-toolkit/prefer-upper-first': 'error',
   });
 });

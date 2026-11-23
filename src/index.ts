@@ -56,6 +56,9 @@ import { preferSumBy } from './rules/prefer-sum-by.js';
 import { preferTail } from './rules/prefer-tail.js';
 import { preferTake } from './rules/prefer-take.js';
 import { preferTakeRight } from './rules/prefer-take-right.js';
+import { preferTrim } from './rules/prefer-trim.js';
+import { preferTrimEnd } from './rules/prefer-trim-end.js';
+import { preferTrimStart } from './rules/prefer-trim-start.js';
 import { preferUnion } from './rules/prefer-union.js';
 import { preferUniq } from './rules/prefer-uniq.js';
 import { preferUniqBy } from './rules/prefer-uniq-by.js';
@@ -126,6 +129,9 @@ const rules = {
   'prefer-tail': preferTail,
   'prefer-take': preferTake,
   'prefer-take-right': preferTakeRight,
+  'prefer-trim': preferTrim,
+  'prefer-trim-end': preferTrimEnd,
+  'prefer-trim-start': preferTrimStart,
   'prefer-union': preferUnion,
   'prefer-uniq': preferUniq,
   'prefer-uniq-by': preferUniqBy,
@@ -216,6 +222,9 @@ const stringRules = {
   'es-toolkit/prefer-capitalize': 'error',
   'es-toolkit/prefer-escape-reg-exp': 'error',
   'es-toolkit/prefer-lower-first': 'error',
+  'es-toolkit/prefer-trim': 'error',
+  'es-toolkit/prefer-trim-end': 'error',
+  'es-toolkit/prefer-trim-start': 'error',
   'es-toolkit/prefer-upper-first': 'error',
 } as const;
 
