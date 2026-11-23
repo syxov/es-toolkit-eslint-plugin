@@ -35,6 +35,18 @@ ruleTester.run('prefer-round', preferRound, {
     'foo.round(x * 100) / 100;',
     'round(x * 100) / 100;',
     'Math.round(x * 100, y) / 100;',
+    // A `toFixed` round-trip rounds decimal ties differently (`Number((0.15).toFixed(1))` is
+    // 0.1, `round(0.15, 1)` is 0.2), so it is not reported.
+    'Number(x.toFixed(2));',
+    '+x.toFixed(2);',
+    'parseFloat(x.toFixed(2));',
+    'Number.parseFloat(x.toFixed(2));',
+    'Number(x.toFixed(digits));',
+    'function f(x) { return Number(x.toFixed(2)); }',
+    'const y = +price.toFixed(2) + shipping;',
+    'Number((x as number).toFixed(2));',
+    'parseFloat((passed / total).toFixed(2));',
+    'Number((price - prevPrice).toFixed(2));',
     // `toFixed` alone stays a string.
     'x.toFixed(2);',
     'const label = x.toFixed(2);',
@@ -58,7 +70,6 @@ ruleTester.run('prefer-round', preferRound, {
     'Number(x.toFixed(2) + suffix);',
   ],
   invalid: [
-    // Shape A: `Math.round(x * F) / F`.
     {
       code: 'Math.round(x * 100) / 100;',
       errors: [{ messageId: 'preferRound' }],
@@ -91,34 +102,9 @@ ruleTester.run('prefer-round', preferRound, {
       code: 'Math.round(item.price * 100) / 100;',
       errors: [{ messageId: 'preferRound' }],
     },
-    // Shape B: a `toFixed(n)` result converted back to a number.
-    {
-      code: 'Number(x.toFixed(2));',
-      errors: [{ messageId: 'preferRound' }],
-    },
-    {
-      code: '+x.toFixed(2);',
-      errors: [{ messageId: 'preferRound' }],
-    },
-    {
-      code: 'parseFloat(x.toFixed(2));',
-      errors: [{ messageId: 'preferRound' }],
-    },
-    {
-      code: 'Number.parseFloat(x.toFixed(2));',
-      errors: [{ messageId: 'preferRound' }],
-    },
-    {
-      code: 'Number(x.toFixed(digits));',
-      errors: [{ messageId: 'preferRound' }],
-    },
     // Inside larger expressions.
     {
       code: 'const total = Math.round(subtotal * 100) / 100;',
-      errors: [{ messageId: 'preferRound' }],
-    },
-    {
-      code: 'function f(x) { return Number(x.toFixed(2)); }',
       errors: [{ messageId: 'preferRound' }],
     },
     {
@@ -126,20 +112,12 @@ ruleTester.run('prefer-round', preferRound, {
       errors: [{ messageId: 'preferRound' }],
     },
     {
-      code: 'const y = +price.toFixed(2) + shipping;',
-      errors: [{ messageId: 'preferRound' }],
-    },
-    {
       code: 'const a = Math.round(x * 100) / 100, b = parseFloat(y.toFixed(1));',
-      errors: [{ messageId: 'preferRound' }, { messageId: 'preferRound' }],
+      errors: [{ messageId: 'preferRound' }],
     },
     // TypeScript.
     {
       code: 'Math.round((x as number) * 100) / 100;',
-      errors: [{ messageId: 'preferRound' }],
-    },
-    {
-      code: 'Number((x as number).toFixed(2));',
       errors: [{ messageId: 'preferRound' }],
     },
     {

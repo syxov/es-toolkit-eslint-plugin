@@ -20,6 +20,10 @@ ruleTester.run('prefer-random-int', preferRandomInt, {
     'arr[Math.trunc(arr.length * Math.random())];',
     'arr[~~(Math.random() * arr.length)];',
     'arr[(Math.random() * arr.length) | 0];',
+    // A Fisher–Yates shuffle: `shuffle` is the utility, not `randomInt`.
+    'function shuffle<T>(array: T[]): T[] { for (let i = array.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [array[i], array[j]] = [array[j], array[i]]; } return array; }',
+    'for (let i = xs.length - 1; i > 0; i -= 1) { const j = (Math.random() * (i + 1)) | 0; const t = xs[i]; xs[i] = xs[j]; xs[j] = t; }',
+    'let i = xs.length; while (i > 1) { const j = Math.floor(Math.random() * i--); [xs[i], xs[j]] = [xs[j], xs[i]]; }',
   ],
   invalid: [
     {
@@ -73,6 +77,20 @@ ruleTester.run('prefer-random-int', preferRandomInt, {
     },
     {
       code: 'swap(arr, i, Math.floor(Math.random() * (i + 1)));',
+      errors: [{ messageId: 'preferRandomInt' }],
+    },
+    {
+      // A loop without a swap is not a shuffle.
+      code: 'for (let i = 0; i < n; i++) { ids.push(Math.floor(Math.random() * 1000)); }',
+      errors: [{ messageId: 'preferRandomInt' }],
+    },
+    {
+      // Copying an element from another array is not a swap.
+      code: 'for (let i = 0; i < n; i++) { const j = Math.floor(Math.random() * n); out[i] = src[j]; }',
+      errors: [{ messageId: 'preferRandomInt' }],
+    },
+    {
+      code: 'const pick = (n: number): number => Math.trunc(Math.random() * n);',
       errors: [{ messageId: 'preferRandomInt' }],
     },
   ],

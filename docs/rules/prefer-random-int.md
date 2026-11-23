@@ -37,6 +37,12 @@ Math.random(); // a float in [0, 1)
 Math.round(Math.random() * n); // rounds, not truncates
 Math.ceil(Math.random() * n); // changes the bounds
 arr[Math.floor(Math.random() * arr.length)]; // see prefer-sample
+
+// A Fisher–Yates shuffle: the loop swaps elements, so `shuffle` is the utility.
+for (let i = a.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [a[i], a[j]] = [a[j], a[i]];
+}
 ```
 
 ## Limitations
@@ -44,6 +50,14 @@ arr[Math.floor(Math.random() * arr.length)]; // see prefer-sample
 - **Bounds differ.** The inclusive idiom `Math.floor(Math.random() * (max - min + 1)) + min`
   yields `[min, max]`, whereas `randomInt(min, max)` yields `[min, max)`. Adjust the upper
   bound when rewriting.
+- **`randomInt` throws for an empty range.** `randomInt(max)` requires `max > 0`:
+  `randomInt(0)` throws `Invalid input: The maximum value must be greater than the minimum
+value.`, while `Math.floor(Math.random() * 0)` returns `0`. When the multiplier can be `0`
+  or negative (`arr.length` of a possibly empty array, `end - start` with `end === start`),
+  guard the call before rewriting.
+- **Shuffle loops.** A truncated random index inside a loop whose body swaps two elements
+  (`[a[i], a[j]] = [a[j], a[i]]` or `a[i] = a[j]`) is a Fisher–Yates shuffle and is not
+  reported. No rule reports the shuffle loop itself; consider `shuffle` from es-toolkit.
 - **Truncation only.** `Math.floor`, `Math.trunc`, `~~`, and `| 0` are reported (all truncate
   toward zero for the non-negative `Math.random() * n` range). `Math.round(...)` and
   `Math.ceil(...)` are **not** — they change the distribution or bounds.
