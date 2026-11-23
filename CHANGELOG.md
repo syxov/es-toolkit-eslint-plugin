@@ -4,6 +4,39 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org); while it is `0.x`, minor releases may contain
 breaking changes.
 
+## [Unreleased]
+
+Seventeen new rules, all on in the bundled configs. Each was checked against the corpus
+(`pnpm corpus`): together they add 224 reports there, each reviewed by hand, and the false
+positives found that way are fixed.
+
+### Added
+
+- **Array:** `prefer-chunk` (`for` loops and `Array.from` pushing `xs.slice(i, i + n)`),
+  `prefer-difference-by` / `prefer-difference-with` (`a.filter(x => !b.some(y => …))`,
+  split by whether both sides apply the same mapping), `prefer-is-subset`
+  (`sub.every(x => sup.includes(x))`).
+- **Object:** `prefer-map-keys`, `prefer-invert`, `prefer-pick-by` and `prefer-omit-by`
+  (`Object.fromEntries(Object.entries(o).map/filter(…))`; key-membership predicates suggest
+  `pick` / `omit`), `prefer-find-key` (`Object.keys(o).find(k => …o[k]…)`).
+- **Predicate:** `prefer-is-browser` (`typeof window !== 'undefined'`, alone or paired with a
+  `document` check; option `reportLoneWindowCheck`), `prefer-is-plain-object`
+  (`toString.call(x) === '[object Object]'`, `Object.getPrototypeOf(x) === Object.prototype`,
+  `x.constructor === Object`), `prefer-is-promise` (`instanceof Promise`).
+- **Promise:** `prefer-timeout` (`new Promise((_, reject) => setTimeout(reject, ms))`) and
+  `prefer-with-timeout` (`Promise.race` against such a promise or es-toolkit's `timeout`).
+- **String:** `prefer-trim`, `prefer-trim-start`, `prefer-trim-end`
+  (`s.replace(/^\/+|\/+$/g, '')` and one-sided forms; whitespace stays with the native methods).
+
+### Changed
+
+- **One report per snippet:** `prefer-pick-by` / `prefer-omit-by` leave a predicate that is a
+  single nil, `typeof`/`instanceof` or plain-object test to the predicate rule; the nil rules
+  skip the `null` half of a plain-object guard and the `document` half of a browser check.
+  `typeof window === 'undefined'` is now reported by `prefer-is-browser`.
+- README rule tables mark rules the bundled configs enable with a ✅ column instead of an
+  "(opt-in)" suffix.
+
 ## [0.3.0] - 2026-11-23
 
 False positives found by linting a corpus of 10 popular repositories (`pnpm corpus`) are
