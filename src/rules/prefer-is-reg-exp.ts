@@ -1,5 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
+import { isReplaceableTypeTest } from '../utils/type-test.js';
 
 export const preferIsRegExp = createRule({
   name: 'prefer-is-reg-exp',
@@ -17,9 +18,12 @@ export const preferIsRegExp = createRule({
   },
   create(context) {
     return {
-      'BinaryExpression[operator="instanceof"][right.type="Identifier"][right.name="RegExp"]':
-        (node: TSESTree.BinaryExpression) =>
-          context.report({ node, messageId: 'preferIsRegExp' }),
+      'BinaryExpression[operator="instanceof"][right.type="Identifier"][right.name="RegExp"]'(
+        node: TSESTree.BinaryExpression,
+      ) {
+        if (isReplaceableTypeTest(context.sourceCode, node, 'isRegExp'))
+          context.report({ node, messageId: 'preferIsRegExp' });
+      },
     };
   },
 });

@@ -12,8 +12,28 @@ ruleTester.run('prefer-is-array-buffer', preferIsArrayBuffer, {
     'value instanceof globalThis.ArrayBuffer;',
     'ArrayBuffer instanceof value;',
     'value.constructor === ArrayBuffer;',
+    // One value tested against several types: a dispatch, not a single check.
+    'value instanceof SharedArrayBuffer || value instanceof ArrayBuffer;',
+    "typeof value === 'string' || value instanceof ArrayBuffer;",
+    "const kind = value instanceof ArrayBuffer ? 'a' : value instanceof SharedArrayBuffer ? 'b' : 'c';",
+    // A test assertion reads better with `toBeInstanceOf`.
+    'expect(value instanceof ArrayBuffer).toEqual(true);',
+    // The code already has its own `isArrayBuffer`.
+    'const isArrayBuffer = (value: unknown) => value instanceof ArrayBuffer;',
   ],
   invalid: [
+    {
+      code: 'import { isArrayBuffer } from "es-toolkit"; value instanceof ArrayBuffer;',
+      errors: [{ messageId: 'preferIsArrayBuffer' }],
+    },
+    {
+      code: 'value instanceof ArrayBuffer || other instanceof SharedArrayBuffer;',
+      errors: [{ messageId: 'preferIsArrayBuffer' }],
+    },
+    {
+      code: 'value instanceof ArrayBuffer || value === null;',
+      errors: [{ messageId: 'preferIsArrayBuffer' }],
+    },
     {
       code: 'value instanceof ArrayBuffer;',
       errors: [{ messageId: 'preferIsArrayBuffer' }],

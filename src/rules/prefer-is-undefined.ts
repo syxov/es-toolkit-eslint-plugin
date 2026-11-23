@@ -2,7 +2,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
 import {
   isNilPairHalf,
-  isWithoutPredicate,
+  isReplaceableNilComparison,
   typeofUndefined,
   undefinedValue,
 } from '../utils/nil-check.js';
@@ -26,7 +26,10 @@ export const preferIsUndefined = createRule({
   },
   create(context) {
     const report = (node: TSESTree.BinaryExpression) => {
-      if (!isNilPairHalf(context.sourceCode, node) && !isWithoutPredicate(node))
+      if (
+        !isNilPairHalf(context.sourceCode, node)
+        && isReplaceableNilComparison(context.sourceCode, node, 'isUndefined')
+      )
         context.report({ node, messageId: 'preferIsUndefined' });
     };
     return {

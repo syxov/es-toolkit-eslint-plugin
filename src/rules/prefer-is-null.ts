@@ -2,7 +2,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
 import {
   isNilPairHalf,
-  isWithoutPredicate,
+  isReplaceableNilComparison,
   nullLiteral,
 } from '../utils/nil-check.js';
 
@@ -28,7 +28,7 @@ export const preferIsNull = createRule({
       [nullComparison](node: TSESTree.BinaryExpression) {
         if (
           !isNilPairHalf(context.sourceCode, node)
-          && !isWithoutPredicate(node)
+          && isReplaceableNilComparison(context.sourceCode, node, 'isNull')
         )
           context.report({ node, messageId: 'preferIsNull' });
       },

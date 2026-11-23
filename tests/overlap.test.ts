@@ -30,8 +30,11 @@ const cases: [code: string, rules: string[]][] = [
   ['arr.filter(x => !b.includes(x));', ['prefer-difference']],
   ['arr.filter(x => b.includes(x));', ['prefer-intersection']],
   ['arr.filter(x => x !== value);', ['prefer-without']],
-  ['arr.filter(x => x !== null);', ['prefer-without']],
-  ['arr.filter(x => x !== undefined);', ['prefer-without']],
+  ['arr.filter(x => x !== null);', ['prefer-is-null', 'prefer-without']],
+  [
+    'arr.filter(x => x !== undefined);',
+    ['prefer-is-undefined', 'prefer-without'],
+  ],
   ['arr.filter(x => x != null);', ['prefer-is-not-nil']],
   ['arr.map(f).flat();', ['prefer-flat-map']],
   ['arr.map(f).flat(Infinity);', ['prefer-flat-map-deep']],
@@ -91,8 +94,8 @@ const cases: [code: string, rules: string[]][] = [
   ['x != null;', ['prefer-is-not-nil']],
   ['x === null || x === undefined;', ['prefer-is-nil']],
   ['x !== null && x !== undefined;', ['prefer-is-not-nil']],
-  ['typeof x === "string";', ['prefer-is-string']],
-  ['typeof x === "undefined";', ['prefer-is-undefined']],
+  ['let x: unknown; typeof x === "string";', ['prefer-is-string']],
+  ['let x: unknown; typeof x === "undefined";', ['prefer-is-undefined']],
   ['Object.keys(o).length === 0;', ['prefer-is-empty']],
   ['JSON.stringify(a) === JSON.stringify(b);', ['prefer-is-equal']],
   [
@@ -112,6 +115,27 @@ const cases: [code: string, rules: string[]][] = [
     ['prefer-capitalize'],
   ],
   ["s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');", ['prefer-escape-reg-exp']],
+  // nil / typecheck: one value tested against several types, object probes, undeclared globals
+  [
+    'let v: unknown; typeof v === "string" || typeof v === "number" || typeof v === "boolean";',
+    [],
+  ],
+  [
+    'let v: unknown; typeof v === "number" ? 1 : typeof v === "string" ? 2 : 3;',
+    [],
+  ],
+  ['let v: unknown; typeof v === "number" || v instanceof Date;', []],
+  ['v instanceof File || v instanceof Blob;', []],
+  ['let x: unknown; typeof x === "undefined" || typeof x === "function";', []],
+  ['typeof x === "object" && x !== null;', []],
+  ['x != null && typeof x === "object" && "k" in x;', []],
+  ['x !== null && x !== undefined && typeof x === "object";', []],
+  ['typeof window === "undefined";', []],
+  ['typeof requestAnimationFrame === "function";', []],
+  ['x === undefined ? d : x;', []],
+  ['if (x == null) x = d;', []],
+  ['x == null ? undefined : x.y;', []],
+  ['expect(typeof o.fire === "function").toBe(true);', []],
 ];
 
 describe('rule overlap', () => {

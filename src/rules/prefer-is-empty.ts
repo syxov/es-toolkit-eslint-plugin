@@ -1,5 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
+import { isExcludedPredicateSite } from '../utils/predicate-site.js';
 
 type Side = 'left' | 'right';
 
@@ -39,8 +40,10 @@ export const preferIsEmpty = createRule({
   },
   create(context) {
     return {
-      [keysLengthChecks.join(', ')]: (node: TSESTree.Node) =>
-        context.report({ node, messageId: 'preferIsEmpty' }),
+      [keysLengthChecks.join(', ')](node: TSESTree.Node) {
+        if (!isExcludedPredicateSite(context.sourceCode, node, 'isEmpty'))
+          context.report({ node, messageId: 'preferIsEmpty' });
+      },
     };
   },
 });

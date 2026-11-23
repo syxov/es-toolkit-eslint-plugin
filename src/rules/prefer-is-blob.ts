@@ -1,5 +1,6 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
+import { isReplaceableTypeTest } from '../utils/type-test.js';
 
 export const preferIsBlob = createRule({
   name: 'prefer-is-blob',
@@ -17,9 +18,12 @@ export const preferIsBlob = createRule({
   },
   create(context) {
     return {
-      'BinaryExpression[operator="instanceof"][right.type="Identifier"][right.name="Blob"]':
-        (node: TSESTree.BinaryExpression) =>
-          context.report({ node, messageId: 'preferIsBlob' }),
+      'BinaryExpression[operator="instanceof"][right.type="Identifier"][right.name="Blob"]'(
+        node: TSESTree.BinaryExpression,
+      ) {
+        if (isReplaceableTypeTest(context.sourceCode, node, 'isBlob'))
+          context.report({ node, messageId: 'preferIsBlob' });
+      },
     };
   },
 });

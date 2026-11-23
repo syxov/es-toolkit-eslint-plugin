@@ -22,8 +22,34 @@ ruleTester.run('prefer-is-not-nil', preferIsNotNil, {
     "value !== null && typeof other !== 'undefined';",
     'value !== null && ready && value !== undefined;',
     'value !== null ?? value !== undefined;',
+    // An object probe: on `unknown`, `isNotNil` would not narrow for the probe that follows.
+    "const fill = entry != null && typeof entry === 'object' && 'fill' in entry;",
+    "function f(input: unknown) { return input != null && typeof input === 'object' && '_tag' in input; }",
+    "const deep = dst !== undefined && dst !== null && typeof dst === 'object';",
+    "const shown = value != null && !(typeof value === 'object' && 'hidden' in value);",
+    // `??` and `?.` express these.
+    'const v = x != null ? x : d;',
+    'const v = x != null ? x.y : undefined;',
+    'const v = x !== null && x !== undefined ? x : d;',
+    // An assignment in the test.
+    'while ((node = node.parent) != null) visit(node);',
+    // A test assertion, and a local `isNotNil` helper.
+    'expect(x != null).toBe(true);',
+    'export function isNotNil<T>(value: T): value is NonNullable<T> { return value != null; }',
   ],
   invalid: [
+    {
+      code: "const ok = x != null && typeof y === 'object';",
+      errors: [{ messageId: 'preferIsNotNil' }],
+    },
+    {
+      code: 'if (x != null) x = 1;',
+      errors: [{ messageId: 'preferIsNotNil' }],
+    },
+    {
+      code: 'const v = x != null ? x.y : fallback;',
+      errors: [{ messageId: 'preferIsNotNil' }],
+    },
     { code: 'value != null;', errors: [{ messageId: 'preferIsNotNil' }] },
     { code: 'null != value;', errors: [{ messageId: 'preferIsNotNil' }] },
     { code: 'value != undefined;', errors: [{ messageId: 'preferIsNotNil' }] },
@@ -50,11 +76,11 @@ ruleTester.run('prefer-is-not-nil', preferIsNotNil, {
       errors: [{ messageId: 'preferIsNotNil' }],
     },
     {
-      code: "value !== null && typeof value !== 'undefined';",
+      code: "let value: unknown; value !== null && typeof value !== 'undefined';",
       errors: [{ messageId: 'preferIsNotNil' }],
     },
     {
-      code: "'undefined' != typeof value && null !== value;",
+      code: "let value: unknown; 'undefined' != typeof value && null !== value;",
       errors: [{ messageId: 'preferIsNotNil' }],
     },
     {

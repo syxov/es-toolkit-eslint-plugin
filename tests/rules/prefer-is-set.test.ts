@@ -12,8 +12,28 @@ ruleTester.run('prefer-is-set', preferIsSet, {
     'value instanceof globalThis.Set;',
     'Set instanceof value;',
     'value.constructor === Set;',
+    // One value tested against several types: a dispatch, not a single check.
+    'value instanceof Map || value instanceof Set;',
+    "typeof value === 'string' || value instanceof Set;",
+    "const kind = value instanceof Set ? 'a' : value instanceof Map ? 'b' : 'c';",
+    // A test assertion reads better with `toBeInstanceOf`.
+    'expect(value instanceof Set).toEqual(true);',
+    // The code already has its own `isSet`.
+    'const isSet = (value: unknown) => value instanceof Set;',
   ],
   invalid: [
+    {
+      code: 'import { isSet } from "es-toolkit"; value instanceof Set;',
+      errors: [{ messageId: 'preferIsSet' }],
+    },
+    {
+      code: 'value instanceof Set || other instanceof Map;',
+      errors: [{ messageId: 'preferIsSet' }],
+    },
+    {
+      code: 'value instanceof Set || value === null;',
+      errors: [{ messageId: 'preferIsSet' }],
+    },
     {
       code: 'value instanceof Set;',
       errors: [{ messageId: 'preferIsSet' }],
