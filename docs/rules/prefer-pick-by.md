@@ -31,6 +31,13 @@ Negated predicates belong to [`prefer-omit-by`](prefer-omit-by.md): `!pred`, a c
 of negations (`!a && !b`), and key exclusions such as `!keys.includes(k)` or
 `k !== 'a' && k !== 'b'`. A double negation (`!!v`) is a truthiness test and stays here.
 
+A predicate that is a single nil check, as reported by `prefer-is-nil`, `prefer-is-not-nil`,
+`prefer-is-null` or `prefer-is-undefined` (`v != null`, `v !== undefined`,
+`typeof v !== 'undefined'`, `v !== null && v !== undefined`, also negated), is left to that
+rule, so each snippet gets one report. Once the check reads `isNotNil(v)`, this rule reports
+the frame (`pickBy(o, isNotNil)`). A compound predicate such as `v != null && k !== 'x'` is
+reported by both: the nil rule on the comparison, this rule on the frame.
+
 This rule does not use the `chainPosition` setting of the array-method rules: it replaces
 the whole `Object.fromEntries(Object.entries(o).filter(…))` frame, never a member of a
 method chain.
@@ -39,7 +46,7 @@ method chain.
 
 ```ts
 const defined = Object.fromEntries(
-  Object.entries(props).filter(([, v]) => v !== undefined),
+  Object.entries(props).filter(([, v]) => isNotNil(v)),
 );
 Object.fromEntries(
   Object.entries(o).filter(([k, v]) => k.startsWith('_') && v),
@@ -53,15 +60,16 @@ Object.fromEntries(Object.entries(o).filter(([k]) => k === 'a' || k === 'b')); /
 ### ✅ Correct
 
 ```ts
-import { pick, pickBy } from 'es-toolkit';
+import { isNotNil, pick, pickBy } from 'es-toolkit';
 
-const defined = pickBy(props, v => v !== undefined);
+const defined = pickBy(props, isNotNil);
 pickBy(o, (v, k) => k.startsWith('_') && v);
 const subset = pick(o, keys);
 pick(o, ['a', 'b']);
 
 // Not reported:
 Object.fromEntries(Object.entries(o).filter(([, v]) => !v)); // prefer-omit-by
+Object.fromEntries(Object.entries(o).filter(([, v]) => v != null)); // prefer-is-not-nil first
 Object.fromEntries(Object.entries(o).filter(isWanted)); // the callback is not inline
 Object.fromEntries(Object.entries(o).filter(([k, v], i) => i > 0)); // the index is used
 ```

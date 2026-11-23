@@ -13,6 +13,10 @@ ruleTester.run('prefer-omit-by', preferOmitBy, {
     'Object.fromEntries(Object.entries(o).filter(([k]) => keys.includes(k)));',
     "Object.fromEntries(Object.entries(o).filter(([k]) => k === 'a'));",
     'Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined));',
+    // A negated nil check is left to the nil predicate rules.
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => !(v == null)));',
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => !(v === undefined)));',
+    "Object.fromEntries(Object.entries(o).filter(([, v]) => !(typeof v === 'undefined')));",
     // A partial negation is not `!pred`.
     'Object.fromEntries(Object.entries(o).filter(([k, v]) => !keys.includes(k) && v));',
     'Object.fromEntries(Object.entries(o).filter(([k, v]) => !k.startsWith("_") || v));',
@@ -62,6 +66,11 @@ ruleTester.run('prefer-omit-by', preferOmitBy, {
     },
     {
       code: "Object.fromEntries(Object.entries(o).filter(([k, v]) => k !== 'id' && !isNil(v)));",
+      errors: [{ messageId: 'preferOmitBy' }],
+    },
+    {
+      // The nil check rewritten with the helper.
+      code: 'Object.fromEntries(Object.entries(o).filter(([, v]) => !isNil(v) && !isEmpty(v)));',
       errors: [{ messageId: 'preferOmitBy' }],
     },
     // Key exclusion: `omit`.

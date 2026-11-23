@@ -13,6 +13,13 @@ ruleTester.run('prefer-pick-by', preferPickBy, {
     "Object.fromEntries(Object.entries(o).filter(([k]) => k !== 'a'));",
     "Object.fromEntries(Object.entries(o).filter(([k]) => k !== 'a' && k !== 'b'));",
     'Object.fromEntries(Object.entries(o).filter(([key]) => !BUILT_IN.has(key) && !isBuiltIn(key)));',
+    // A predicate that is a single nil check is left to the nil predicate rules.
+    'Object.fromEntries(Object.entries(o).filter(([k, v]) => v != null));',
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v !== null));',
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v !== void 0));',
+    "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v !== 'undefined'));",
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v !== null && v !== undefined));',
+    'Object.fromEntries(Object.entries(props).filter(([k, v]: [string, unknown]) => v !== undefined)) as Partial<Props>;',
     // The predicate reads neither the key nor the value.
     'Object.fromEntries(Object.entries(o).filter(() => true));',
     'Object.fromEntries(Object.entries(o).filter(([k, v]) => flag));',
@@ -35,7 +42,18 @@ ruleTester.run('prefer-pick-by', preferPickBy, {
   ],
   invalid: [
     {
-      code: 'Object.fromEntries(Object.entries(o).filter(([k, v]) => v != null));',
+      // The nil check rewritten with the helper.
+      code: 'Object.fromEntries(Object.entries(o).filter(([k, v]) => isNotNil(v)));',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // A compound predicate is not a single nil check.
+      code: "Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined && v !== ''));",
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // A local `isNotNil` keeps prefer-is-not-nil quiet, so the frame is reported here.
+      code: 'function f(o, isNotNil) { return Object.fromEntries(Object.entries(o).filter(([, v]) => v != null)); }',
       errors: [{ messageId: 'preferPickBy' }],
     },
     {
@@ -83,7 +101,7 @@ ruleTester.run('prefer-pick-by', preferPickBy, {
       errors: [{ messageId: 'preferPickBy' }],
     },
     {
-      code: 'Object.fromEntries(Object.entries(props).filter(([k, v]: [string, unknown]) => v !== undefined)) as Partial<Props>;',
+      code: 'Object.fromEntries(Object.entries(props).filter(([k, v]: [string, unknown]) => v !== undefined && k !== v)) as Partial<Props>;',
       errors: [{ messageId: 'preferPickBy' }],
     },
     // Key membership: `pick`.

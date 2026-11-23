@@ -29,6 +29,10 @@ The rule has two messages:
 - **`omitBy`** for `!pred`, or a conjunction of negations (`!a && !b`, `k !== 'x' && !a`),
   which is `!(a || b)`.
 
+A negated nil check (`!(v == null)`, `!(v === undefined)`) is left to the nil predicate
+rule that reports the comparison (`prefer-is-nil`, `prefer-is-undefined`, …); once it reads
+`!isNil(v)`, this rule reports the frame (`omitBy(o, isNil)`).
+
 Every other predicate, a double negation (`!!v`) and a partial negation
 (`!keys.includes(k) && v`) included, belongs to [`prefer-pick-by`](prefer-pick-by.md), so
 each frame is reported by exactly one of the two rules.
@@ -61,7 +65,8 @@ const rest = omit(props, omitted);
 omit(row, ['__run', '__meta']);
 
 // Not reported here:
-Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined)); // prefer-pick-by
+Object.fromEntries(Object.entries(o).filter(([, v]) => v > 0)); // prefer-pick-by
+Object.fromEntries(Object.entries(o).filter(([, v]) => !(v == null))); // prefer-is-nil first
 Object.fromEntries(
   Object.entries(o).filter(([k, v]) => !keys.includes(k) && v),
 ); // prefer-pick-by

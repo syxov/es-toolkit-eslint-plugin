@@ -138,10 +138,44 @@ const cases: [code: string, rules: string[]][] = [
     'Object.fromEntries(Object.entries(o).filter(([k, v]) => !keys.includes(k) && v));',
     ['prefer-pick-by'],
   ],
-  // The predicate survives the rewrite (`pickBy(o, v => v != null)`), so both reports stand.
+  // A single nil check goes to the nil rule first; `pickBy(o, isNotNil)` follows once it reads
+  // `isNotNil(v)`.
   [
     'Object.fromEntries(Object.entries(o).filter(([, v]) => v != null));',
+    ['prefer-is-not-nil'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v !== undefined));',
+    ['prefer-is-undefined'],
+  ],
+  [
+    "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v !== 'undefined'));",
+    ['prefer-is-undefined'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v !== null));',
+    ['prefer-is-null'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v !== null && v !== undefined));',
+    ['prefer-is-not-nil'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => !(v == null)));',
+    ['prefer-is-nil'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => isNotNil(v)));',
+    ['prefer-pick-by'],
+  ],
+  // Compound predicates: the frame and the nil check inside are separate rewrites.
+  [
+    "Object.fromEntries(Object.entries(o).filter(([k, v]) => v != null && k !== 'x'));",
     ['prefer-is-not-nil', 'prefer-pick-by'],
+  ],
+  [
+    "Object.fromEntries(Object.entries(o).filter(([k, v]) => v == null || k === 'x'));",
+    ['prefer-is-nil', 'prefer-pick-by'],
   ],
   ['Object.keys(o).find(k => o[k] === value);', ['prefer-find-key']],
   ["Object.keys(o).find(k => k.startsWith('x'));", []],
