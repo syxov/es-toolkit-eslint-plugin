@@ -3,7 +3,8 @@ import { createRule } from '../utils/create-rule.js';
 import { mapReceiver } from '../utils/selectors.js';
 
 // `flat()` or `flat(1)`. `raw` rather than `value`: esquery would also match `flat('1')`.
-const flatOneLevel = `CallExpression[callee.property.name="flat"]:matches([arguments.length=0], [arguments.length=1][arguments.0.type="Literal"][arguments.0.raw="1"]):not(${mapReceiver})`;
+// `[sx].flat()` on an array literal casts values to arrays (`castArray`); it is not flattening a list.
+const flatOneLevel = `CallExpression[callee.property.name="flat"]:matches([arguments.length=0], [arguments.length=1][arguments.0.type="Literal"][arguments.0.raw="1"]):not(${mapReceiver}):not([callee.object.type="ArrayExpression"])`;
 
 export const preferFlatten = createRule({
   name: 'prefer-flatten',

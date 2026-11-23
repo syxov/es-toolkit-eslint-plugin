@@ -112,6 +112,12 @@ const cases: [code: string, rules: string[]][] = [
     ['prefer-capitalize'],
   ],
   ["s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');", ['prefer-escape-reg-exp']],
+  // slice group
+  ['xs.slice(-1)[0];', ['prefer-last']],
+  ['xs.slice(-2)[0];', ['prefer-head', 'prefer-take-right']],
+  ["const s = 'abc'; s.slice(-1)[0];", []],
+  ['[sx].flat();', []],
+  ['[x].map(f).flat();', []],
 ];
 
 describe('rule overlap', () => {

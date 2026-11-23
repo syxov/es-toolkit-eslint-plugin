@@ -13,6 +13,11 @@ ruleTester.run('prefer-flatten', preferFlatten, {
     // Owned by prefer-flat-map.
     'items.map(mapper).flat();',
     'items.map(mapper).flat(1);',
+    // An array literal casts values to arrays.
+    '[sx].flat();',
+    'const styles = [...[sx].flat()];',
+    "[format].flat().includes('bold');",
+    '[a, b].flat();',
   ],
   invalid: [
     { code: 'items.flat();', errors: [{ messageId: 'preferFlatten' }] },

@@ -24,9 +24,12 @@ flatMap(items, mapper);
 // Left untouched:
 items.map(mapper, thisArg).flat(); // `thisArg` has no flatMap equivalent
 items.map(mapper).flat(Infinity); // see prefer-flat-map-deep
+[config].map(c => c().files).flat(); // one value: write `config().files` instead
 ```
 
 ## Limitations
 
 - Only a one-level `flat()`/`flat(1)` directly following a one-argument `map()` is matched.
+- A one-element array literal receiver (`[x].map(f).flat()`) is skipped: mapping a single
+  value needs neither the array nor `flatMap`.
 - No auto-fix is provided because adding imports is project-specific.
