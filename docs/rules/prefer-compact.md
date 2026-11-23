@@ -33,6 +33,10 @@ arr.filter(x => y); // filters by a different value
 arr.filter(x => !!y); // filters by a different value
 arr.filter(x => Boolean(x.foo)); // filters by a property, not the element
 arr.map(Boolean);
+
+// Not reported:
+[a !== b, c && d].filter(Boolean).length; // counts truthy values
+model.values?.filter(Boolean); // optional call: `compact(undefined)` throws
 ```
 
 ## Configuring method-call chains
@@ -49,6 +53,10 @@ with `settings['es-toolkit'].arrayMethods.chainPosition`, or override this rule 
   `x => Boolean(x.foo)` are left alone.
 - **Arrow predicates only.** A `function` callback (`arr.filter(function (x) { … })`) or a
   block-body arrow is not matched.
+- **Counting is skipped.** `.filter(Boolean).length` counts truthy values; `compact(xs).length`
+  is no clearer, so it is not reported.
+- **Optional calls are skipped.** `xs?.filter(Boolean)` returns `undefined` for a nil `xs`,
+  while `compact(xs)` throws; a rewrite needs a guard.
 - **Syntactic match.** A shadowed local `Boolean` could produce a false positive. This is
   rare in practice.
 - **TypeScript bonus.** Beyond readability, `compact` narrows nullable element types, while

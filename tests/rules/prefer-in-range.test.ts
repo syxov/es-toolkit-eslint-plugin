@@ -5,59 +5,85 @@ const ruleTester = new RuleTester();
 
 ruleTester.run('prefer-in-range', preferInRange, {
   valid: [
-    'inRange(value, start, end);',
-    'value > start && value < end;',
-    'value >= start && other < end;',
-    'start <= value && end > other;',
+    'inRange(value, 0, 10);',
+    'value > 0 && value < 10;',
+    'value >= 0 && other < 10;',
+    '0 <= value && 10 > other;',
     // `inRange` excludes its end, so an inclusive upper bound is not a match.
-    'value >= start && value <= end;',
-    'start <= value && end >= value;',
+    'value >= 0 && value <= 10;',
+    '0 <= value && 10 >= value;',
     // Two bounds of the same kind.
-    'value >= start && value >= end;',
-    'value < start && value < end;',
-    'value <= end && value >= start;',
-    'value >= start || value < end;',
-    'value >= start && (value < end || other);',
+    'value >= 0 && value >= 10;',
+    'value < 0 && value < 10;',
+    'value <= 10 && value >= 0;',
+    'value >= 0 || value < 10;',
+    'value >= 0 && (value < 10 || other);',
     // Not adjacent in the `&&` chain.
-    'value >= start && ok && value < end;',
-    'ok && value >= start;',
+    'value >= 0 && ok && value < 10;',
+    'ok && value >= 0;',
+    // Variable bounds can coincide, and `inRange` throws when `min >= max`.
+    'value >= start && value < end;',
+    'i >= 0 && i < items.length;',
+    'i >= 0 && i < items.length - 1;',
+    'point.x >= box.left && point.x < box.right;',
+    'for (let i = from; i >= 0 && i < points.length; i += step) {}',
+    'while (index >= 0 && index < rows.length) index++;',
+    'col >= pinned.length && col < firstColumn;',
+    'i >= startLine && i < endLine;',
+    // Literal bounds that are not ordered would throw too.
+    'x >= 10 && x < 0;',
+    'x >= 5 && x < 5;',
+    'x >= 1 && x < -1;',
+    // Not numbers: string keys, bigints.
+    "key >= 'a' && key < 'n';",
+    'n >= 0n && n < 10n;',
+    // The shared operand is a threshold, not the subject.
+    'dx > 0.5 && dy <= 0.5;',
+    '0 <= value && 10 > value;',
+    '10 > value && 0 <= value;',
+    'value < 10 && 0 <= value;',
+    'row >= first && row <= last && lastRowOfCell > last;',
+    'Math.abs(a - b) <= EPSILON && Math.abs(a) > EPSILON;',
+    // TypeScript: typed variable bounds.
+    'const inside = (n as number) >= min && (n as number) < max;',
   ],
   invalid: [
     {
-      code: 'value >= start && value < end;',
+      code: 'value >= 0 && value < 10;',
       errors: [{ messageId: 'preferInRange' }],
     },
     {
       code: 'const valid: boolean = value >= 0 && value < 10;',
       errors: [{ messageId: 'preferInRange' }],
     },
-    // Each spelling of each bound, in either order.
+    // Each subject-first spelling, in either order, and the middle form.
     {
-      code: 'start <= value && value < end;',
+      code: '0 <= value && value < 10;',
       errors: [{ messageId: 'preferInRange' }],
     },
     {
-      code: 'value >= start && end > value;',
+      code: 'value < 10 && value >= 0;',
       errors: [{ messageId: 'preferInRange' }],
     },
     {
-      code: 'start <= value && end > value;',
+      code: 'response.status >= 200 && response.status < 300;',
       errors: [{ messageId: 'preferInRange' }],
     },
     {
-      code: 'value < end && value >= start;',
+      code: 'index % 1500 >= 700 && index % 1500 < 760;',
+      errors: [{ messageId: 'preferInRange' }],
+    },
+    // Negative and fractional literals.
+    {
+      code: 'x >= -1 && x < 1;',
       errors: [{ messageId: 'preferInRange' }],
     },
     {
-      code: 'end > value && start <= value;',
+      code: 'x >= -10 && x < -5;',
       errors: [{ messageId: 'preferInRange' }],
     },
     {
-      code: 'i >= 0 && i < items.length;',
-      errors: [{ messageId: 'preferInRange' }],
-    },
-    {
-      code: 'point.x >= box.left && point.x < box.right;',
+      code: 'ratio >= 0.25 && ratio < 0.75;',
       errors: [{ messageId: 'preferInRange' }],
     },
     // Inside a longer `&&` chain.
@@ -82,7 +108,7 @@ ruleTester.run('prefer-in-range', preferInRange, {
       errors: [{ messageId: 'preferInRange' }, { messageId: 'preferInRange' }],
     },
     {
-      code: 'const inside = (n as number) >= min && (n as number) < max;',
+      code: 'const inside = (n as number) >= 0 && (n as number) < 10;',
       errors: [{ messageId: 'preferInRange' }],
     },
   ],

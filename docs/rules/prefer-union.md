@@ -30,6 +30,7 @@ union(a, b);
 new Set([...a, ...b]); // no spread/`Array.from` wrapper, so not collected back to an array
 [...new Set([...a, ...b, ...c])]; // three arrays — see `prefer-uniq`
 [...new Set([...a, ...b, x])]; // not only spreads — see `prefer-uniq`
+[...new Set([...m.keys(), ...n.keys()])]; // iterators, not arrays — see `prefer-uniq`
 ```
 
 ## Limitations
@@ -37,6 +38,12 @@ new Set([...a, ...b]); // no spread/`Array.from` wrapper, so not collected back 
 - **Exactly two spreads.** `union` takes exactly two arrays, so any other array literal
   (`[...a]`, `[...a, ...b, ...c]`, `[...a, ...b, x]`) is treated as a plain dedupe and
   reported by [`prefer-uniq`](prefer-uniq.md) instead.
+- **Arrays only.** `union` calls `arr1.concat(arr2)`, so a Map/Set iterator or a Set operand
+  would throw or be added as a single element. An operand that is a `.keys()`, `.values()` or
+  `.entries()` call (other than on `Object`), a `new Set(…)` / `new Map(…)`, or a local
+  declared as one (or annotated `Set`, `ReadonlySet`, `Map`, `ReadonlyMap`) leaves the
+  snippet to [`prefer-uniq`](prefer-uniq.md): `uniq([...a.keys(), ...b.keys()])` is correct.
+  A Set imported from another module looks like an array and is still reported.
 - **Spread-concatenation only.** `union` of named arrays written as `a.concat(b)` inside a
   `Set` is not matched.
 - **Syntactic match.** `Set`/`Array` are matched by name, so a shadowed local could

@@ -6,6 +6,7 @@ import {
 } from '../utils/array-method-chain.js';
 import { isIdentifierNamed } from '../utils/ast.js';
 import { createRule } from '../utils/create-rule.js';
+import { isOptionalCall } from '../utils/optional-chain.js';
 import { filterArrow } from '../utils/selectors.js';
 
 const filterBoolean =
@@ -24,6 +25,13 @@ const isTruthinessOf = (body: TSESTree.Node, param: string) =>
     && body.arguments.length === 1
     && isIdentifierNamed(body.arguments[0], param));
 
+// `[a !== b, c].filter(Boolean).length` counts truthy values rather than compacting.
+const isCounted = (node: TSESTree.CallExpression) =>
+  node.parent.type === 'MemberExpression'
+  && node.parent.object === node
+  && !node.parent.computed
+  && isIdentifierNamed(node.parent.property, 'length');
+
 export const preferCompact = createRule({
   name: 'prefer-compact',
   meta: {
@@ -41,7 +49,9 @@ export const preferCompact = createRule({
   },
   create(context, [options]) {
     const report = (node: TSESTree.CallExpression) =>
-      shouldReportArrayMethodReplacement(node, options, context.settings)
+      !isCounted(node)
+      && !isOptionalCall(node)
+      && shouldReportArrayMethodReplacement(node, options, context.settings)
       && context.report({ node, messageId: 'preferCompact' });
 
     return {

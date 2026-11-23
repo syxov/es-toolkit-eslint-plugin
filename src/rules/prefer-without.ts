@@ -4,13 +4,18 @@ import {
   shouldReportArrayMethodReplacement,
   type ChainPositionOption,
 } from '../utils/array-method-chain.js';
-import {
-  isIdentifierNamed,
-  isLiteralValue,
-  referencesParam,
-} from '../utils/ast.js';
+import { isIdentifierNamed, referencesParam } from '../utils/ast.js';
 import { createRule } from '../utils/create-rule.js';
+import { isOptionalCall } from '../utils/optional-chain.js';
 import { filterArrow } from '../utils/selectors.js';
+
+// `x => x !== null` (also `undefined`, `void 0`, `false`): TypeScript infers a type predicate
+// that narrows the element type, while `without(xs, null)` widens it to `T | null`. A loose
+// `x != null` is a nil check, left to `prefer-is-not-nil`.
+const isNarrowingValue = (node: TSESTree.Node) =>
+  (node.type === 'Literal' && (node.raw === 'null' || node.value === false))
+  || isIdentifierNamed(node, 'undefined')
+  || (node.type === 'UnaryExpression' && node.operator === 'void');
 
 type PreferWithoutOptions = [
   ChainPositionOption & {
@@ -40,13 +45,15 @@ export const preferWithout = createRule<PreferWithoutOptions, 'preferWithout'>({
           skipTypePredicate: {
             type: 'boolean',
             description:
-              'Skip predicates annotated as a type guard on the parameter (`(x): x is T => …`).',
+              'Skip predicates annotated as a type guard on the parameter (`(x): x is T => …`). Defaults to `true`.',
           },
         },
         additionalProperties: false,
       },
     ],
-    defaultOptions: [{}] satisfies PreferWithoutOptions,
+    defaultOptions: [
+      { skipTypePredicate: true },
+    ] satisfies PreferWithoutOptions,
     messages: {
       preferWithout:
         'Prefer `without` from es-toolkit instead of filtering out a specific value.',
@@ -82,16 +89,11 @@ export const preferWithout = createRule<PreferWithoutOptions, 'preferWithout'>({
           : isIdentifierNamed(body.right, param.name)
             ? body.left
             : null;
-        // `x != null` is a nil check (`prefer-is-not-nil`), not `without(arr, null)`.
-        const isLooseNilCheck =
-          body.operator === '!='
-          && value !== null
-          && (isLiteralValue(value, null)
-            || isIdentifierNamed(value, 'undefined'));
         if (
           value
-          && !isLooseNilCheck
+          && !isNarrowingValue(value)
           && !referencesParam(context.sourceCode, arrow, value)
+          && !isOptionalCall(node)
           && shouldReportArrayMethodReplacement(node, options, context.settings)
         )
           context.report({ node, messageId: 'preferWithout' });

@@ -6,6 +6,8 @@ import {
 } from '../utils/array-method-chain.js';
 import { isIdentifierNamed, referencesParam } from '../utils/ast.js';
 import { createRule } from '../utils/create-rule.js';
+import { isStringLikeReceiver } from '../utils/includes-receiver.js';
+import { isOptionalCall } from '../utils/optional-chain.js';
 import { filterArrow } from '../utils/selectors.js';
 
 export const preferDifference = createRule({
@@ -47,6 +49,10 @@ export const preferDifference = createRule({
           && args.length === 1
           && isIdentifierNamed(args[0], param.name)
           && !referencesParam(context.sourceCode, arrow, callee.object)
+          && !isStringLikeReceiver(callee.object)
+          // `!['a', 'b'].includes(x)` excludes listed values: `without(xs, 'a', 'b')` fits.
+          && callee.object.type !== 'ArrayExpression'
+          && !isOptionalCall(node)
           && shouldReportArrayMethodReplacement(node, options, context.settings)
         )
           context.report({ node, messageId: 'preferDifference' });

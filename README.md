@@ -66,6 +66,13 @@ export default [
 ];
 ```
 
+Code that readers copy, such as documentation demos and examples, may be better off without
+an es-toolkit import. Leave it out with a global `ignores` entry:
+
+```js
+export default [{ ignores: ['docs/demos/**'] }, esToolkit.configs.all];
+```
+
 Rules that replace `.filter(...)` or `.reduce(...)` are intentionally conservative: by default
 they report only when the matched call is outside a method-call chain. This applies to
 `prefer-compact`, `prefer-difference`, `prefer-intersection`, `prefer-mean`, `prefer-mean-by`,
@@ -137,7 +144,7 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 | Rule                                                   | Description                                                                             |
 | ------------------------------------------------------ | --------------------------------------------------------------------------------------- |
 | [`prefer-clamp`](docs/rules/prefer-clamp.md)           | Enforce using `clamp` instead of nested `Math.min`/`Math.max`.                          |
-| [`prefer-in-range`](docs/rules/prefer-in-range.md)     | Enforce using `inRange` instead of manual range-bound checks.                           |
+| [`prefer-in-range`](docs/rules/prefer-in-range.md)     | Enforce using `inRange` instead of range checks with literal bounds.                    |
 | [`prefer-mean`](docs/rules/prefer-mean.md)             | Enforce using `mean` instead of a `reduce` sum divided by `.length`.                    |
 | [`prefer-mean-by`](docs/rules/prefer-mean-by.md)       | Enforce using `meanBy` instead of averaging an item property with `reduce`.             |
 | [`prefer-random-int`](docs/rules/prefer-random-int.md) | Enforce using `randomInt` instead of `Math.floor(Math.random() * …)`.                   |
