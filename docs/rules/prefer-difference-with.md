@@ -60,6 +60,7 @@ By default this rule reports only outside a method-call chain. Configure all arr
 with `settings['es-toolkit'].arrayMethods.chainPosition`, or override this rule with
 `{ chainPosition: 'always' }`. Values are `always`, `chain-start`, `chain-end`,
 `chain-boundaries`, and `outside-chain`. A standalone call is both the start and end.
+See [Method-call chains](../method-call-chains.md).
 
 ## Limitations
 

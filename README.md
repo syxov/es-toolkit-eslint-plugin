@@ -3,223 +3,289 @@
 [![npm](https://img.shields.io/npm/v/es-toolkit-eslint-plugin)](https://www.npmjs.com/package/es-toolkit-eslint-plugin)
 [![CI](https://github.com/syxov/es-toolkit-eslint-plugin/actions/workflows/ci.yml/badge.svg)](https://github.com/syxov/es-toolkit-eslint-plugin/actions/workflows/ci.yml)
 
-An ESLint plugin that actively suggests [es-toolkit](https://es-toolkit.dev) utilities in
-place of verbose hand-written JS/TS.
+An ESLint plugin that finds hand-written JS/TS which an [es-toolkit](https://es-toolkit.dev)
+utility already covers, and tells you which utility to use.
 
-Rules are **report-only** (no auto-fix) and lean on
-[esquery](https://eslint.org/docs/latest/extend/selectors) selectors to keep detection
-declarative and minimal.
+## Example
+
+```js
+// volume.js
+export function setVolume(level) {
+  return Math.min(Math.max(level, 0), 100);
+}
+```
+
+```text
+$ npx eslint volume.js
+
+volume.js
+  2:10  error  Prefer `clamp` from es-toolkit instead of nesting `Math.min`/`Math.max`  es-toolkit/prefer-clamp
+```
+
+```js
+// volume.js, rewritten by hand
+import { clamp } from 'es-toolkit';
+
+export function setVolume(level) {
+  return clamp(level, 0, 100);
+}
+```
+
+The plugin **only reports**. It has no auto-fix and no editor suggestions: you write the
+replacement and the import yourself, after checking that the utility behaves the same for
+your inputs (see [Before you apply a suggestion](#before-you-apply-a-suggestion)).
+
+## Requirements and status
+
+- **ESLint 10** with flat config (`eslint.config.js`). Legacy `.eslintrc` is not supported.
+- **JavaScript** works as is. **TypeScript** needs a TypeScript parser, see
+  [TypeScript](#typescript). Rules do not use type information, so no `tsconfig` setup is
+  required.
+- **es-toolkit** is not a dependency of the plugin and is not needed to run it. Add it to
+  your project when you start applying the suggestions.
 
 > [!WARNING]
-> **Early stage.** This project is at a very early stage and under active development.
-> False positives are possible.
-> Try it out and [file issues](https://github.com/syxov/es-toolkit-eslint-plugin/issues).
-
-> Requires **ESLint 10** (flat config).
+> **Early stage.** The plugin is under active development and false positives are possible.
+> Please [file issues](https://github.com/syxov/es-toolkit-eslint-plugin/issues).
 
 ## Install
 
 ```sh
 pnpm add -D es-toolkit-eslint-plugin
+# and, once you adopt the suggestions:
+pnpm add es-toolkit
 ```
 
-## Usage
+## Quick start
 
 ```js
 // eslint.config.js
+import { defineConfig } from 'eslint/config';
 import esToolkit from 'es-toolkit-eslint-plugin';
 
-export default [
+export default defineConfig([esToolkit.configs.all]);
+```
+
+```sh
+npx eslint .
+```
+
+`configs.all` turns on every rule that is on by default. The
+[opt-in rules](#presets-and-opt-in-rules) stay off even there.
+
+### TypeScript
+
+Point ESLint at your TypeScript files and give them a parser. With
+[typescript-eslint](https://typescript-eslint.io/getting-started) (`pnpm add -D typescript-eslint`):
+
+```js
+// eslint.config.js
+import { defineConfig } from 'eslint/config';
+import tseslint from 'typescript-eslint';
+import esToolkit from 'es-toolkit-eslint-plugin';
+
+export default defineConfig([
+  esToolkit.configs.all,
   {
-    files: ['**/*.{js,ts}'],
-    plugins: { 'es-toolkit': esToolkit },
-    rules: {
-      'es-toolkit/prefer-clamp': 'error',
-    },
+    files: ['**/*.{ts,tsx,mts,cts}'],
+    languageOptions: { parser: tseslint.parser },
   },
-];
+]);
 ```
 
-Or extend the configs for the es-toolkit categories you use:
+If your config already extends a typescript-eslint config such as
+`tseslint.configs.recommended`, the parser is set; just add `esToolkit.configs.all`.
+
+## Presets and opt-in rules
+
+| Preset                                                                          | Enables                                                                                  |
+| ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `configs.all`                                                                   | Every rule marked ✅ in the [catalog](#rules), in all categories. Opt-in rules stay off. |
+| `configs.array`, `function`, `math`, `object`, `predicate`, `promise`, `string` | The ✅ rules of that es-toolkit category only.                                           |
 
 ```js
-import esToolkit from 'es-toolkit-eslint-plugin';
-
-export default [esToolkit.configs.array, esToolkit.configs.predicate];
+export default defineConfig([
+  esToolkit.configs.array,
+  esToolkit.configs.predicate,
+]);
 ```
 
-The bundled category configs are `array`, `function`, `math`, `object`, `predicate`,
-`promise`, and `string`. To enable every rule, use the combined config:
+**Opt-in rules** match idioms that are often written on purpose, such as `arr[0]`,
+`arr.slice(0, n)` or `() => {}`, so no preset enables them: `prefer-clone-deep`,
+`prefer-debounce`, `prefer-head`, `prefer-identity`, `prefer-noop`, `prefer-take`, and
+`prefer-take-right`. Turn them on one by one:
 
 ```js
-export default [esToolkit.configs.all];
-```
-
-In the rule tables below, ✅ marks a rule that the bundled configs enable. Rules without it
-are **opt-in**: they match idioms that are often written on purpose (for example
-`arr[0]`, `arr.slice(0, n)` or `() => {}`), so every bundled config, `all` included, leaves them `off`.
-Enable them one by one:
-
-```js
-export default [
+export default defineConfig([
   esToolkit.configs.all,
   { rules: { 'es-toolkit/prefer-noop': 'error' } },
-];
+]);
 ```
 
-Code that readers copy, such as documentation demos and examples, may be better off without
-an es-toolkit import. Leave it out with a global `ignores` entry:
+To use single rules without a preset, register the plugin yourself:
 
 ```js
-export default [{ ignores: ['docs/demos/**'] }, esToolkit.configs.all];
-```
-
-Rules that replace `.filter(...)` or `.reduce(...)` are intentionally conservative: by default
-they report only when the matched call is outside a method-call chain. This applies to
-`prefer-compact`, `prefer-difference`, `prefer-difference-by`, `prefer-difference-with`,
-`prefer-intersection`, `prefer-mean`, `prefer-mean-by`, `prefer-sum`, `prefer-sum-by`, and
-`prefer-without`.
-
-Configure that policy for all chain-aware rules with plugin settings:
-
-```js
-export default [
+export default defineConfig([
   {
-    settings: {
-      'es-toolkit': {
-        arrayMethods: { chainPosition: 'chain-boundaries' },
-      },
-    },
+    plugins: { 'es-toolkit': esToolkit },
+    rules: { 'es-toolkit/prefer-clamp': 'error' },
   },
-];
+]);
 ```
 
-`chainPosition` may be `always`, `chain-start`, `chain-end`, `chain-boundaries`, or
-`outside-chain` (the default). An individual rule can override the global setting:
+## Rules
 
-```js
-{
-  rules: {
-    'es-toolkit/prefer-compact': ['error', { chainPosition: 'always' }],
-  },
-}
-```
+Each rule's page has examples of what is and is not reported, and its limitations.
 
-Only adjacent method calls define a chain. A standalone call is both its start and end.
+### Array
 
-## Array rules
+| Rule                                                             | Replaces                                                        | Enabled in presets |
+| ---------------------------------------------------------------- | --------------------------------------------------------------- | :----------------: |
+| [`prefer-chunk`](docs/rules/prefer-chunk.md)                     | a loop pushing `xs.slice(i, i + n)` → `chunk`                   |         ✅         |
+| [`prefer-compact`](docs/rules/prefer-compact.md)                 | `.filter(Boolean)` → `compact`                                  |         ✅         |
+| [`prefer-difference`](docs/rules/prefer-difference.md)           | `a.filter(x => !b.includes(x))` → `difference`                  |         ✅         |
+| [`prefer-difference-by`](docs/rules/prefer-difference-by.md)     | `a.filter(x => !b.some(y => y.id === x.id))` → `differenceBy`   |         ✅         |
+| [`prefer-difference-with`](docs/rules/prefer-difference-with.md) | `a.filter(x => !b.some(y => isEqual(x, y)))` → `differenceWith` |         ✅         |
+| [`prefer-flat-map`](docs/rules/prefer-flat-map.md)               | `.map(f).flat()` → `flatMap`                                    |         ✅         |
+| [`prefer-flat-map-deep`](docs/rules/prefer-flat-map-deep.md)     | `.map(f).flat(Infinity)` → `flatMapDeep`                        |         ✅         |
+| [`prefer-flatten`](docs/rules/prefer-flatten.md)                 | `.flat()` → `flatten`                                           |         ✅         |
+| [`prefer-flatten-deep`](docs/rules/prefer-flatten-deep.md)       | `.flat(Infinity)` → `flattenDeep`                               |         ✅         |
+| [`prefer-head`](docs/rules/prefer-head.md)                       | `arr[0]` → `head`                                               |                    |
+| [`prefer-initial`](docs/rules/prefer-initial.md)                 | `arr.slice(0, -1)` → `initial`                                  |         ✅         |
+| [`prefer-intersection`](docs/rules/prefer-intersection.md)       | `a.filter(x => b.includes(x))` → `intersection`                 |         ✅         |
+| [`prefer-is-subset`](docs/rules/prefer-is-subset.md)             | `sub.every(x => sup.includes(x))` → `isSubset`                  |         ✅         |
+| [`prefer-key-by`](docs/rules/prefer-key-by.md)                   | `Object.fromEntries(xs.map(x => [x.id, x]))` → `keyBy`          |         ✅         |
+| [`prefer-last`](docs/rules/prefer-last.md)                       | `arr[arr.length - 1]` → `last`                                  |         ✅         |
+| [`prefer-sample`](docs/rules/prefer-sample.md)                   | `arr[Math.floor(Math.random() * arr.length)]` → `sample`        |         ✅         |
+| [`prefer-shuffle`](docs/rules/prefer-shuffle.md)                 | `arr.sort(() => Math.random() - 0.5)` → `shuffle`               |         ✅         |
+| [`prefer-tail`](docs/rules/prefer-tail.md)                       | `arr.slice(1)` → `tail`                                         |         ✅         |
+| [`prefer-take`](docs/rules/prefer-take.md)                       | `arr.slice(0, n)` → `take`                                      |                    |
+| [`prefer-take-right`](docs/rules/prefer-take-right.md)           | `arr.slice(-n)` → `takeRight`                                   |                    |
+| [`prefer-union`](docs/rules/prefer-union.md)                     | `[...new Set([...a, ...b])]` → `union`                          |         ✅         |
+| [`prefer-uniq`](docs/rules/prefer-uniq.md)                       | `[...new Set(arr)]` → `uniq`                                    |         ✅         |
+| [`prefer-uniq-by`](docs/rules/prefer-uniq-by.md)                 | `[...new Map(xs.map(x => [x.id, x])).values()]` → `uniqBy`      |         ✅         |
+| [`prefer-without`](docs/rules/prefer-without.md)                 | `arr.filter(x => x !== value)` → `without`                      |         ✅         |
+| [`prefer-zip`](docs/rules/prefer-zip.md)                         | `a.map((x, i) => [x, b[i]])` → `zip`                            |         ✅         |
 
-| Rule                                                             | Description                                                                               | ✅  |
-| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | :-: |
-| [`prefer-chunk`](docs/rules/prefer-chunk.md)                     | Enforce using `chunk` instead of slicing an array into fixed-size pieces by hand.         | ✅  |
-| [`prefer-compact`](docs/rules/prefer-compact.md)                 | Enforce using `compact` instead of `.filter(Boolean)`.                                    | ✅  |
-| [`prefer-difference`](docs/rules/prefer-difference.md)           | Enforce using `difference` instead of `a.filter(x => !b.includes(x))`.                    | ✅  |
-| [`prefer-difference-by`](docs/rules/prefer-difference-by.md)     | Enforce using `differenceBy` instead of `a.filter(x => !b.some(y => y.id === x.id))`.     | ✅  |
-| [`prefer-difference-with`](docs/rules/prefer-difference-with.md) | Enforce using `differenceWith` instead of `a.filter(x => !b.some(y => isEqual(x, y)))`.   | ✅  |
-| [`prefer-flat-map`](docs/rules/prefer-flat-map.md)               | Enforce using `flatMap` instead of `.map(...).flat()`.                                    | ✅  |
-| [`prefer-flat-map-deep`](docs/rules/prefer-flat-map-deep.md)     | Enforce using `flatMapDeep` instead of `.map(...).flat(Infinity)`.                        | ✅  |
-| [`prefer-flatten`](docs/rules/prefer-flatten.md)                 | Enforce using `flatten` instead of `.flat()`.                                             | ✅  |
-| [`prefer-flatten-deep`](docs/rules/prefer-flatten-deep.md)       | Enforce using `flattenDeep` instead of `.flat(Infinity)`.                                 | ✅  |
-| [`prefer-head`](docs/rules/prefer-head.md)                       | Enforce using `head` instead of indexing an array with `0`.                               |     |
-| [`prefer-initial`](docs/rules/prefer-initial.md)                 | Enforce using `initial` instead of `arr.slice(0, -1)`.                                    | ✅  |
-| [`prefer-intersection`](docs/rules/prefer-intersection.md)       | Enforce using `intersection` instead of `a.filter(x => b.includes(x))`.                   | ✅  |
-| [`prefer-is-subset`](docs/rules/prefer-is-subset.md)             | Enforce using `isSubset` instead of `subset.every(x => superset.includes(x))`.            | ✅  |
-| [`prefer-key-by`](docs/rules/prefer-key-by.md)                   | Enforce using `keyBy` instead of `Object.fromEntries(xs.map(x => [key, x]))`.             | ✅  |
-| [`prefer-last`](docs/rules/prefer-last.md)                       | Enforce using `last` instead of `arr[arr.length - 1]`.                                    | ✅  |
-| [`prefer-sample`](docs/rules/prefer-sample.md)                   | Enforce using `sample` instead of random-index array access.                              | ✅  |
-| [`prefer-shuffle`](docs/rules/prefer-shuffle.md)                 | Enforce using `shuffle` instead of sorting with a random comparator.                      | ✅  |
-| [`prefer-tail`](docs/rules/prefer-tail.md)                       | Enforce using `tail` instead of `arr.slice(1)`.                                           | ✅  |
-| [`prefer-take`](docs/rules/prefer-take.md)                       | Enforce using `take` instead of `arr.slice(0, n)`.                                        |     |
-| [`prefer-take-right`](docs/rules/prefer-take-right.md)           | Enforce using `takeRight` instead of `arr.slice(-n)`.                                     |     |
-| [`prefer-union`](docs/rules/prefer-union.md)                     | Enforce using `union` instead of deduplicating two concatenated arrays through `new Set`. | ✅  |
-| [`prefer-uniq`](docs/rules/prefer-uniq.md)                       | Enforce using `uniq` instead of `new Set` round-trips.                                    | ✅  |
-| [`prefer-uniq-by`](docs/rules/prefer-uniq-by.md)                 | Enforce using `uniqBy` instead of reading the values of `new Map(xs.map(x => [key, x]))`. | ✅  |
-| [`prefer-without`](docs/rules/prefer-without.md)                 | Enforce using `without` instead of `arr.filter(x => x !== value)`.                        | ✅  |
-| [`prefer-zip`](docs/rules/prefer-zip.md)                         | Enforce using `zip` instead of `a.map((x, i) => [x, b[i]])`.                              | ✅  |
+### Function
 
-## Function rules
+| Rule                                               | Replaces                                        | Enabled in presets |
+| -------------------------------------------------- | ----------------------------------------------- | :----------------: |
+| [`prefer-debounce`](docs/rules/prefer-debounce.md) | a `clearTimeout`/`setTimeout` pair → `debounce` |                    |
+| [`prefer-identity`](docs/rules/prefer-identity.md) | `x => x` → `identity`                           |                    |
+| [`prefer-noop`](docs/rules/prefer-noop.md)         | `() => {}` → `noop`                             |                    |
 
-| Rule                                               | Description                                                                          | ✅  |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------ | :-: |
-| [`prefer-debounce`](docs/rules/prefer-debounce.md) | Enforce using `debounce` instead of a hand-written `clearTimeout`/`setTimeout` pair. |     |
-| [`prefer-identity`](docs/rules/prefer-identity.md) | Enforce using `identity` instead of an inline `x => x` function.                     |     |
-| [`prefer-noop`](docs/rules/prefer-noop.md)         | Enforce using `noop` instead of an inline `() => {}` function.                       |     |
+### Math
 
-## Math rules
+| Rule                                                   | Replaces                                             | Enabled in presets |
+| ------------------------------------------------------ | ---------------------------------------------------- | :----------------: |
+| [`prefer-clamp`](docs/rules/prefer-clamp.md)           | `Math.min(Math.max(x, lo), hi)` → `clamp`            |         ✅         |
+| [`prefer-in-range`](docs/rules/prefer-in-range.md)     | `x >= 200 && x < 300` → `inRange`                    |         ✅         |
+| [`prefer-mean`](docs/rules/prefer-mean.md)             | `xs.reduce((a, b) => a + b, 0) / xs.length` → `mean` |         ✅         |
+| [`prefer-mean-by`](docs/rules/prefer-mean-by.md)       | averaging `item.price` with `reduce` → `meanBy`      |         ✅         |
+| [`prefer-random-int`](docs/rules/prefer-random-int.md) | `Math.floor(Math.random() * n)` → `randomInt`        |         ✅         |
+| [`prefer-range`](docs/rules/prefer-range.md)           | `Array.from({ length: n }, (_, i) => i)` → `range`   |         ✅         |
+| [`prefer-round`](docs/rules/prefer-round.md)           | `Math.round(x * 100) / 100` → `round`                |         ✅         |
+| [`prefer-sum`](docs/rules/prefer-sum.md)               | `xs.reduce((a, b) => a + b, 0)` → `sum`              |         ✅         |
+| [`prefer-sum-by`](docs/rules/prefer-sum-by.md)         | `xs.reduce((acc, x) => acc + x.price, 0)` → `sumBy`  |         ✅         |
 
-| Rule                                                   | Description                                                                             | ✅  |
-| ------------------------------------------------------ | --------------------------------------------------------------------------------------- | :-: |
-| [`prefer-clamp`](docs/rules/prefer-clamp.md)           | Enforce using `clamp` instead of nested `Math.min`/`Math.max`.                          | ✅  |
-| [`prefer-in-range`](docs/rules/prefer-in-range.md)     | Enforce using `inRange` instead of range checks with literal bounds.                    | ✅  |
-| [`prefer-mean`](docs/rules/prefer-mean.md)             | Enforce using `mean` instead of a `reduce` sum divided by `.length`.                    | ✅  |
-| [`prefer-mean-by`](docs/rules/prefer-mean-by.md)       | Enforce using `meanBy` instead of averaging an item property with `reduce`.             | ✅  |
-| [`prefer-random-int`](docs/rules/prefer-random-int.md) | Enforce using `randomInt` instead of `Math.floor(Math.random() * …)`.                   | ✅  |
-| [`prefer-range`](docs/rules/prefer-range.md)           | Enforce using `range` instead of manual index-array construction.                       | ✅  |
-| [`prefer-round`](docs/rules/prefer-round.md)           | Enforce using `round` instead of `Math.round(x * 100) / 100` (any power-of-ten factor). | ✅  |
-| [`prefer-sum`](docs/rules/prefer-sum.md)               | Enforce using `sum` instead of `reduce((a, b) => a + b, 0)`.                            | ✅  |
-| [`prefer-sum-by`](docs/rules/prefer-sum-by.md)         | Enforce using `sumBy` instead of summing an item property with `reduce`.                | ✅  |
+### Object
 
-## Object rules
+| Rule                                                   | Replaces                                                                                       | Enabled in presets |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------------- | :----------------: |
+| [`prefer-clone-deep`](docs/rules/prefer-clone-deep.md) | `JSON.parse(JSON.stringify(x))` → `cloneDeep`                                                  |                    |
+| [`prefer-find-key`](docs/rules/prefer-find-key.md)     | `Object.keys(o).find(k => pred(o[k]))` → `findKey`                                             |         ✅         |
+| [`prefer-invert`](docs/rules/prefer-invert.md)         | `Object.fromEntries(Object.entries(o).map(([k, v]) => [v, k]))` → `invert`                     |         ✅         |
+| [`prefer-map-keys`](docs/rules/prefer-map-keys.md)     | `Object.fromEntries(Object.entries(o).map(([k, v]) => [f(k), v]))` → `mapKeys`                 |         ✅         |
+| [`prefer-map-values`](docs/rules/prefer-map-values.md) | `Object.fromEntries(Object.entries(o).map(([k, v]) => [k, f(v)]))` → `mapValues`               |         ✅         |
+| [`prefer-omit-by`](docs/rules/prefer-omit-by.md)       | `Object.fromEntries(Object.entries(o).filter(…))` with a negated predicate → `omitBy` / `omit` |         ✅         |
+| [`prefer-pick-by`](docs/rules/prefer-pick-by.md)       | `Object.fromEntries(Object.entries(o).filter(…))` → `pickBy` / `pick`                          |         ✅         |
 
-| Rule                                                   | Description                                                                                                    | ✅  |
-| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- | :-: |
-| [`prefer-clone-deep`](docs/rules/prefer-clone-deep.md) | Enforce using `cloneDeep` instead of `JSON.parse(JSON.stringify(x))`.                                          |     |
-| [`prefer-find-key`](docs/rules/prefer-find-key.md)     | Enforce using `findKey` instead of `Object.keys(o).find(k => pred(o[k]))` or the key of a found entry.         | ✅  |
-| [`prefer-invert`](docs/rules/prefer-invert.md)         | Enforce using `invert` instead of `Object.fromEntries(Object.entries(o).map(([k, v]) => [v, k]))`.             | ✅  |
-| [`prefer-map-keys`](docs/rules/prefer-map-keys.md)     | Enforce using `mapKeys` instead of `Object.fromEntries(Object.entries(o).map(([k, v]) => [f(k), v]))`.         | ✅  |
-| [`prefer-map-values`](docs/rules/prefer-map-values.md) | Enforce using `mapValues` instead of `Object.fromEntries(Object.entries(o).map(([k, v]) => [k, f(v)]))`.       | ✅  |
-| [`prefer-omit-by`](docs/rules/prefer-omit-by.md)       | Enforce using `omitBy` or `omit` instead of `Object.fromEntries(Object.entries(o).filter(([k, v]) => !pred))`. | ✅  |
-| [`prefer-pick-by`](docs/rules/prefer-pick-by.md)       | Enforce using `pickBy` or `pick` instead of `Object.fromEntries(Object.entries(o).filter(([k, v]) => pred))`.  | ✅  |
+### Predicate
 
-## Predicate rules
+| Rule                                                             | Replaces                                                             | Enabled in presets |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------- | :----------------: |
+| [`prefer-is-array-buffer`](docs/rules/prefer-is-array-buffer.md) | `x instanceof ArrayBuffer` → `isArrayBuffer`                         |         ✅         |
+| [`prefer-is-blob`](docs/rules/prefer-is-blob.md)                 | `x instanceof Blob` → `isBlob`                                       |         ✅         |
+| [`prefer-is-boolean`](docs/rules/prefer-is-boolean.md)           | `typeof x === 'boolean'` → `isBoolean`                               |         ✅         |
+| [`prefer-is-browser`](docs/rules/prefer-is-browser.md)           | `typeof window !== 'undefined'` → `isBrowser`                        |         ✅         |
+| [`prefer-is-date`](docs/rules/prefer-is-date.md)                 | `x instanceof Date` → `isDate`                                       |         ✅         |
+| [`prefer-is-empty`](docs/rules/prefer-is-empty.md)               | `Object.keys(o).length === 0` → `isEmpty` from `es-toolkit/compat`   |         ✅         |
+| [`prefer-is-equal`](docs/rules/prefer-is-equal.md)               | `JSON.stringify(a) === JSON.stringify(b)` → `isEqual`                |         ✅         |
+| [`prefer-is-error`](docs/rules/prefer-is-error.md)               | `x instanceof Error` → `isError`                                     |         ✅         |
+| [`prefer-is-file`](docs/rules/prefer-is-file.md)                 | `x instanceof File` → `isFile`                                       |         ✅         |
+| [`prefer-is-function`](docs/rules/prefer-is-function.md)         | `typeof x === 'function'` → `isFunction`                             |         ✅         |
+| [`prefer-is-map`](docs/rules/prefer-is-map.md)                   | `x instanceof Map` → `isMap`                                         |         ✅         |
+| [`prefer-is-nil`](docs/rules/prefer-is-nil.md)                   | `x == null` → `isNil`                                                |         ✅         |
+| [`prefer-is-not-nil`](docs/rules/prefer-is-not-nil.md)           | `x != null` → `isNotNil`                                             |         ✅         |
+| [`prefer-is-null`](docs/rules/prefer-is-null.md)                 | `x === null` → `isNull`                                              |         ✅         |
+| [`prefer-is-number`](docs/rules/prefer-is-number.md)             | `typeof x === 'number'` → `isNumber`                                 |         ✅         |
+| [`prefer-is-plain-object`](docs/rules/prefer-is-plain-object.md) | `Object.getPrototypeOf(x) === Object.prototype` → `isPlainObject`    |         ✅         |
+| [`prefer-is-promise`](docs/rules/prefer-is-promise.md)           | `x instanceof Promise` → `isPromise`                                 |         ✅         |
+| [`prefer-is-reg-exp`](docs/rules/prefer-is-reg-exp.md)           | `x instanceof RegExp` → `isRegExp`                                   |         ✅         |
+| [`prefer-is-set`](docs/rules/prefer-is-set.md)                   | `x instanceof Set` → `isSet`                                         |         ✅         |
+| [`prefer-is-string`](docs/rules/prefer-is-string.md)             | `typeof x === 'string'` → `isString`                                 |         ✅         |
+| [`prefer-is-symbol`](docs/rules/prefer-is-symbol.md)             | `typeof x === 'symbol'` → `isSymbol`                                 |         ✅         |
+| [`prefer-is-typed-array`](docs/rules/prefer-is-typed-array.md)   | `ArrayBuffer.isView(x) && !(x instanceof DataView)` → `isTypedArray` |         ✅         |
+| [`prefer-is-undefined`](docs/rules/prefer-is-undefined.md)       | `x === undefined` → `isUndefined`                                    |         ✅         |
+| [`prefer-is-weak-map`](docs/rules/prefer-is-weak-map.md)         | `x instanceof WeakMap` → `isWeakMap`                                 |         ✅         |
+| [`prefer-is-weak-set`](docs/rules/prefer-is-weak-set.md)         | `x instanceof WeakSet` → `isWeakSet`                                 |         ✅         |
 
-| Rule                                                             | Description                                                                                                         | ✅  |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- | :-: |
-| [`prefer-is-array-buffer`](docs/rules/prefer-is-array-buffer.md) | Enforce using `isArrayBuffer` instead of `instanceof ArrayBuffer`.                                                  | ✅  |
-| [`prefer-is-blob`](docs/rules/prefer-is-blob.md)                 | Enforce using `isBlob` instead of `value instanceof Blob`.                                                          | ✅  |
-| [`prefer-is-boolean`](docs/rules/prefer-is-boolean.md)           | Enforce using `isBoolean` instead of a `typeof` boolean check.                                                      | ✅  |
-| [`prefer-is-browser`](docs/rules/prefer-is-browser.md)           | Enforce using `isBrowser` instead of `typeof window !== "undefined"` (option `reportLoneWindowCheck`).              | ✅  |
-| [`prefer-is-date`](docs/rules/prefer-is-date.md)                 | Enforce using `isDate` instead of `value instanceof Date`.                                                          | ✅  |
-| [`prefer-is-empty`](docs/rules/prefer-is-empty.md)               | Enforce using `isEmpty` from `es-toolkit/compat` instead of comparing `Object.keys(obj).length` with `0`.           | ✅  |
-| [`prefer-is-equal`](docs/rules/prefer-is-equal.md)               | Enforce using `isEqual` instead of comparing `JSON.stringify` output.                                               | ✅  |
-| [`prefer-is-error`](docs/rules/prefer-is-error.md)               | Enforce using `isError` instead of `value instanceof Error`.                                                        | ✅  |
-| [`prefer-is-file`](docs/rules/prefer-is-file.md)                 | Enforce using `isFile` instead of `value instanceof File`.                                                          | ✅  |
-| [`prefer-is-function`](docs/rules/prefer-is-function.md)         | Enforce using `isFunction` instead of a `typeof` function check.                                                    | ✅  |
-| [`prefer-is-map`](docs/rules/prefer-is-map.md)                   | Enforce using `isMap` instead of `value instanceof Map`.                                                            | ✅  |
-| [`prefer-is-nil`](docs/rules/prefer-is-nil.md)                   | Enforce using `isNil` instead of `value == null` or `value === null \|\| value === undefined`.                      | ✅  |
-| [`prefer-is-not-nil`](docs/rules/prefer-is-not-nil.md)           | Enforce using `isNotNil` instead of `value != null` or `value !== null && value !== undefined`.                     | ✅  |
-| [`prefer-is-null`](docs/rules/prefer-is-null.md)                 | Enforce using `isNull` instead of `value === null` or `value !== null`.                                             | ✅  |
-| [`prefer-is-number`](docs/rules/prefer-is-number.md)             | Enforce using `isNumber` instead of a `typeof` number check.                                                        | ✅  |
-| [`prefer-is-plain-object`](docs/rules/prefer-is-plain-object.md) | Enforce using `isPlainObject` instead of a prototype, `constructor` or `[object Object]` tag check.                 | ✅  |
-| [`prefer-is-promise`](docs/rules/prefer-is-promise.md)           | Enforce using `isPromise` instead of `value instanceof Promise`.                                                    | ✅  |
-| [`prefer-is-reg-exp`](docs/rules/prefer-is-reg-exp.md)           | Enforce using `isRegExp` instead of `value instanceof RegExp`.                                                      | ✅  |
-| [`prefer-is-set`](docs/rules/prefer-is-set.md)                   | Enforce using `isSet` instead of `value instanceof Set`.                                                            | ✅  |
-| [`prefer-is-string`](docs/rules/prefer-is-string.md)             | Enforce using `isString` instead of a `typeof` string check.                                                        | ✅  |
-| [`prefer-is-symbol`](docs/rules/prefer-is-symbol.md)             | Enforce using `isSymbol` instead of a `typeof` symbol check.                                                        | ✅  |
-| [`prefer-is-typed-array`](docs/rules/prefer-is-typed-array.md)   | Enforce using `isTypedArray` instead of an ArrayBuffer view check.                                                  | ✅  |
-| [`prefer-is-undefined`](docs/rules/prefer-is-undefined.md)       | Enforce using `isUndefined` instead of `value === undefined`, `value === void 0` or `typeof value === "undefined"`. | ✅  |
-| [`prefer-is-weak-map`](docs/rules/prefer-is-weak-map.md)         | Enforce using `isWeakMap` instead of `value instanceof WeakMap`.                                                    | ✅  |
-| [`prefer-is-weak-set`](docs/rules/prefer-is-weak-set.md)         | Enforce using `isWeakSet` instead of `value instanceof WeakSet`.                                                    | ✅  |
+### Promise
 
-## Promise rules
+| Rule                                                       | Replaces                                                         | Enabled in presets |
+| ---------------------------------------------------------- | ---------------------------------------------------------------- | :----------------: |
+| [`prefer-delay`](docs/rules/prefer-delay.md)               | `new Promise(r => setTimeout(r, ms))` → `delay`                  |         ✅         |
+| [`prefer-timeout`](docs/rules/prefer-timeout.md)           | `new Promise((_, reject) => setTimeout(reject, ms))` → `timeout` |         ✅         |
+| [`prefer-with-timeout`](docs/rules/prefer-with-timeout.md) | `Promise.race` against a rejecting timer → `withTimeout`         |         ✅         |
 
-| Rule                                                       | Description                                                                        | ✅  |
-| ---------------------------------------------------------- | ---------------------------------------------------------------------------------- | :-: |
-| [`prefer-delay`](docs/rules/prefer-delay.md)               | Enforce using `delay` instead of `new Promise` + `setTimeout`.                     | ✅  |
-| [`prefer-timeout`](docs/rules/prefer-timeout.md)           | Enforce using `timeout` instead of a `new Promise` that rejects from `setTimeout`. | ✅  |
-| [`prefer-with-timeout`](docs/rules/prefer-with-timeout.md) | Enforce using `withTimeout` instead of racing a promise against a rejecting timer. | ✅  |
+### String
 
-## String rules
+| Rule                                                           | Replaces                                                       | Enabled in presets |
+| -------------------------------------------------------------- | -------------------------------------------------------------- | :----------------: |
+| [`prefer-capitalize`](docs/rules/prefer-capitalize.md)         | `s[0].toUpperCase() + s.slice(1).toLowerCase()` → `capitalize` |         ✅         |
+| [`prefer-escape-reg-exp`](docs/rules/prefer-escape-reg-exp.md) | `s.replace(/[.*+?^${}()\|[\]\\]/g, '\\$&')` → `escapeRegExp`   |         ✅         |
+| [`prefer-lower-first`](docs/rules/prefer-lower-first.md)       | `s[0].toLowerCase() + s.slice(1)` → `lowerFirst`               |         ✅         |
+| [`prefer-trim`](docs/rules/prefer-trim.md)                     | `s.replace(/^-+\|-+$/g, '')` → `trim`                          |         ✅         |
+| [`prefer-trim-end`](docs/rules/prefer-trim-end.md)             | `s.replace(/\/+$/, '')` → `trimEnd`                            |         ✅         |
+| [`prefer-trim-start`](docs/rules/prefer-trim-start.md)         | `s.replace(/^\/+/, '')` → `trimStart`                          |         ✅         |
+| [`prefer-upper-first`](docs/rules/prefer-upper-first.md)       | `s[0].toUpperCase() + s.slice(1)` → `upperFirst`               |         ✅         |
 
-| Rule                                                           | Description                                                                          | ✅  |
-| -------------------------------------------------------------- | ------------------------------------------------------------------------------------ | :-: |
-| [`prefer-capitalize`](docs/rules/prefer-capitalize.md)         | Enforce using `capitalize` instead of upper-casing the first char by hand.           | ✅  |
-| [`prefer-escape-reg-exp`](docs/rules/prefer-escape-reg-exp.md) | Enforce using `escapeRegExp` instead of escaping regex specials with `.replace`.     | ✅  |
-| [`prefer-lower-first`](docs/rules/prefer-lower-first.md)       | Enforce using `lowerFirst` instead of lower-casing the first char by hand.           | ✅  |
-| [`prefer-trim`](docs/rules/prefer-trim.md)                     | Enforce using `trim` instead of stripping characters from both ends with `.replace`. | ✅  |
-| [`prefer-trim-end`](docs/rules/prefer-trim-end.md)             | Enforce using `trimEnd` instead of stripping trailing characters with `.replace`.    | ✅  |
-| [`prefer-trim-start`](docs/rules/prefer-trim-start.md)         | Enforce using `trimStart` instead of stripping leading characters with `.replace`.   | ✅  |
-| [`prefer-upper-first`](docs/rules/prefer-upper-first.md)       | Enforce using `upperFirst` instead of upper-casing the first char by hand.           | ✅  |
+## Configuration
+
+- **Method-call chains.** Rules that replace `.filter(...)` or `.reduce(...)` report by
+  default only a call outside a method-call chain: `items.filter(Boolean)`, not
+  `items.map(f).filter(Boolean)`. One plugin setting changes that for all of them, and each
+  rule can override it: see [Method-call chains](docs/method-call-chains.md).
+- **Rule options.** [`prefer-is-browser`](docs/rules/prefer-is-browser.md#options) and
+  [`prefer-without`](docs/rules/prefer-without.md#options) take an option; the other rules
+  have none.
+- **Code that readers copy**, such as documentation demos, may be better off without an
+  es-toolkit import. Leave it out with a global `ignores` entry:
+
+  ```js
+  export default defineConfig([
+    { ignores: ['docs/demos/**'] },
+    esToolkit.configs.all,
+  ]);
+  ```
+
+## Before you apply a suggestion
+
+- **A report is a hint, not a proof.** The plugin is at an early stage, and it matches code
+  by its shape. It has no type information, so it cannot always tell whether `x.slice(1)` is
+  called on an array or a string, or whether a global such as `Math` is shadowed. False positives are possible.
+- **Nothing is rewritten for you.** There is no auto-fix and no editor suggestion. You make
+  the replacement, add the import, and add `es-toolkit` to your dependencies.
+- **Check the semantics.** A hand-written idiom and the utility can differ for some inputs:
+  `Math.max(Math.min(v, hi), lo)` and `clamp(v, lo, hi)` disagree when `lo > hi`, and
+  `isEmpty` follows lodash rules. Each rule's **Limitations** section lists the known
+  differences; read it before rewriting code you are not sure about.
+- **One report per snippet.** With every rule on, opt-in ones included, a piece of code is
+  reported by one rule, so suggestions do not compete.
+
+Found a false positive or a missed case?
+[Open an issue](https://github.com/syxov/es-toolkit-eslint-plugin/issues).
 
 ## Development
 
@@ -227,7 +293,13 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 pnpm install
 pnpm test      # vitest + RuleTester
 pnpm build     # tsc -> dist/
+pnpm check     # format, lint, typecheck, test
 ```
+
+Detection is written as [esquery](https://eslint.org/docs/latest/extend/selectors) selectors
+where possible, with scope checks in JS where a selector alone would report false positives.
+[AGENTS.md](AGENTS.md) describes how rules are built, tested and reviewed against a corpus of
+real projects.
 
 ## License
 
