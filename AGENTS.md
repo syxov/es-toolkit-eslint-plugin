@@ -94,9 +94,9 @@ used as `es-toolkit/<name>`.
    a `valid`/`invalid` matrix. Assert only `messageId` (no `output` — report-only).
    Include at least one TypeScript sample and the obvious false-positive cases as `valid`.
 4. **`docs/rules/<name>.md`** — what/why, ✅/❌ examples, and a **Limitations** section.
-5. **README.md** — add a row to the category's rules table: the shape it replaces and the
-   utility (`` `.filter(Boolean)` → `compact` ``), and ✅ in the last column when the rule
-   is on in the bundled configs, empty for an opt-in rule (also list it under opt-in rules).
+5. **README.md** — add a row to the category's rules table: a short description
+   (`` `compact` instead of `.filter(Boolean)` ``), and ✅ in the last column when the rule is
+   on in the bundled configs, empty for an opt-in rule.
 6. **Corpus** — `pnpm corpus --rules <name>,<siblings>` and read every hit. Each false
    positive becomes a rule fix plus a `valid` case. The rule ships as `'error'` unless the
    hits that remain are mostly deliberate idioms; then it is opt-in.
