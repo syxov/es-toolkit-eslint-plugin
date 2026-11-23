@@ -87,6 +87,9 @@ ruleTester.run('prefer-head', preferHead, {
     'function f(p) { p[1] = 0; return p[0]; }',
     'Object.entries(o).map(entry => entry[0]);',
     'Object.entries(o).filter(f).map(entry => entry[0]);',
+    // A found entry is a `[key, value]` tuple.
+    'Object.entries(o).find(([, v]) => v === x)[0];',
+    'const entry = Object.entries(o).find(([, v]) => v === x)!; use(entry[0]);',
     'const entries = Object.entries(o); entries.forEach(e => use(e[0]));',
     'for (const entry of map.entries()) use(entry[0]);',
     'pairs.sort((a, b) => a[0] - b[0]);',

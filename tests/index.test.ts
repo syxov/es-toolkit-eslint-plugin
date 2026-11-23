@@ -31,7 +31,12 @@ test('exports category configs and an all config', () => {
   });
   expect(plugin.configs.object.rules).toEqual({
     'es-toolkit/prefer-clone-deep': 'off',
+    'es-toolkit/prefer-find-key': 'error',
+    'es-toolkit/prefer-invert': 'error',
+    'es-toolkit/prefer-map-keys': 'error',
     'es-toolkit/prefer-map-values': 'error',
+    'es-toolkit/prefer-omit-by': 'error',
+    'es-toolkit/prefer-pick-by': 'error',
   });
   expect(plugin.configs.predicate.rules).toMatchObject({
     'es-toolkit/prefer-is-empty': 'error',

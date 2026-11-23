@@ -156,10 +156,15 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 
 ## Object rules
 
-| Rule                                                   | Description                                                                                              | ✅  |
-| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- | :-: |
-| [`prefer-clone-deep`](docs/rules/prefer-clone-deep.md) | Enforce using `cloneDeep` instead of `JSON.parse(JSON.stringify(x))`.                                    |     |
-| [`prefer-map-values`](docs/rules/prefer-map-values.md) | Enforce using `mapValues` instead of `Object.fromEntries(Object.entries(o).map(([k, v]) => [k, f(v)]))`. | ✅  |
+| Rule                                                   | Description                                                                                                    | ✅  |
+| ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------- | :-: |
+| [`prefer-clone-deep`](docs/rules/prefer-clone-deep.md) | Enforce using `cloneDeep` instead of `JSON.parse(JSON.stringify(x))`.                                          |     |
+| [`prefer-find-key`](docs/rules/prefer-find-key.md)     | Enforce using `findKey` instead of `Object.keys(o).find(k => pred(o[k]))` or the key of a found entry.         | ✅  |
+| [`prefer-invert`](docs/rules/prefer-invert.md)         | Enforce using `invert` instead of `Object.fromEntries(Object.entries(o).map(([k, v]) => [v, k]))`.             | ✅  |
+| [`prefer-map-keys`](docs/rules/prefer-map-keys.md)     | Enforce using `mapKeys` instead of `Object.fromEntries(Object.entries(o).map(([k, v]) => [f(k), v]))`.         | ✅  |
+| [`prefer-map-values`](docs/rules/prefer-map-values.md) | Enforce using `mapValues` instead of `Object.fromEntries(Object.entries(o).map(([k, v]) => [k, f(v)]))`.       | ✅  |
+| [`prefer-omit-by`](docs/rules/prefer-omit-by.md)       | Enforce using `omitBy` or `omit` instead of `Object.fromEntries(Object.entries(o).filter(([k, v]) => !pred))`. | ✅  |
+| [`prefer-pick-by`](docs/rules/prefer-pick-by.md)       | Enforce using `pickBy` or `pick` instead of `Object.fromEntries(Object.entries(o).filter(([k, v]) => pred))`.  | ✅  |
 
 ## Predicate rules
 
