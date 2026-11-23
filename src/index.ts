@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
 import type { ESLint, Linter } from 'eslint';
 import { preferCapitalize } from './rules/prefer-capitalize.js';
+import { preferChunk } from './rules/prefer-chunk.js';
 import { preferClamp } from './rules/prefer-clamp.js';
 import { preferCloneDeep } from './rules/prefer-clone-deep.js';
 import { preferCompact } from './rules/prefer-compact.js';
@@ -8,6 +9,8 @@ import { preferDebounce } from './rules/prefer-debounce.js';
 import { preferDelay } from './rules/prefer-delay.js';
 import { preferIsDate } from './rules/prefer-is-date.js';
 import { preferDifference } from './rules/prefer-difference.js';
+import { preferDifferenceBy } from './rules/prefer-difference-by.js';
+import { preferDifferenceWith } from './rules/prefer-difference-with.js';
 import { preferEscapeRegExp } from './rules/prefer-escape-reg-exp.js';
 import { preferFlatMap } from './rules/prefer-flat-map.js';
 import { preferFlatMapDeep } from './rules/prefer-flat-map-deep.js';
@@ -31,6 +34,7 @@ import { preferIsNull } from './rules/prefer-is-null.js';
 import { preferIsNumber } from './rules/prefer-is-number.js';
 import { preferIsRegExp } from './rules/prefer-is-reg-exp.js';
 import { preferIsSet } from './rules/prefer-is-set.js';
+import { preferIsSubset } from './rules/prefer-is-subset.js';
 import { preferIsString } from './rules/prefer-is-string.js';
 import { preferIsSymbol } from './rules/prefer-is-symbol.js';
 import { preferIsTypedArray } from './rules/prefer-is-typed-array.js';
@@ -76,6 +80,7 @@ const packageJson = createRequire(import.meta.url)('../package.json') as {
 
 const rules = {
   'prefer-capitalize': preferCapitalize,
+  'prefer-chunk': preferChunk,
   'prefer-clamp': preferClamp,
   'prefer-clone-deep': preferCloneDeep,
   'prefer-compact': preferCompact,
@@ -83,6 +88,8 @@ const rules = {
   'prefer-delay': preferDelay,
   'prefer-is-date': preferIsDate,
   'prefer-difference': preferDifference,
+  'prefer-difference-by': preferDifferenceBy,
+  'prefer-difference-with': preferDifferenceWith,
   'prefer-escape-reg-exp': preferEscapeRegExp,
   'prefer-flat-map': preferFlatMap,
   'prefer-flat-map-deep': preferFlatMapDeep,
@@ -106,6 +113,7 @@ const rules = {
   'prefer-is-number': preferIsNumber,
   'prefer-is-reg-exp': preferIsRegExp,
   'prefer-is-set': preferIsSet,
+  'prefer-is-subset': preferIsSubset,
   'prefer-is-string': preferIsString,
   'prefer-is-symbol': preferIsSymbol,
   'prefer-is-typed-array': preferIsTypedArray,
@@ -147,8 +155,11 @@ const rules = {
 // Every rule sits in exactly one category map. A rule registered as 'off' is opt-in: it
 // matches idioms that are often deliberate, so even `configs.all` leaves it disabled.
 const arrayRules = {
+  'es-toolkit/prefer-chunk': 'error',
   'es-toolkit/prefer-compact': 'error',
   'es-toolkit/prefer-difference': 'error',
+  'es-toolkit/prefer-difference-by': 'error',
+  'es-toolkit/prefer-difference-with': 'error',
   'es-toolkit/prefer-flat-map': 'error',
   'es-toolkit/prefer-flat-map-deep': 'error',
   'es-toolkit/prefer-flatten': 'error',
@@ -156,6 +167,7 @@ const arrayRules = {
   'es-toolkit/prefer-head': 'off',
   'es-toolkit/prefer-initial': 'error',
   'es-toolkit/prefer-intersection': 'error',
+  'es-toolkit/prefer-is-subset': 'error',
   'es-toolkit/prefer-key-by': 'error',
   'es-toolkit/prefer-last': 'error',
   'es-toolkit/prefer-sample': 'error',

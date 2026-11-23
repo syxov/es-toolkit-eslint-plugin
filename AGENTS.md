@@ -61,6 +61,8 @@ src/
   utils/trim-replace.ts     # `s.replace(/^X+|X+$/g, '')` parsing and chained-pair ownership: the trim rules
   utils/browser-evaluation.ts # callbacks serialised to a page (`page.evaluate`): the promise rules
   utils/timer-promise.ts    # `new Promise` + `setTimeout` reject shapes, `Promise.race` timeouts: prefer-timeout vs prefer-with-timeout
+  utils/difference-filter.ts # `a.filter(x => !b.some(y => …))`: prefer-difference-by vs -with
+  utils/string-name.ts      # receivers named like one string (`text`, `expose.type`): chunk, is-subset
   rules/<name>.ts           # one file per rule
 tests/rules/<name>.test.ts  # RuleTester valid/invalid matrix per rule
 tests/overlap.test.ts       # every rule (opt-in too) over snippets: exactly which rules fire on each

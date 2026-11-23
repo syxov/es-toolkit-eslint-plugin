@@ -29,6 +29,51 @@ const cases: [code: string, rules: string[]][] = [
   ['arr.filter(Boolean);', ['prefer-compact']],
   ['arr.filter(x => !b.includes(x));', ['prefer-difference']],
   ['arr.filter(x => b.includes(x));', ['prefer-intersection']],
+  ['arr.filter(x => !b.some(y => y.id === x.id));', ['prefer-difference-by']],
+  ['arr.filter(x => b.every(y => y.id !== x.id));', ['prefer-difference-by']],
+  [
+    'arr.filter(x => b.findIndex(y => y.id === x.id) === -1);',
+    ['prefer-difference-by'],
+  ],
+  [
+    'arr.filter(x => !b.some(y => y.id === x.userId));',
+    ['prefer-difference-with'],
+  ],
+  ['arr.filter(x => !b.some(y => isEqual(x, y)));', ['prefer-difference-with']],
+  ['arr.filter(x => !b.some(y => y.id == x.id));', ['prefer-difference-with']],
+  ['arr.filter(x => !b.some(y => y === x));', []],
+  ['arr.filter(x => b.some(y => y.id === x.id));', []],
+  ['arr.filter(x => !b.some(y => x.startsWith(y)));', []],
+  ['arr.every(x => b.includes(x));', ['prefer-is-subset']],
+  ['arr.every(x => !b.includes(x));', []],
+  ["arr.every(x => 'abc'.includes(x));", []],
+  ['arr.every(x => set.has(x));', []],
+  [
+    'for (let i = 0; i < xs.length; i += n) out.push(xs.slice(i, i + n));',
+    ['prefer-chunk'],
+  ],
+  [
+    'for (let i = 0; i < xs.length; i += n) { out.push(xs.slice(i, Math.min(i + n, xs.length))); }',
+    ['prefer-chunk'],
+  ],
+  [
+    'Array.from({ length: Math.ceil(xs.length / n) }, (_, i) => xs.slice(i * n, i * n + n));',
+    ['prefer-chunk'],
+  ],
+  [
+    'Array.from({ length: Math.ceil(xs.length / n) }, (_, i) => xs.slice(i * n, (i + 1) * n));',
+    ['prefer-chunk'],
+  ],
+  [
+    "const s = 'abc'; for (let i = 0; i < s.length; i += 2) out.push(s.slice(i, i + 2));",
+    [],
+  ],
+  [
+    'for (let i = 0; i < xs.length; i += n) { const part = xs.slice(i, i + n); send(part); }',
+    [],
+  ],
+  ['xs.slice(i, i + n);', []],
+  ['xs.slice(0, n);', ['prefer-take']],
   ['arr.filter(x => x !== value);', ['prefer-without']],
   // Nil exclusions narrow in TypeScript, and `without` would widen them: the nil predicates own them.
   ['arr.filter(x => x !== null);', ['prefer-is-null']],
