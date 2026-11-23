@@ -29,6 +29,12 @@ ruleTester.run('prefer-delay', preferDelay, {
     'new Promise(function (resolve, reject) { setTimeout(resolve, ms); });',
     'new Promise((resolve) => setTimeout(resolve));',
     'new Other((resolve) => setTimeout(resolve, ms));',
+    // Serialised and run in the browser page, where an imported `delay` does not exist.
+    'await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 150)));',
+    'await page.evaluate(async () => { for (const x of xs) { await new Promise((resolve) => setTimeout(resolve, 50)); } return true; }, [id]);',
+    "await page.$eval('#el', async el => { await new Promise(r => setTimeout(r, 10)); });",
+    'await frame.waitForFunction(function () { return new Promise(r => setTimeout(r, 10)); });',
+    'await context.addInitScript(() => { window.wait = () => new Promise<void>(r => setTimeout(r, 10)); });',
   ],
   invalid: [
     {
@@ -73,6 +79,16 @@ ruleTester.run('prefer-delay', preferDelay, {
     },
     {
       code: 'const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(() => resolve(), ms));',
+      errors: [{ messageId: 'preferDelay' }],
+    },
+    {
+      // Waiting in the test process next to an `evaluate` call is not serialised.
+      code: 'await page.evaluate(() => scroll()); await new Promise(r => setTimeout(r, 100));',
+      errors: [{ messageId: 'preferDelay' }],
+    },
+    {
+      // The function is passed to another call, not to an evaluate call.
+      code: 'run(page.evaluate, () => new Promise(r => setTimeout(r, 10)));',
       errors: [{ messageId: 'preferDelay' }],
     },
   ],

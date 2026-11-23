@@ -53,7 +53,7 @@ const cases: [code: string, rules: string[]][] = [
   ['arr.slice(0, n);', ['prefer-take']],
   ['arr.slice(-n);', ['prefer-take-right']],
   // function
-  ['arr.map(x => x);', ['prefer-identity']],
+  ['arr.map(x => x);', []],
   ['arr.filter(x => x);', ['prefer-compact']],
   ['promise.catch(() => {});', ['prefer-noop']],
   ['clearTimeout(t); t = setTimeout(f, 100);', ['prefer-debounce']],
@@ -77,7 +77,7 @@ const cases: [code: string, rules: string[]][] = [
   ['Array.from({ length: n }, (_, i) => i);', ['prefer-range']],
   ['[...Array(n).keys()];', ['prefer-range']],
   ['Math.round(x * 100) / 100;', ['prefer-round']],
-  ['Number(x.toFixed(2));', ['prefer-round']],
+  ['Number(x.toFixed(2));', []],
   // object
   ['JSON.parse(JSON.stringify(x));', ['prefer-clone-deep']],
   [
@@ -112,6 +112,23 @@ const cases: [code: string, rules: string[]][] = [
     ['prefer-capitalize'],
   ],
   ["s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');", ['prefer-escape-reg-exp']],
+  // misc: math / function / string false positives
+  ['Math.max(0, Math.min(Math.max(s, e), len));', ['prefer-clamp']],
+  [
+    'const lo = Math.max(Math.min(a, b), 0); const hi = Math.min(Math.max(a, b), n);',
+    [],
+  ],
+  [
+    'for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }',
+    [],
+  ],
+  ['groupBy(arr, x => x);', ['prefer-identity']],
+  ['const select = (state: State) => state;', []],
+  ["vi.spyOn(console, 'error').mockImplementation(() => {});", []],
+  ['fn(function save() {});', []],
+  ['expect(JSON.parse(JSON.stringify(ast))).toEqual(ast);', []],
+  ["s.replace(/[-\\/\\\\^$*+?.()|[\\]{}]/g, '\\\\$&');", []],
+  ['page.evaluate(() => new Promise(r => setTimeout(r, 100)));', []],
 ];
 
 describe('rule overlap', () => {

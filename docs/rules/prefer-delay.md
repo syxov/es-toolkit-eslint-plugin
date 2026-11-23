@@ -46,6 +46,9 @@ new Promise(resolve => {
   doWork();
   setTimeout(resolve, ms); // does more than wait, see Limitations
 });
+
+// Serialised and run in the browser page, where an imported `delay` is not defined:
+await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 150)));
 ```
 
 ## Limitations
@@ -58,6 +61,12 @@ new Promise(resolve => {
 - **Identity-checked by name.** The rule reports only when the timeout callback is, or
   calls, the executor's own parameter, so `setTimeout(doWork, ms)` inside a `new Promise` is
   left alone.
+- **Browser-evaluated callbacks are recognised by method name.** Code inside a function
+  passed directly to `.evaluate`, `.evaluateHandle`, `.evaluateOnNewDocument`,
+  `.waitForFunction`, `.addInitScript`, `.$eval` or `.$$eval` (Puppeteer, Playwright) is
+  not reported: the function is serialised to the page, where imports do not exist. A
+  function defined elsewhere and passed by reference, or a differently named helper that
+  serialises its argument, is not recognised.
 - **Syntactic.** `Promise` and `setTimeout` are matched by name; shadowed locals with
   those names are not distinguished.
 - **No auto-fix by design.** The fix requires adding an `import { delay } from 'es-toolkit'`.

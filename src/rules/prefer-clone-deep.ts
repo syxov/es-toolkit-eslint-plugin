@@ -12,6 +12,71 @@ const jsonCall = (path: string, method: JsonMethod) =>
 // one-argument form of both calls is a plain deep clone.
 const jsonRoundTrip = `CallExpression${jsonCall('', 'parse')}${jsonCall('arguments.0.', 'stringify')}`;
 
+// Names that announce the JSON semantics themselves. A function says what it does
+// (`sanitizeError`, `toSerializableMeta`, `detachSnapshot`, `toPlainObject`); a variable only
+// what it holds (`resultJson`), so `const serialized = JSON.parse(…)` is still a clone.
+const functionIntent = /seriali[sz]|saniti[sz]|json|detach|plain/i;
+const variableIntent = /json|plain/i;
+
+const keyName = (key: TSESTree.Node) =>
+  key.type === 'Identifier' ? key.name : undefined;
+
+const functionName = (fn: TSESTree.Node) => {
+  if (
+    (fn.type === 'FunctionDeclaration' || fn.type === 'FunctionExpression')
+    && fn.id
+  )
+    return fn.id.name;
+  const { parent } = fn;
+  if (parent?.type === 'VariableDeclarator') return keyName(parent.id);
+  if (
+    parent?.type === 'Property'
+    || parent?.type === 'MethodDefinition'
+    || parent?.type === 'PropertyDefinition'
+  )
+    return keyName(parent.key);
+  return undefined;
+};
+
+// The leftmost name of a call chain: `expect` in `expect(a).not.toEqual(b)`.
+const chainRoot = (node: TSESTree.Node): TSESTree.Node => {
+  if (node.type === 'MemberExpression') return chainRoot(node.object);
+  if (node.type === 'CallExpression') return chainRoot(node.callee);
+  return node;
+};
+
+const calleeName = (call: TSESTree.CallExpression) => {
+  const { callee } = call;
+  if (callee.type === 'Identifier') return callee.name;
+  return callee.type === 'MemberExpression'
+    ? keyName(callee.property)
+    : undefined;
+};
+
+// Deliberate JSON semantics, told apart by context: an assertion that a value survives JSON
+// (`expect(JSON.parse(JSON.stringify(ast))).toEqual(ast)`), a benchmark of the round-trip
+// itself, or code named after serialising or sanitising.
+const isDeliberateJson = (node: TSESTree.Node) => {
+  for (let current = node.parent; current; current = current.parent) {
+    if (current.type === 'CallExpression') {
+      const root = chainRoot(current.callee);
+      if (root.type === 'Identifier' && root.name === 'expect') return true;
+      if (/^bench/i.test(calleeName(current) ?? '')) return true;
+    }
+    if (
+      current.type === 'VariableDeclarator'
+      && variableIntent.test(keyName(current.id) ?? '')
+    )
+      return true;
+    if (
+      current.type.includes('Function')
+      && functionIntent.test(functionName(current) ?? '')
+    )
+      return true;
+  }
+  return false;
+};
+
 export const preferCloneDeep = createRule({
   name: 'prefer-clone-deep',
   meta: {
@@ -27,9 +92,11 @@ export const preferCloneDeep = createRule({
     },
   },
   create(context) {
-    const report = (node: TSESTree.CallExpression) =>
-      context.report({ node, messageId: 'preferCloneDeep' });
-
-    return { [jsonRoundTrip]: report };
+    return {
+      [jsonRoundTrip]: (node: TSESTree.CallExpression) => {
+        if (!isDeliberateJson(node))
+          context.report({ node, messageId: 'preferCloneDeep' });
+      },
+    };
   },
 });
