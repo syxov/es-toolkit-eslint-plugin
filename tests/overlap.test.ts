@@ -101,6 +101,74 @@ const cases: [code: string, rules: string[]][] = [
     ['prefer-is-typed-array'],
   ],
   ['v instanceof Date;', ['prefer-is-date']],
+  ['v instanceof Promise;', ['prefer-is-promise']],
+  ['v instanceof Promise || v instanceof Error;', []],
+  // A thenable check is not `isPromise`; the `typeof` half is an ordinary function check.
+  ["typeof v?.then === 'function';", ['prefer-is-function']],
+  // plain object: the nil guards and the `=== null` half belong to the plain-object test
+  [
+    "Object.prototype.toString.call(x) === '[object Object]';",
+    ['prefer-is-plain-object'],
+  ],
+  ['x.constructor === Object;', ['prefer-is-plain-object']],
+  [
+    'typeof x === "object" && x !== null && Object.getPrototypeOf(x) === Object.prototype;',
+    ['prefer-is-plain-object'],
+  ],
+  [
+    'x !== null && Object.getPrototypeOf(x) === Object.prototype;',
+    ['prefer-is-plain-object'],
+  ],
+  ['x != null && x.constructor === Object;', ['prefer-is-plain-object']],
+  [
+    'x !== null && x !== undefined && x.constructor === Object;',
+    ['prefer-is-plain-object'],
+  ],
+  [
+    'Object.getPrototypeOf(x) === Object.prototype || Object.getPrototypeOf(x) === null;',
+    ['prefer-is-plain-object'],
+  ],
+  [
+    'const proto = Object.getPrototypeOf(x); proto === Object.prototype || proto === null;',
+    ['prefer-is-plain-object'],
+  ],
+  [
+    'const proto = Object.getPrototypeOf(x); proto !== Object.prototype && proto !== null;',
+    ['prefer-is-plain-object'],
+  ],
+  ['Object.getPrototypeOf(x) === null;', ['prefer-is-null']],
+  [
+    'Object.getPrototypeOf(a) === Object.prototype || Object.getPrototypeOf(b) === null;',
+    ['prefer-is-null', 'prefer-is-plain-object'],
+  ],
+  // browser: the document half is part of the pair, not a nil check of its own
+  ["typeof window !== 'undefined';", ['prefer-is-browser']],
+  [
+    "typeof window !== 'undefined' && typeof document !== 'undefined';",
+    ['prefer-is-browser'],
+  ],
+  [
+    "typeof window !== 'undefined' && window.document != null;",
+    ['prefer-is-browser'],
+  ],
+  [
+    "typeof window !== 'undefined' && window.document !== undefined;",
+    ['prefer-is-browser'],
+  ],
+  [
+    "typeof window === 'undefined' || window.document === undefined;",
+    ['prefer-is-browser'],
+  ],
+  [
+    "typeof window !== 'undefined' && typeof window.document !== 'undefined';",
+    ['prefer-is-browser'],
+  ],
+  ["typeof document !== 'undefined';", []],
+  ["typeof window.document !== 'undefined';", ['prefer-is-undefined']],
+  [
+    "const window = getWindow(); typeof window === 'undefined';",
+    ['prefer-is-undefined'],
+  ],
   // promise
   ['new Promise(resolve => setTimeout(resolve, ms));', ['prefer-delay']],
   // string
@@ -167,7 +235,7 @@ const cases: [code: string, rules: string[]][] = [
   ['typeof x === "object" && x !== null;', []],
   ['x != null && typeof x === "object" && "k" in x;', []],
   ['x !== null && x !== undefined && typeof x === "object";', []],
-  ['typeof window === "undefined";', []],
+  ['typeof window === "undefined";', ['prefer-is-browser']],
   ['typeof requestAnimationFrame === "function";', []],
   ['x === undefined ? d : x;', []],
   ['if (x == null) x = d;', []],

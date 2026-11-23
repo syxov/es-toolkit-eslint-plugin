@@ -168,6 +168,7 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 | [`prefer-is-array-buffer`](docs/rules/prefer-is-array-buffer.md) | Enforce using `isArrayBuffer` instead of `instanceof ArrayBuffer`.                                                  | ✅  |
 | [`prefer-is-blob`](docs/rules/prefer-is-blob.md)                 | Enforce using `isBlob` instead of `value instanceof Blob`.                                                          | ✅  |
 | [`prefer-is-boolean`](docs/rules/prefer-is-boolean.md)           | Enforce using `isBoolean` instead of a `typeof` boolean check.                                                      | ✅  |
+| [`prefer-is-browser`](docs/rules/prefer-is-browser.md)           | Enforce using `isBrowser` instead of `typeof window !== "undefined"` (option `reportLoneWindowCheck`).              | ✅  |
 | [`prefer-is-date`](docs/rules/prefer-is-date.md)                 | Enforce using `isDate` instead of `value instanceof Date`.                                                          | ✅  |
 | [`prefer-is-empty`](docs/rules/prefer-is-empty.md)               | Enforce using `isEmpty` from `es-toolkit/compat` instead of comparing `Object.keys(obj).length` with `0`.           | ✅  |
 | [`prefer-is-equal`](docs/rules/prefer-is-equal.md)               | Enforce using `isEqual` instead of comparing `JSON.stringify` output.                                               | ✅  |
@@ -179,6 +180,8 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 | [`prefer-is-not-nil`](docs/rules/prefer-is-not-nil.md)           | Enforce using `isNotNil` instead of `value != null` or `value !== null && value !== undefined`.                     | ✅  |
 | [`prefer-is-null`](docs/rules/prefer-is-null.md)                 | Enforce using `isNull` instead of `value === null` or `value !== null`.                                             | ✅  |
 | [`prefer-is-number`](docs/rules/prefer-is-number.md)             | Enforce using `isNumber` instead of a `typeof` number check.                                                        | ✅  |
+| [`prefer-is-plain-object`](docs/rules/prefer-is-plain-object.md) | Enforce using `isPlainObject` instead of a prototype, `constructor` or `[object Object]` tag check.                 | ✅  |
+| [`prefer-is-promise`](docs/rules/prefer-is-promise.md)           | Enforce using `isPromise` instead of `value instanceof Promise`.                                                    | ✅  |
 | [`prefer-is-reg-exp`](docs/rules/prefer-is-reg-exp.md)           | Enforce using `isRegExp` instead of `value instanceof RegExp`.                                                      | ✅  |
 | [`prefer-is-set`](docs/rules/prefer-is-set.md)                   | Enforce using `isSet` instead of `value instanceof Set`.                                                            | ✅  |
 | [`prefer-is-string`](docs/rules/prefer-is-string.md)             | Enforce using `isString` instead of a `typeof` string check.                                                        | ✅  |
