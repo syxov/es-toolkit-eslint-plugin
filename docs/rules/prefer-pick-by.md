@@ -1,4 +1,4 @@
-# prefer-pick-by
+﻿# prefer-pick-by
 
 Prefer [`pickBy`](https://es-toolkit.dev/reference/object/pickBy.html) — or
 [`pick`](https://es-toolkit.dev/reference/object/pick.html) for a fixed set of keys — from
@@ -39,8 +39,8 @@ the frame (`pickBy(o, isNotNil)`). A compound predicate such as `v != null && k 
 reported by both: the nil rule on the comparison, this rule on the frame.
 
 Single type tests are staged the same way: `typeof v === 'string'`, `typeof v !== 'function'`
-or `v instanceof Date` (also negated) goes to `prefer-is-string`, `prefer-is-function`,
-`prefer-is-date` and the other type predicate rules first, and this rule reports
+`v instanceof Date` or `v instanceof Promise` (also negated) goes to `prefer-is-string`, `prefer-is-function`,
+`prefer-is-date`, `prefer-is-promise` and the other type predicate rules first (a plain-object test such as `v.constructor === Object` to `prefer-is-plain-object`), and this rule reports
 `filter(([, v]) => isString(v))` afterwards. Type tests no predicate rule reports, such as
 `typeof v === 'object'`, `v instanceof Widget` or a dispatch over several types
 (`typeof v === 'string' || typeof v === 'number'`), are reported here directly.

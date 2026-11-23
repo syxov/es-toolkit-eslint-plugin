@@ -24,6 +24,11 @@ ruleTester.run('prefer-pick-by', preferPickBy, {
     "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v === 'string'));",
     "Object.fromEntries(Object.entries(o).filter(([, v]) => typeof v !== 'function'));",
     'Object.fromEntries(Object.entries(o).filter(([, v]) => v instanceof Date));',
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v instanceof Promise));',
+    // A plain-object test is left to prefer-is-plain-object.
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v.constructor === Object));',
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => Object.getPrototypeOf(v) === Object.prototype));',
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v.constructor !== Object));',
     'Object.fromEntries(Object.entries(o).filter(([, v]: [string, unknown]) => v instanceof Map));',
     // The predicate reads neither the key nor the value.
     'Object.fromEntries(Object.entries(o).filter(() => true));',
@@ -91,6 +96,15 @@ ruleTester.run('prefer-pick-by', preferPickBy, {
     {
       // The candidate list depends on the entry.
       code: 'Object.fromEntries(Object.entries(o).filter(([k, v]) => v.includes(k)));',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      code: 'Object.fromEntries(Object.entries(o).filter(([, v]) => isPlainObject(v)));',
+      errors: [{ messageId: 'preferPickBy' }],
+    },
+    {
+      // A local `isPlainObject` keeps prefer-is-plain-object quiet.
+      code: 'function f(o, isPlainObject) { return Object.fromEntries(Object.entries(o).filter(([, v]) => v.constructor === Object)); }',
       errors: [{ messageId: 'preferPickBy' }],
     },
     {

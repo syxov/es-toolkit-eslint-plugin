@@ -131,6 +131,7 @@ export const typeTestHelpers: Readonly<Partial<Record<string, string>>> = {
   'instanceof Error': 'isError',
   'instanceof File': 'isFile',
   'instanceof Map': 'isMap',
+  'instanceof Promise': 'isPromise',
   'instanceof RegExp': 'isRegExp',
   'instanceof Set': 'isSet',
   'instanceof WeakMap': 'isWeakMap',

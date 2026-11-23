@@ -5,6 +5,8 @@ import {
   isSameExpression,
   stripTypeWrappers,
 } from './ast.js';
+import { isPairOperand, pairEndingAt } from './logical-pair.js';
+import { isExcludedPredicateSite } from './predicate-site.js';
 import { conditionTests } from './type-test.js';
 import { findVariable } from './variable-sources.js';
 
@@ -236,3 +238,35 @@ export const isPartOfPlainObjectTest = (
       )
     );
   });
+
+// prefer-is-plain-object can report the code at `node` (the `isPlainObject` name is free and
+// it is no test assertion).
+export const isPlainObjectSite = (
+  sourceCode: SourceCode,
+  node: TSESTree.Node,
+) => !isExcludedPredicateSite(sourceCode, node, 'isPlainObject');
+
+// A single plain-object test that is not one operand of a prototype pair, which
+// prefer-is-plain-object reports on its own.
+export const isLonePlainObjectTest = (
+  sourceCode: SourceCode,
+  node: TSESTree.Node,
+) =>
+  !!parsePlainObjectTest(sourceCode, node)
+  && !isPairOperand(node, (operator, left, right) =>
+    isPrototypePair(sourceCode, operator, left, right),
+  );
+
+// prefer-is-plain-object reports `node` as a whole: a lone test, or a two-operand prototype
+// pair (`proto === Object.prototype || proto === null`).
+export const isReportedPlainObjectTest = (
+  sourceCode: SourceCode,
+  node: TSESTree.Node,
+) => {
+  const reported =
+    node.type === 'LogicalExpression'
+      ? pairEndingAt(node)[0] === node.left
+        && isPrototypePair(sourceCode, node.operator, node.left, node.right)
+      : isLonePlainObjectTest(sourceCode, node);
+  return reported && isPlainObjectSite(sourceCode, node);
+};

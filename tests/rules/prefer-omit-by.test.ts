@@ -19,6 +19,8 @@ ruleTester.run('prefer-omit-by', preferOmitBy, {
     "Object.fromEntries(Object.entries(o).filter(([, v]) => !(typeof v === 'undefined')));",
     // A negated type test is left to the type predicate rules.
     'Object.fromEntries(Object.entries(o).filter(([, v]) => !(v instanceof Date)));',
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => !(v instanceof Promise)));',
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => !(v.constructor === Object)));',
     "Object.fromEntries(Object.entries(o).filter(([, v]) => !(typeof v === 'function')));",
     // A partial negation is not `!pred`.
     'Object.fromEntries(Object.entries(o).filter(([k, v]) => !keys.includes(k) && v));',

@@ -1,11 +1,11 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
-import { isPairOperand, pairEndingAt } from '../utils/logical-pair.js';
+import { pairEndingAt } from '../utils/logical-pair.js';
 import {
+  isLonePlainObjectTest,
+  isPlainObjectSite,
   isPrototypePair,
-  parsePlainObjectTest,
 } from '../utils/plain-object-test.js';
-import { isExcludedPredicateSite } from '../utils/predicate-site.js';
 
 // Narrows the candidates to comparisons with `'[object Object]'`, `….prototype` or `Object`;
 // `parsePlainObjectTest` checks the other operand.
@@ -28,19 +28,11 @@ export const preferIsPlainObject = createRule({
   },
   create(context) {
     const { sourceCode } = context;
-    const isReportable = (node: TSESTree.Node) =>
-      !isExcludedPredicateSite(sourceCode, node, 'isPlainObject');
-    const isPair = (
-      operator: TSESTree.LogicalExpression['operator'],
-      left: TSESTree.Node,
-      right: TSESTree.Node,
-    ) => isPrototypePair(sourceCode, operator, left, right);
     return {
       [plainObjectComparison](node: TSESTree.BinaryExpression) {
         if (
-          parsePlainObjectTest(sourceCode, node)
-          && !isPairOperand(node, isPair)
-          && isReportable(node)
+          isLonePlainObjectTest(sourceCode, node)
+          && isPlainObjectSite(sourceCode, node)
         )
           context.report({ node, messageId: 'preferIsPlainObject' });
       },
@@ -48,7 +40,10 @@ export const preferIsPlainObject = createRule({
         node: TSESTree.LogicalExpression,
       ) {
         const [left, right] = pairEndingAt(node);
-        if (isPair(node.operator, left, right) && isReportable(node))
+        if (
+          isPrototypePair(sourceCode, node.operator, left, right)
+          && isPlainObjectSite(sourceCode, node)
+        )
           context.report({
             loc: { start: left.loc.start, end: right.loc.end },
             messageId: 'preferIsPlainObject',

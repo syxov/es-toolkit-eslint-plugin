@@ -9,6 +9,7 @@ import {
   returningCallback,
 } from './entries-map.js';
 import { isReportedNilCheck } from './nil-check.js';
+import { isReportedPlainObjectTest } from './plain-object-test.js';
 import { unwrapTypes } from './positional-receiver.js';
 import { isReportedTypeTest } from './type-test.js';
 
@@ -113,11 +114,25 @@ const isNegatedPredicate = (context: Context, node: TSESTree.Node): boolean =>
 const withoutNegations = (node: TSESTree.Node): TSESTree.Node =>
   isNegation(node) ? withoutNegations(node.argument) : node;
 
+// A predicate rule reports the whole predicate (negations aside): a nil check
+// (`v != null`), a type test (`typeof v === 'string'`, `!(v instanceof Date)`) or a
+// plain-object test (`v.constructor === Object`).
+const isReportedPredicate = (
+  sourceCode: SourceCode,
+  predicate: TSESTree.Node,
+) => {
+  const test = withoutNegations(predicate);
+  return (
+    isReportedNilCheck(sourceCode, test)
+    || isReportedTypeTest(sourceCode, test)
+    || isReportedPlainObjectTest(sourceCode, test)
+  );
+};
+
 // How a `fromEntriesOfFilteredEntries` match selects its entries, or null when the callback
-// is not a predicate over a destructured `[k, v]` entry. A predicate that is a single nil
-// check (`v != null`, `!(v === undefined)`) or type test (`typeof v === 'string'`,
-// `!(v instanceof Date)`) is left to the predicate rules: once it reads `isNotNil(v)`, the
-// frame is reported here.
+// is not a predicate over a destructured `[k, v]` entry. A predicate that a predicate rule
+// reports as a whole is left to that rule: once it reads `isNotNil(v)`, the frame is
+// reported here.
 export const entryFilter = (
   sourceCode: SourceCode,
   fromEntries: TSESTree.CallExpression,
@@ -129,8 +144,7 @@ export const entryFilter = (
     !params
     || !predicate
     || !referencesParam(sourceCode, callback, predicate)
-    || isReportedNilCheck(sourceCode, withoutNegations(predicate))
-    || isReportedTypeTest(sourceCode, withoutNegations(predicate))
+    || isReportedPredicate(sourceCode, predicate)
   )
     return null;
   const context = { sourceCode, callback, key: params.key };

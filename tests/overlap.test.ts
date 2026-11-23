@@ -227,6 +227,22 @@ const cases: [code: string, rules: string[]][] = [
     ['prefer-is-date'],
   ],
   [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v instanceof Promise));',
+    ['prefer-is-promise'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => v.constructor === Object));',
+    ['prefer-is-plain-object'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => !(Object.getPrototypeOf(v) === Object.prototype)));',
+    ['prefer-is-plain-object'],
+  ],
+  [
+    'Object.fromEntries(Object.entries(o).filter(([, v]) => isPlainObject(v)));',
+    ['prefer-pick-by'],
+  ],
+  [
     'Object.fromEntries(Object.entries(o).filter(([, v]) => isString(v)));',
     ['prefer-pick-by'],
   ],
