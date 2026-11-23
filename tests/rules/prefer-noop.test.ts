@@ -49,6 +49,22 @@ ruleTester.run('prefer-noop', preferNoop, {
     'interface I { m(): void; }',
     'function f(): void;\nfunction f() {}',
     'const f = ({ a }: Props) => {};',
+    // A named function expression keeps its name observable.
+    "el.addEventListener('click', function onClick() {});",
+    "expect(fn(function save() {}).getMockName()).toBe('save');",
+    "action('onClick')(function MyFunction() {});",
+    // A typed parameter can be the only declaration of the signature: `noop` takes none.
+    '(e: Error) => {};',
+    '(...args: unknown[]) => {};',
+    'const f = <T,>(value: T) => {};',
+    '(value?: string) => {};',
+    'let update = (_count: number) => {};',
+    'createContext({ value: 1, set: (v: number) => {} });',
+    'fn(function (event: Event) {});',
+    // Test doubles.
+    "vi.spyOn(console, 'error').mockImplementation(() => {});",
+    'jest.spyOn(window, "scrollTo").mockImplementationOnce(() => {});',
+    'mock.mockReturnValue(() => {});',
   ],
   invalid: [
     {
@@ -65,10 +81,6 @@ ruleTester.run('prefer-noop', preferNoop, {
     },
     {
       code: "el.addEventListener('click', function () {});",
-      errors: [{ messageId: 'preferNoop' }],
-    },
-    {
-      code: "el.addEventListener('click', function onClick() {});",
       errors: [{ messageId: 'preferNoop' }],
     },
     {
@@ -136,23 +148,26 @@ ruleTester.run('prefer-noop', preferNoop, {
       errors: [{ messageId: 'preferNoop' }],
     },
     {
-      code: '(e: Error) => {};',
-      errors: [{ messageId: 'preferNoop' }],
-    },
-    {
-      code: '(...args: unknown[]) => {};',
-      errors: [{ messageId: 'preferNoop' }],
-    },
-    {
       code: '(): void => {};',
       errors: [{ messageId: 'preferNoop' }],
     },
     {
-      code: 'const f = <T,>(value: T) => {};',
+      // An untyped parameter: `noop` is assignable wherever this function is.
+      code: 'const onError = (e) => {};',
       errors: [{ messageId: 'preferNoop' }],
     },
     {
-      code: '(value?: string) => {};',
+      // A `this` parameter is not an argument.
+      code: "el.addEventListener('click', function (this: HTMLElement) {});",
+      errors: [{ messageId: 'preferNoop' }],
+    },
+    {
+      // Only the mock call's own argument is skipped.
+      code: "vi.spyOn(api, 'load').mockImplementation(() => ({ then: () => {} }));",
+      errors: [{ messageId: 'preferNoop' }],
+    },
+    {
+      code: 'spy.calledWith(() => {});',
       errors: [{ messageId: 'preferNoop' }],
     },
     {

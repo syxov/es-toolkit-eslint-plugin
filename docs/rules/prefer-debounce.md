@@ -21,6 +21,17 @@ This rule reports — it does **not** auto-fix — an assignment `H = setTimeout
   (the guard is the bare handle, the block holds only the call, and there is no `else`).
   Other statements may sit in between.
 
+It is not reported when:
+
+- the timer callback only puts transient state back to fixed values: every statement is an
+  assignment of a literal (`copied = false`, `el.style.outline = ''`), a `delete`, or a
+  call whose arguments are all literals (`setCopied(false)`). Such a timer is restarted on
+  purpose (a "Copied!" flag, a highlight), not debouncing a call;
+- the handle is `unref()`'d after it is armed (`t.unref()`, `this.t?.unref?.()`): the timer
+  inside `debounce` cannot be unref'd, so it would keep a Node process alive;
+- the handle is a computed member with a non-literal key (`timers[key] = setTimeout(…)`):
+  one timer per key cannot be replaced by a single `debounce`.
+
 `clearTimeout` and `setTimeout` may each be called bare or as `window.…` / `globalThis.…`.
 The handle is compared by its source text, so `this.timer` matches `this.timer` but not
 `timer`. The rule reports once per assignment, however many clears precede it.
@@ -68,6 +79,11 @@ clearTimeout(t);
 
 clearInterval(t);
 t = setInterval(f, 100);
+
+// Resets a transient flag: restarted on purpose.
+setCopied(true);
+clearTimeout(timer);
+timer = setTimeout(() => setCopied(false), 1200);
 ```
 
 ## Limitations
@@ -78,6 +94,10 @@ t = setInterval(f, 100);
 - **Trailing-edge debounce only.** The rule recognises the plain "cancel, then schedule"
   shape. Leading-edge debounces, throttles and `setInterval` timers are not reported; use
   `debounce`'s `edges` option or `throttle` when rewriting such code by hand.
+- **Rescheduling is not told apart from debouncing.** A timer re-armed with a delay computed
+  each time (a token refresh scheduled from its expiry) is reported like a debounce, although
+  `debounce` takes a fixed wait. A reset callback that reads a variable
+  (`() => removeHighlight(id)`) is reported too.
 - **The rewrite moves the timer.** `debounce` returns a new function that owns the timer, so
   the debounced function must be created once, outside the handler, and called from it (or
   used as the handler). Code that reads or clears the handle elsewhere should switch to the

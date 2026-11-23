@@ -7,11 +7,14 @@ type IdentityFunction =
   TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression;
 
 // A sole `.filter` argument is a truthiness filter owned by prefer-compact, even when its
-// chain policy keeps it silent.
-const notOwnedElsewhere = `:not(CallExpression[callee.property.name="filter"][arguments.length=1] > .arguments, ${memberFunction})`;
+// chain policy keeps it silent. A sole `.map` argument copies the collection: drop the map, or
+// write `[...xs]` / `Array.from(xs)`, rather than map with `identity`.
+const notOwnedElsewhere = `:not(CallExpression[callee.property.name=/^(filter|map)$/][arguments.length=1] > .arguments, ${memberFunction})`;
 
+// A typed or generic function states a signature (an exported API, a selector input) that the
+// generic `identity` would not keep.
 const singleIdentifierParam =
-  '[async=false][params.length=1][params.0.type="Identifier"]';
+  '[async=false][params.length=1][params.0.type="Identifier"]:not([params.0.typeAnnotation], [typeParameters], [returnType])';
 
 const returnsIdentifier =
   '[body.type="BlockStatement"][body.body.length=1][body.body.0.type="ReturnStatement"][body.body.0.argument.type="Identifier"]';
