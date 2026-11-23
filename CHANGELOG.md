@@ -4,7 +4,7 @@ All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org); while it is `0.x`, minor releases may contain
 breaking changes.
 
-## [Unreleased]
+## [0.3.0] - 2026-11-23
 
 False positives found by linting a corpus of 10 popular repositories (`pnpm corpus`) are
 removed. Every default-on rule together reports 14,105 instead of 32,815 hits there.
@@ -137,6 +137,7 @@ removed. Every default-on rule together reports 14,105 instead of 32,815 hits th
 
 Last release before this changelog was started.
 
+[0.3.0]: https://github.com/syxov/es-toolkit-eslint-plugin/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/syxov/es-toolkit-eslint-plugin/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/syxov/es-toolkit-eslint-plugin/compare/v0.1.4...v0.2.0
 [0.1.4]: https://github.com/syxov/es-toolkit-eslint-plugin/releases/tag/v0.1.4
