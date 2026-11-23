@@ -29,6 +29,51 @@ const cases: [code: string, rules: string[]][] = [
   ['arr.filter(Boolean);', ['prefer-compact']],
   ['arr.filter(x => !b.includes(x));', ['prefer-difference']],
   ['arr.filter(x => b.includes(x));', ['prefer-intersection']],
+  ['arr.filter(x => !b.some(y => y.id === x.id));', ['prefer-difference-by']],
+  ['arr.filter(x => b.every(y => y.id !== x.id));', ['prefer-difference-by']],
+  [
+    'arr.filter(x => b.findIndex(y => y.id === x.id) === -1);',
+    ['prefer-difference-by'],
+  ],
+  [
+    'arr.filter(x => !b.some(y => y.id === x.userId));',
+    ['prefer-difference-with'],
+  ],
+  ['arr.filter(x => !b.some(y => isEqual(x, y)));', ['prefer-difference-with']],
+  ['arr.filter(x => !b.some(y => y.id == x.id));', ['prefer-difference-with']],
+  ['arr.filter(x => !b.some(y => y === x));', []],
+  ['arr.filter(x => b.some(y => y.id === x.id));', []],
+  ['arr.filter(x => !b.some(y => x.startsWith(y)));', []],
+  ['arr.every(x => b.includes(x));', ['prefer-is-subset']],
+  ['arr.every(x => !b.includes(x));', []],
+  ["arr.every(x => 'abc'.includes(x));", []],
+  ['arr.every(x => set.has(x));', []],
+  [
+    'for (let i = 0; i < xs.length; i += n) out.push(xs.slice(i, i + n));',
+    ['prefer-chunk'],
+  ],
+  [
+    'for (let i = 0; i < xs.length; i += n) { out.push(xs.slice(i, Math.min(i + n, xs.length))); }',
+    ['prefer-chunk'],
+  ],
+  [
+    'Array.from({ length: Math.ceil(xs.length / n) }, (_, i) => xs.slice(i * n, i * n + n));',
+    ['prefer-chunk'],
+  ],
+  [
+    'Array.from({ length: Math.ceil(xs.length / n) }, (_, i) => xs.slice(i * n, (i + 1) * n));',
+    ['prefer-chunk'],
+  ],
+  [
+    "const s = 'abc'; for (let i = 0; i < s.length; i += 2) out.push(s.slice(i, i + 2));",
+    [],
+  ],
+  [
+    'for (let i = 0; i < xs.length; i += n) { const part = xs.slice(i, i + n); send(part); }',
+    [],
+  ],
+  ['xs.slice(i, i + n);', []],
+  ['xs.slice(0, n);', ['prefer-take']],
   ['arr.filter(x => x !== value);', ['prefer-without']],
   // Nil exclusions narrow in TypeScript, and `without` would widen them: the nil predicates own them.
   ['arr.filter(x => x !== null);', ['prefer-is-null']],
@@ -231,8 +276,103 @@ const cases: [code: string, rules: string[]][] = [
     ['prefer-is-typed-array'],
   ],
   ['v instanceof Date;', ['prefer-is-date']],
+  ['v instanceof Promise;', ['prefer-is-promise']],
+  ['v instanceof Promise || v instanceof Error;', []],
+  // A thenable check is not `isPromise`; the `typeof` half is an ordinary function check.
+  ["typeof v?.then === 'function';", ['prefer-is-function']],
+  // plain object: the nil guards and the `=== null` half belong to the plain-object test
+  [
+    "Object.prototype.toString.call(x) === '[object Object]';",
+    ['prefer-is-plain-object'],
+  ],
+  ['x.constructor === Object;', ['prefer-is-plain-object']],
+  [
+    'typeof x === "object" && x !== null && Object.getPrototypeOf(x) === Object.prototype;',
+    ['prefer-is-plain-object'],
+  ],
+  [
+    'x !== null && Object.getPrototypeOf(x) === Object.prototype;',
+    ['prefer-is-plain-object'],
+  ],
+  ['x != null && x.constructor === Object;', ['prefer-is-plain-object']],
+  [
+    'x !== null && x !== undefined && x.constructor === Object;',
+    ['prefer-is-plain-object'],
+  ],
+  [
+    'Object.getPrototypeOf(x) === Object.prototype || Object.getPrototypeOf(x) === null;',
+    ['prefer-is-plain-object'],
+  ],
+  [
+    'const proto = Object.getPrototypeOf(x); proto === Object.prototype || proto === null;',
+    ['prefer-is-plain-object'],
+  ],
+  [
+    'const proto = Object.getPrototypeOf(x); proto !== Object.prototype && proto !== null;',
+    ['prefer-is-plain-object'],
+  ],
+  ['Object.getPrototypeOf(x) === null;', ['prefer-is-null']],
+  [
+    'Object.getPrototypeOf(a) === Object.prototype || Object.getPrototypeOf(b) === null;',
+    ['prefer-is-null', 'prefer-is-plain-object'],
+  ],
+  // browser: the document half is part of the pair, not a nil check of its own
+  ["typeof window !== 'undefined';", ['prefer-is-browser']],
+  [
+    "typeof window !== 'undefined' && typeof document !== 'undefined';",
+    ['prefer-is-browser'],
+  ],
+  [
+    "typeof window !== 'undefined' && window.document != null;",
+    ['prefer-is-browser'],
+  ],
+  [
+    "typeof window !== 'undefined' && window.document !== undefined;",
+    ['prefer-is-browser'],
+  ],
+  [
+    "typeof window === 'undefined' || window.document === undefined;",
+    ['prefer-is-browser'],
+  ],
+  [
+    "typeof window !== 'undefined' && typeof window.document !== 'undefined';",
+    ['prefer-is-browser'],
+  ],
+  ["typeof document !== 'undefined';", []],
+  ["typeof window.document !== 'undefined';", ['prefer-is-undefined']],
+  [
+    "const window = getWindow(); typeof window === 'undefined';",
+    ['prefer-is-undefined'],
+  ],
   // promise
   ['new Promise(resolve => setTimeout(resolve, ms));', ['prefer-delay']],
+  ['new Promise((_, reject) => setTimeout(reject, ms));', ['prefer-timeout']],
+  ['new Promise((resolve, reject) => setTimeout(resolve, ms));', []],
+  ['new Promise(reject => setTimeout(reject, ms));', ['prefer-delay']],
+  [
+    "new Promise((_, reject) => setTimeout(() => reject(new Error('Failed')), ms));",
+    [],
+  ],
+  [
+    'Promise.race([p, new Promise((_, reject) => setTimeout(reject, ms))]);',
+    ['prefer-with-timeout'],
+  ],
+  [
+    'Promise.race([p, new Promise(resolve => setTimeout(resolve, ms))]);',
+    ['prefer-delay'],
+  ],
+  [
+    'Promise.race([a, b, new Promise((_, reject) => setTimeout(reject, ms))]);',
+    ['prefer-timeout'],
+  ],
+  [
+    "import { timeout } from 'es-toolkit'; Promise.race([p, timeout(ms)]);",
+    ['prefer-with-timeout'],
+  ],
+  [
+    'page.evaluate(() => Promise.race([p, new Promise((_, reject) => setTimeout(reject, 9))]));',
+    [],
+  ],
   // string
   ['s[0].toUpperCase() + s.slice(1);', ['prefer-upper-first']],
   ['s.charAt(0).toUpperCase() + s.slice(1);', ['prefer-upper-first']],
@@ -243,6 +383,21 @@ const cases: [code: string, rules: string[]][] = [
     ['prefer-capitalize'],
   ],
   ["s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');", ['prefer-escape-reg-exp']],
+  // trim group: both ends belong to prefer-trim, chained one-sided replaces included
+  ["s.replace(/^\\/+|\\/+$/g, '');", ['prefer-trim']],
+  ["s.replace(/^\\/+/, '').replace(/\\/+$/, '');", ['prefer-trim']],
+  ["s.replace(/\\/+$/, '').replace(/^\\/+/, '');", ['prefer-trim']],
+  ["s.replace(/^\\/+/, '');", ['prefer-trim-start']],
+  ["s.replace(/\\/+$/, '');", ['prefer-trim-end']],
+  [
+    "s.replace(/^\\/+/, '').replace(/-+$/, '');",
+    ['prefer-trim-end', 'prefer-trim-start'],
+  ],
+  ["s.replace(/^\\/+|\\/+$/, '');", []],
+  ["s.replace(/^\\s+|\\s+$/g, '');", []],
+  ["s.replace(/^\\//, '');", []],
+  ["s.replace(/^[a-z]+/, '');", []],
+  ["s?.replace(/\\/+$/, '');", []],
   // head: nil checks of the first element belong to the nil predicate rules
   ['xs[0] == null;', ['prefer-is-nil']],
   ['xs[0] != null;', ['prefer-is-not-nil']],
@@ -297,7 +452,7 @@ const cases: [code: string, rules: string[]][] = [
   ['typeof x === "object" && x !== null;', []],
   ['x != null && typeof x === "object" && "k" in x;', []],
   ['x !== null && x !== undefined && typeof x === "object";', []],
-  ['typeof window === "undefined";', []],
+  ['typeof window === "undefined";', ['prefer-is-browser']],
   ['typeof requestAnimationFrame === "function";', []],
   ['x === undefined ? d : x;', []],
   ['if (x == null) x = d;', []],

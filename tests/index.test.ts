@@ -45,11 +45,16 @@ test('exports category configs and an all config', () => {
   });
   expect(plugin.configs.promise.rules).toEqual({
     'es-toolkit/prefer-delay': 'error',
+    'es-toolkit/prefer-timeout': 'error',
+    'es-toolkit/prefer-with-timeout': 'error',
   });
   expect(plugin.configs.string.rules).toEqual({
     'es-toolkit/prefer-capitalize': 'error',
     'es-toolkit/prefer-escape-reg-exp': 'error',
     'es-toolkit/prefer-lower-first': 'error',
+    'es-toolkit/prefer-trim': 'error',
+    'es-toolkit/prefer-trim-end': 'error',
+    'es-toolkit/prefer-trim-start': 'error',
     'es-toolkit/prefer-upper-first': 'error',
   });
 });

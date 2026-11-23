@@ -5,7 +5,7 @@ import { defineConfig } from 'eslint/config';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig(
-  { ignores: ['dist/', 'coverage/', 'corpus/'] },
+  { ignores: ['dist/', 'coverage/', 'corpus/', '.claude/worktrees/'] },
   js.configs.recommended,
   {
     files: ['**/*.ts'],

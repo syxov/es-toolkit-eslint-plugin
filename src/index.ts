@@ -1,6 +1,7 @@
 import { createRequire } from 'node:module';
 import type { ESLint, Linter } from 'eslint';
 import { preferCapitalize } from './rules/prefer-capitalize.js';
+import { preferChunk } from './rules/prefer-chunk.js';
 import { preferClamp } from './rules/prefer-clamp.js';
 import { preferCloneDeep } from './rules/prefer-clone-deep.js';
 import { preferCompact } from './rules/prefer-compact.js';
@@ -8,6 +9,8 @@ import { preferDebounce } from './rules/prefer-debounce.js';
 import { preferDelay } from './rules/prefer-delay.js';
 import { preferIsDate } from './rules/prefer-is-date.js';
 import { preferDifference } from './rules/prefer-difference.js';
+import { preferDifferenceBy } from './rules/prefer-difference-by.js';
+import { preferDifferenceWith } from './rules/prefer-difference-with.js';
 import { preferEscapeRegExp } from './rules/prefer-escape-reg-exp.js';
 import { preferFindKey } from './rules/prefer-find-key.js';
 import { preferFlatMap } from './rules/prefer-flat-map.js';
@@ -24,6 +27,7 @@ import { preferIsError } from './rules/prefer-is-error.js';
 import { preferIsFunction } from './rules/prefer-is-function.js';
 import { preferIsMap } from './rules/prefer-is-map.js';
 import { preferIsBoolean } from './rules/prefer-is-boolean.js';
+import { preferIsBrowser } from './rules/prefer-is-browser.js';
 import { preferIsBlob } from './rules/prefer-is-blob.js';
 import { preferIsFile } from './rules/prefer-is-file.js';
 import { preferIsArrayBuffer } from './rules/prefer-is-array-buffer.js';
@@ -31,8 +35,11 @@ import { preferIsNil } from './rules/prefer-is-nil.js';
 import { preferIsNotNil } from './rules/prefer-is-not-nil.js';
 import { preferIsNull } from './rules/prefer-is-null.js';
 import { preferIsNumber } from './rules/prefer-is-number.js';
+import { preferIsPlainObject } from './rules/prefer-is-plain-object.js';
+import { preferIsPromise } from './rules/prefer-is-promise.js';
 import { preferIsRegExp } from './rules/prefer-is-reg-exp.js';
 import { preferIsSet } from './rules/prefer-is-set.js';
+import { preferIsSubset } from './rules/prefer-is-subset.js';
 import { preferIsString } from './rules/prefer-is-string.js';
 import { preferIsSymbol } from './rules/prefer-is-symbol.js';
 import { preferIsTypedArray } from './rules/prefer-is-typed-array.js';
@@ -61,10 +68,15 @@ import { preferSumBy } from './rules/prefer-sum-by.js';
 import { preferTail } from './rules/prefer-tail.js';
 import { preferTake } from './rules/prefer-take.js';
 import { preferTakeRight } from './rules/prefer-take-right.js';
+import { preferTimeout } from './rules/prefer-timeout.js';
+import { preferTrim } from './rules/prefer-trim.js';
+import { preferTrimEnd } from './rules/prefer-trim-end.js';
+import { preferTrimStart } from './rules/prefer-trim-start.js';
 import { preferUnion } from './rules/prefer-union.js';
 import { preferUniq } from './rules/prefer-uniq.js';
 import { preferUniqBy } from './rules/prefer-uniq-by.js';
 import { preferUpperFirst } from './rules/prefer-upper-first.js';
+import { preferWithTimeout } from './rules/prefer-with-timeout.js';
 import { preferWithout } from './rules/prefer-without.js';
 import { preferZip } from './rules/prefer-zip.js';
 
@@ -76,6 +88,7 @@ const packageJson = createRequire(import.meta.url)('../package.json') as {
 
 const rules = {
   'prefer-capitalize': preferCapitalize,
+  'prefer-chunk': preferChunk,
   'prefer-clamp': preferClamp,
   'prefer-clone-deep': preferCloneDeep,
   'prefer-compact': preferCompact,
@@ -83,6 +96,8 @@ const rules = {
   'prefer-delay': preferDelay,
   'prefer-is-date': preferIsDate,
   'prefer-difference': preferDifference,
+  'prefer-difference-by': preferDifferenceBy,
+  'prefer-difference-with': preferDifferenceWith,
   'prefer-escape-reg-exp': preferEscapeRegExp,
   'prefer-find-key': preferFindKey,
   'prefer-flat-map': preferFlatMap,
@@ -99,6 +114,7 @@ const rules = {
   'prefer-is-function': preferIsFunction,
   'prefer-is-map': preferIsMap,
   'prefer-is-boolean': preferIsBoolean,
+  'prefer-is-browser': preferIsBrowser,
   'prefer-is-blob': preferIsBlob,
   'prefer-is-file': preferIsFile,
   'prefer-is-array-buffer': preferIsArrayBuffer,
@@ -106,8 +122,11 @@ const rules = {
   'prefer-is-not-nil': preferIsNotNil,
   'prefer-is-null': preferIsNull,
   'prefer-is-number': preferIsNumber,
+  'prefer-is-plain-object': preferIsPlainObject,
+  'prefer-is-promise': preferIsPromise,
   'prefer-is-reg-exp': preferIsRegExp,
   'prefer-is-set': preferIsSet,
+  'prefer-is-subset': preferIsSubset,
   'prefer-is-string': preferIsString,
   'prefer-is-symbol': preferIsSymbol,
   'prefer-is-typed-array': preferIsTypedArray,
@@ -136,10 +155,15 @@ const rules = {
   'prefer-tail': preferTail,
   'prefer-take': preferTake,
   'prefer-take-right': preferTakeRight,
+  'prefer-timeout': preferTimeout,
+  'prefer-trim-end': preferTrimEnd,
+  'prefer-trim-start': preferTrimStart,
+  'prefer-trim': preferTrim,
   'prefer-union': preferUnion,
   'prefer-uniq': preferUniq,
   'prefer-uniq-by': preferUniqBy,
   'prefer-upper-first': preferUpperFirst,
+  'prefer-with-timeout': preferWithTimeout,
   'prefer-without': preferWithout,
   'prefer-zip': preferZip,
 };
@@ -147,8 +171,11 @@ const rules = {
 // Every rule sits in exactly one category map. A rule registered as 'off' is opt-in: it
 // matches idioms that are often deliberate, so even `configs.all` leaves it disabled.
 const arrayRules = {
+  'es-toolkit/prefer-chunk': 'error',
   'es-toolkit/prefer-compact': 'error',
   'es-toolkit/prefer-difference': 'error',
+  'es-toolkit/prefer-difference-by': 'error',
+  'es-toolkit/prefer-difference-with': 'error',
   'es-toolkit/prefer-flat-map': 'error',
   'es-toolkit/prefer-flat-map-deep': 'error',
   'es-toolkit/prefer-flatten': 'error',
@@ -156,6 +183,7 @@ const arrayRules = {
   'es-toolkit/prefer-head': 'off',
   'es-toolkit/prefer-initial': 'error',
   'es-toolkit/prefer-intersection': 'error',
+  'es-toolkit/prefer-is-subset': 'error',
   'es-toolkit/prefer-key-by': 'error',
   'es-toolkit/prefer-last': 'error',
   'es-toolkit/prefer-sample': 'error',
@@ -202,6 +230,7 @@ const predicateRules = {
   'es-toolkit/prefer-is-array-buffer': 'error',
   'es-toolkit/prefer-is-blob': 'error',
   'es-toolkit/prefer-is-boolean': 'error',
+  'es-toolkit/prefer-is-browser': 'error',
   'es-toolkit/prefer-is-date': 'error',
   'es-toolkit/prefer-is-empty': 'error',
   'es-toolkit/prefer-is-equal': 'error',
@@ -213,6 +242,8 @@ const predicateRules = {
   'es-toolkit/prefer-is-not-nil': 'error',
   'es-toolkit/prefer-is-null': 'error',
   'es-toolkit/prefer-is-number': 'error',
+  'es-toolkit/prefer-is-plain-object': 'error',
+  'es-toolkit/prefer-is-promise': 'error',
   'es-toolkit/prefer-is-reg-exp': 'error',
   'es-toolkit/prefer-is-set': 'error',
   'es-toolkit/prefer-is-string': 'error',
@@ -225,12 +256,17 @@ const predicateRules = {
 
 const promiseRules = {
   'es-toolkit/prefer-delay': 'error',
+  'es-toolkit/prefer-timeout': 'error',
+  'es-toolkit/prefer-with-timeout': 'error',
 } as const;
 
 const stringRules = {
   'es-toolkit/prefer-capitalize': 'error',
   'es-toolkit/prefer-escape-reg-exp': 'error',
   'es-toolkit/prefer-lower-first': 'error',
+  'es-toolkit/prefer-trim': 'error',
+  'es-toolkit/prefer-trim-end': 'error',
+  'es-toolkit/prefer-trim-start': 'error',
   'es-toolkit/prefer-upper-first': 'error',
 } as const;
 

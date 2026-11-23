@@ -59,6 +59,14 @@ src/
   utils/optional-chain.ts   # `xs?.filter(…)` receivers, which a rewrite would dereference
   utils/includes-receiver.ts # `b.includes(x)` receivers that are certainly arrays: difference/intersection
   utils/set-round-trip.ts   # `[...new Set(x)]` / `Array.from(new Set(x))`: prefer-uniq, prefer-union
+  utils/trim-replace.ts     # `s.replace(/^X+|X+$/g, '')` parsing and chained-pair ownership: the trim rules
+  utils/browser-evaluation.ts # callbacks serialised to a page (`page.evaluate`): the promise rules
+  utils/timer-promise.ts    # `new Promise` + `setTimeout` reject shapes, `Promise.race` timeouts: prefer-timeout vs prefer-with-timeout
+  utils/difference-filter.ts # `a.filter(x => !b.some(y => …))`: prefer-difference-by vs -with
+  utils/string-name.ts      # receivers named like one string (`text`, `expose.type`): chunk, is-subset
+  utils/logical-pair.ts     # adjacent `a && b` / `a || b` operand pairs reported as one
+  utils/plain-object-test.ts # prototype / constructor / tag plain-object tests; nil rules skip their guards
+  utils/browser-check.ts    # `typeof window` checks and window + document pairs; nil rules skip the halves
   rules/<name>.ts           # one file per rule
 tests/rules/<name>.test.ts  # RuleTester valid/invalid matrix per rule
 tests/overlap.test.ts       # every rule (opt-in too) over snippets: exactly which rules fire on each

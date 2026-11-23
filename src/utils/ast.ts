@@ -11,7 +11,7 @@ export const isLiteralValue = (
 ) => node.type === 'Literal' && node.value === value;
 
 // Type-only wrappers do not change the value: `(xs as T[])`, `xs!`, `<T[]>xs`, `xs satisfies T`.
-const stripTypeWrappers = (node: TSESTree.Node): TSESTree.Node =>
+export const stripTypeWrappers = (node: TSESTree.Node): TSESTree.Node =>
   node.type === 'TSAsExpression'
   || node.type === 'TSNonNullExpression'
   || node.type === 'TSSatisfiesExpression'

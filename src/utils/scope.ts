@@ -42,6 +42,21 @@ const isEsToolkitImport = ({ type, parent }: Definition) =>
   && parent.type === 'ImportDeclaration'
   && /^es-toolkit(?:\/|$)/.test(parent.source.value);
 
+// `identifier` is es-toolkit's `name`, imported under any local name.
+export const importsEsToolkitHelper = (
+  sourceCode: SourceCode,
+  identifier: TSESTree.Identifier,
+  name: string,
+) =>
+  ASTUtils.findVariable(sourceCode.getScope(identifier), identifier)?.defs.some(
+    def =>
+      isEsToolkitImport(def)
+      && def.node.type === 'ImportSpecifier'
+      && (def.node.imported.type === 'Identifier'
+        ? def.node.imported.name
+        : def.node.imported.value) === name,
+  ) ?? false;
+
 // The code at `node` already sees its own binding named like the suggested helper (a local
 // `isString` flag, a project `isNumber` that also rejects NaN), so `isString(x)` would clash
 // with it. An import of the helper from es-toolkit is no clash.
