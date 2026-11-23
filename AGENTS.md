@@ -58,6 +58,8 @@ src/
   utils/optional-chain.ts   # `xs?.filter(…)` receivers, which a rewrite would dereference
   utils/includes-receiver.ts # `b.includes(x)` receivers that are certainly arrays: difference/intersection
   utils/set-round-trip.ts   # `[...new Set(x)]` / `Array.from(new Set(x))`: prefer-uniq, prefer-union
+  utils/difference-filter.ts # `a.filter(x => !b.some(y => …))`: prefer-difference-by vs -with
+  utils/string-name.ts      # receivers named like one string (`text`, `expose.type`): chunk, is-subset
   rules/<name>.ts           # one file per rule
 tests/rules/<name>.test.ts  # RuleTester valid/invalid matrix per rule
 tests/overlap.test.ts       # every rule (opt-in too) over snippets: exactly which rules fire on each

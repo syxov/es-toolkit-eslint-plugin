@@ -76,8 +76,9 @@ export default [{ ignores: ['docs/demos/**'] }, esToolkit.configs.all];
 
 Rules that replace `.filter(...)` or `.reduce(...)` are intentionally conservative: by default
 they report only when the matched call is outside a method-call chain. This applies to
-`prefer-compact`, `prefer-difference`, `prefer-intersection`, `prefer-mean`, `prefer-mean-by`,
-`prefer-sum`, `prefer-sum-by`, and `prefer-without`.
+`prefer-compact`, `prefer-difference`, `prefer-difference-by`, `prefer-difference-with`,
+`prefer-intersection`, `prefer-mean`, `prefer-mean-by`, `prefer-sum`, `prefer-sum-by`, and
+`prefer-without`.
 
 Configure that policy for all chain-aware rules with plugin settings:
 
@@ -108,29 +109,33 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 
 ## Array rules
 
-| Rule                                                         | Description                                                                               | ✅  |
-| ------------------------------------------------------------ | ----------------------------------------------------------------------------------------- | :-: |
-| [`prefer-compact`](docs/rules/prefer-compact.md)             | Enforce using `compact` instead of `.filter(Boolean)`.                                    | ✅  |
-| [`prefer-difference`](docs/rules/prefer-difference.md)       | Enforce using `difference` instead of `a.filter(x => !b.includes(x))`.                    | ✅  |
-| [`prefer-flat-map`](docs/rules/prefer-flat-map.md)           | Enforce using `flatMap` instead of `.map(...).flat()`.                                    | ✅  |
-| [`prefer-flat-map-deep`](docs/rules/prefer-flat-map-deep.md) | Enforce using `flatMapDeep` instead of `.map(...).flat(Infinity)`.                        | ✅  |
-| [`prefer-flatten`](docs/rules/prefer-flatten.md)             | Enforce using `flatten` instead of `.flat()`.                                             | ✅  |
-| [`prefer-flatten-deep`](docs/rules/prefer-flatten-deep.md)   | Enforce using `flattenDeep` instead of `.flat(Infinity)`.                                 | ✅  |
-| [`prefer-head`](docs/rules/prefer-head.md)                   | Enforce using `head` instead of indexing an array with `0`.                               |     |
-| [`prefer-initial`](docs/rules/prefer-initial.md)             | Enforce using `initial` instead of `arr.slice(0, -1)`.                                    | ✅  |
-| [`prefer-intersection`](docs/rules/prefer-intersection.md)   | Enforce using `intersection` instead of `a.filter(x => b.includes(x))`.                   | ✅  |
-| [`prefer-key-by`](docs/rules/prefer-key-by.md)               | Enforce using `keyBy` instead of `Object.fromEntries(xs.map(x => [key, x]))`.             | ✅  |
-| [`prefer-last`](docs/rules/prefer-last.md)                   | Enforce using `last` instead of `arr[arr.length - 1]`.                                    | ✅  |
-| [`prefer-sample`](docs/rules/prefer-sample.md)               | Enforce using `sample` instead of random-index array access.                              | ✅  |
-| [`prefer-shuffle`](docs/rules/prefer-shuffle.md)             | Enforce using `shuffle` instead of sorting with a random comparator.                      | ✅  |
-| [`prefer-tail`](docs/rules/prefer-tail.md)                   | Enforce using `tail` instead of `arr.slice(1)`.                                           | ✅  |
-| [`prefer-take`](docs/rules/prefer-take.md)                   | Enforce using `take` instead of `arr.slice(0, n)`.                                        |     |
-| [`prefer-take-right`](docs/rules/prefer-take-right.md)       | Enforce using `takeRight` instead of `arr.slice(-n)`.                                     |     |
-| [`prefer-union`](docs/rules/prefer-union.md)                 | Enforce using `union` instead of deduplicating two concatenated arrays through `new Set`. | ✅  |
-| [`prefer-uniq`](docs/rules/prefer-uniq.md)                   | Enforce using `uniq` instead of `new Set` round-trips.                                    | ✅  |
-| [`prefer-uniq-by`](docs/rules/prefer-uniq-by.md)             | Enforce using `uniqBy` instead of reading the values of `new Map(xs.map(x => [key, x]))`. | ✅  |
-| [`prefer-without`](docs/rules/prefer-without.md)             | Enforce using `without` instead of `arr.filter(x => x !== value)`.                        | ✅  |
-| [`prefer-zip`](docs/rules/prefer-zip.md)                     | Enforce using `zip` instead of `a.map((x, i) => [x, b[i]])`.                              | ✅  |
+| Rule                                                             | Description                                                                               | ✅  |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | :-: |
+| [`prefer-chunk`](docs/rules/prefer-chunk.md)                     | Enforce using `chunk` instead of slicing an array into fixed-size pieces by hand.         | ✅  |
+| [`prefer-compact`](docs/rules/prefer-compact.md)                 | Enforce using `compact` instead of `.filter(Boolean)`.                                    | ✅  |
+| [`prefer-difference`](docs/rules/prefer-difference.md)           | Enforce using `difference` instead of `a.filter(x => !b.includes(x))`.                    | ✅  |
+| [`prefer-difference-by`](docs/rules/prefer-difference-by.md)     | Enforce using `differenceBy` instead of `a.filter(x => !b.some(y => y.id === x.id))`.     | ✅  |
+| [`prefer-difference-with`](docs/rules/prefer-difference-with.md) | Enforce using `differenceWith` instead of `a.filter(x => !b.some(y => isEqual(x, y)))`.   | ✅  |
+| [`prefer-flat-map`](docs/rules/prefer-flat-map.md)               | Enforce using `flatMap` instead of `.map(...).flat()`.                                    | ✅  |
+| [`prefer-flat-map-deep`](docs/rules/prefer-flat-map-deep.md)     | Enforce using `flatMapDeep` instead of `.map(...).flat(Infinity)`.                        | ✅  |
+| [`prefer-flatten`](docs/rules/prefer-flatten.md)                 | Enforce using `flatten` instead of `.flat()`.                                             | ✅  |
+| [`prefer-flatten-deep`](docs/rules/prefer-flatten-deep.md)       | Enforce using `flattenDeep` instead of `.flat(Infinity)`.                                 | ✅  |
+| [`prefer-head`](docs/rules/prefer-head.md)                       | Enforce using `head` instead of indexing an array with `0`.                               |     |
+| [`prefer-initial`](docs/rules/prefer-initial.md)                 | Enforce using `initial` instead of `arr.slice(0, -1)`.                                    | ✅  |
+| [`prefer-intersection`](docs/rules/prefer-intersection.md)       | Enforce using `intersection` instead of `a.filter(x => b.includes(x))`.                   | ✅  |
+| [`prefer-is-subset`](docs/rules/prefer-is-subset.md)             | Enforce using `isSubset` instead of `subset.every(x => superset.includes(x))`.            | ✅  |
+| [`prefer-key-by`](docs/rules/prefer-key-by.md)                   | Enforce using `keyBy` instead of `Object.fromEntries(xs.map(x => [key, x]))`.             | ✅  |
+| [`prefer-last`](docs/rules/prefer-last.md)                       | Enforce using `last` instead of `arr[arr.length - 1]`.                                    | ✅  |
+| [`prefer-sample`](docs/rules/prefer-sample.md)                   | Enforce using `sample` instead of random-index array access.                              | ✅  |
+| [`prefer-shuffle`](docs/rules/prefer-shuffle.md)                 | Enforce using `shuffle` instead of sorting with a random comparator.                      | ✅  |
+| [`prefer-tail`](docs/rules/prefer-tail.md)                       | Enforce using `tail` instead of `arr.slice(1)`.                                           | ✅  |
+| [`prefer-take`](docs/rules/prefer-take.md)                       | Enforce using `take` instead of `arr.slice(0, n)`.                                        |     |
+| [`prefer-take-right`](docs/rules/prefer-take-right.md)           | Enforce using `takeRight` instead of `arr.slice(-n)`.                                     |     |
+| [`prefer-union`](docs/rules/prefer-union.md)                     | Enforce using `union` instead of deduplicating two concatenated arrays through `new Set`. | ✅  |
+| [`prefer-uniq`](docs/rules/prefer-uniq.md)                       | Enforce using `uniq` instead of `new Set` round-trips.                                    | ✅  |
+| [`prefer-uniq-by`](docs/rules/prefer-uniq-by.md)                 | Enforce using `uniqBy` instead of reading the values of `new Map(xs.map(x => [key, x]))`. | ✅  |
+| [`prefer-without`](docs/rules/prefer-without.md)                 | Enforce using `without` instead of `arr.filter(x => x !== value)`.                        | ✅  |
+| [`prefer-zip`](docs/rules/prefer-zip.md)                         | Enforce using `zip` instead of `a.map((x, i) => [x, b[i]])`.                              | ✅  |
 
 ## Function rules
 
