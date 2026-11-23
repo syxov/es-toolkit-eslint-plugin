@@ -149,7 +149,7 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 | [`prefer-mean-by`](docs/rules/prefer-mean-by.md)       | Enforce using `meanBy` instead of averaging an item property with `reduce`.             |
 | [`prefer-random-int`](docs/rules/prefer-random-int.md) | Enforce using `randomInt` instead of `Math.floor(Math.random() * …)`.                   |
 | [`prefer-range`](docs/rules/prefer-range.md)           | Enforce using `range` instead of manual index-array construction.                       |
-| [`prefer-round`](docs/rules/prefer-round.md)           | Enforce using `round` instead of `Math.round(x * 100) / 100` or `Number(x.toFixed(n))`. |
+| [`prefer-round`](docs/rules/prefer-round.md)           | Enforce using `round` instead of `Math.round(x * 100) / 100` (any power-of-ten factor). |
 | [`prefer-sum`](docs/rules/prefer-sum.md)               | Enforce using `sum` instead of `reduce((a, b) => a + b, 0)`.                            |
 | [`prefer-sum-by`](docs/rules/prefer-sum-by.md)         | Enforce using `sumBy` instead of summing an item property with `reduce`.                |
 
@@ -157,7 +157,7 @@ Only adjacent method calls define a chain. A standalone call is both its start a
 
 | Rule                                                   | Description                                                                                              |
 | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| [`prefer-clone-deep`](docs/rules/prefer-clone-deep.md) | Enforce using `cloneDeep` instead of `JSON.parse(JSON.stringify(x))`.                                    |
+| [`prefer-clone-deep`](docs/rules/prefer-clone-deep.md) | Enforce using `cloneDeep` instead of `JSON.parse(JSON.stringify(x))` (opt-in).                           |
 | [`prefer-map-values`](docs/rules/prefer-map-values.md) | Enforce using `mapValues` instead of `Object.fromEntries(Object.entries(o).map(([k, v]) => [k, f(v)]))`. |
 
 ## Predicate rules

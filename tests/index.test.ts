@@ -30,7 +30,7 @@ test('exports category configs and an all config', () => {
     'es-toolkit/prefer-noop': 'off',
   });
   expect(plugin.configs.object.rules).toEqual({
-    'es-toolkit/prefer-clone-deep': 'error',
+    'es-toolkit/prefer-clone-deep': 'off',
     'es-toolkit/prefer-map-values': 'error',
   });
   expect(plugin.configs.predicate.rules).toMatchObject({
@@ -55,6 +55,7 @@ test('leaves exactly the opt-in rules off, even in the all config', () => {
     .map(([ruleName]) => ruleName);
 
   expect(offRules.toSorted()).toEqual([
+    'es-toolkit/prefer-clone-deep',
     'es-toolkit/prefer-debounce',
     'es-toolkit/prefer-head',
     'es-toolkit/prefer-identity',

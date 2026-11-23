@@ -179,7 +179,7 @@ const mathRules = {
 } as const;
 
 const objectRules = {
-  'es-toolkit/prefer-clone-deep': 'error',
+  'es-toolkit/prefer-clone-deep': 'off',
   'es-toolkit/prefer-map-values': 'error',
 } as const;
 

@@ -18,36 +18,49 @@ ruleTester.run('prefer-identity', preferIdentity, {
     'arr.filter((x: number) => x);',
     'items.filter(x => x).map(f);',
     // The body is not the parameter itself.
-    'arr.map(x => x.id);',
-    'arr.map(x => -x);',
-    'arr.map(x => y);',
-    'arr.map(x => { return y; });',
-    'arr.map(x => { x; });',
-    'arr.map(x => { log(x); return x; });',
-    'arr.map(x => { return; });',
+    'fn(x => x.id);',
+    'fn(x => -x);',
+    'fn(x => y);',
+    'fn(x => { return y; });',
+    'fn(x => { x; });',
+    'fn(x => { log(x); return x; });',
+    'fn(x => { return; });',
     // Not exactly one plain identifier parameter.
-    'arr.map((x, y) => x);',
-    'arr.map(() => x);',
-    'arr.map(({ x }) => x);',
-    'arr.map(([x]) => x);',
-    'arr.map((...x) => x);',
-    'arr.map((x = 1) => x);',
-    'arr.map(function (x, y) { return x; });',
+    'fn((x, y) => x);',
+    'fn(() => x);',
+    'fn(({ x }) => x);',
+    'fn(([x]) => x);',
+    'fn((...x) => x);',
+    'fn((x = 1) => x);',
+    'fn(function (x, y) { return x; });',
     // Async and generator functions do not return the value itself.
-    'arr.map(async x => x);',
-    'arr.map(async function (x) { return x; });',
-    'arr.map(function* (x) { return x; });',
+    'fn(async x => x);',
+    'fn(async function (x) { return x; });',
+    'fn(function* (x) { return x; });',
     // A declaration is a named helper, not an inline callback.
     'function id(x) { return x; }',
     // TypeScript: casts and assertions change the result type.
-    'arr.map((x: unknown) => x as string);',
-    'arr.map((x?: number) => x!);',
-    'arr.map((x: T) => <U>x);',
-    'arr.map(<T,>(x: T) => x satisfies T);',
+    'fn((x: unknown) => x as string);',
+    'fn((x?: number) => x!);',
+    'fn((x: T) => <U>x);',
+    'fn(<T,>(x: T) => x satisfies T);',
+    // A sole `.map` argument copies the collection: drop the map or spread it instead.
+    'arr.map(x => x);',
+    'arr.map(function (x) { return x; });',
+    'expect(view.focusables.map(i => i)).toEqual([a, b]);',
+    'Object.values(handlers).map((handler) => handler);',
+    // A typed or generic function states a signature that `identity` would not keep.
+    'const selectRootState = (state: ChartState<[Signature]>) => state;',
+    'export const Identity = (x: number) => x;',
+    'const assignable = <Target,>(value: Target) => value;',
+    'const id = (x): string => x;',
+    'fn(function <T>(x: T): T { return x; });',
+    'fn((x: number) => x);',
   ],
   invalid: [
     {
-      code: 'arr.map(x => x);',
+      // A `.map` with a `thisArg` is not a plain copy.
+      code: 'arr.map(x => x, ctx);',
       errors: [{ messageId: 'preferIdentity' }],
     },
     {
@@ -67,23 +80,23 @@ ruleTester.run('prefer-identity', preferIdentity, {
       errors: [{ messageId: 'preferIdentity' }],
     },
     {
-      code: 'arr.map((x) => { return x; });',
+      code: 'fn((x) => { return x; });',
       errors: [{ messageId: 'preferIdentity' }],
     },
     {
-      code: 'arr.map(function (x) { return x; });',
+      code: 'fn(function (x) { return x; });',
       errors: [{ messageId: 'preferIdentity' }],
     },
     {
-      code: 'arr.map(function named(x) { return x; });',
+      code: 'fn(function named(x) { return x; });',
       errors: [{ messageId: 'preferIdentity' }],
     },
     {
-      code: 'arr.map(value => (value));',
+      code: 'fn(value => (value));',
       errors: [{ messageId: 'preferIdentity' }],
     },
     {
-      code: 'function f(arr) { return arr.map(x => x); }',
+      code: 'function f(arr) { return groupBy(arr, x => x); }',
       errors: [{ messageId: 'preferIdentity' }],
     },
     {
@@ -100,31 +113,23 @@ ruleTester.run('prefer-identity', preferIdentity, {
       errors: [{ messageId: 'preferIdentity' }],
     },
     {
-      code: 'arr.filter(x => x).map(y => y);',
+      code: 'arr.filter(x => x).flatMap(y => y);',
       errors: [{ messageId: 'preferIdentity' }],
     },
     {
-      code: 'const a = arr.map(x => x), b = list.flatMap(y => y);',
+      code: 'const a = groupBy(arr, x => x), b = list.flatMap(y => y);',
       errors: [
         { messageId: 'preferIdentity' },
         { messageId: 'preferIdentity' },
       ],
     },
-    // TypeScript
+    // TypeScript: an untyped parameter takes its type from context.
     {
-      code: 'arr.map((x: number) => x);',
+      code: 'const ids: string[] = (raw as string[]).flatMap(s => s);',
       errors: [{ messageId: 'preferIdentity' }],
     },
     {
-      code: 'const id = <T,>(x: T): T => x;',
-      errors: [{ messageId: 'preferIdentity' }],
-    },
-    {
-      code: 'arr.map(function <T>(x: T): T { return x; });',
-      errors: [{ messageId: 'preferIdentity' }],
-    },
-    {
-      code: 'const ids: string[] = (raw as string[]).map((s: string) => s);',
+      code: 'promise.catch((e) => e);',
       errors: [{ messageId: 'preferIdentity' }],
     },
   ],

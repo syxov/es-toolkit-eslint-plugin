@@ -1,8 +1,11 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../utils/create-rule.js';
 
+// es-toolkit's `escapeRegExp` escapes exactly these. It leaves `-` alone, so a class that also
+// escapes `-` gives a different result (and `\-` is a syntax error under the `u` flag).
 const SPECIALS = '.*+?^${}()|[]\\';
-const CLASS_MEMBERS = new Set(`${SPECIALS}-/`);
+// An escaped `/` only escapes the literal delimiter: `\/` and `/` match the same.
+const CLASS_MEMBERS = new Set(`${SPECIALS}/`);
 
 // `.replace(/[…]/g, …)` with exactly two arguments, the first a global regex literal whose
 // pattern looks like one non-negated, unquantified character class.
@@ -13,8 +16,8 @@ const escapedMatch = String.raw`/^\\\$&$/`;
 const stringReplacement = `[arguments.1.type="Literal"][arguments.1.value=${escapedMatch}]`;
 const templateReplacement = `[arguments.1.type="TemplateLiteral"][arguments.1.expressions.length=0][arguments.1.quasis.0.value.cooked=${escapedMatch}]`;
 
-// The pattern is a single class made only of regex specials (plus `-` and `/`, escaped or
-// not) that lists every special. The class must close on the last character, so `[…]+` or
+// The pattern is a single class made only of regex specials (plus `/`, escaped or not)
+// that lists every special. The class must close on the last character, so `[…]+` or
 // `[a][b]` do not qualify.
 const isEscapeAllClass = (pattern: string) => {
   const members = new Set<string>();

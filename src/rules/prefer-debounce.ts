@@ -35,6 +35,62 @@ type GuardedBlockClear = TSESTree.IfStatement & {
 };
 type TimerAssignment = TSESTree.AssignmentExpression & {
   parent: TSESTree.ExpressionStatement;
+  right: TSESTree.CallExpression;
+};
+
+const isFixedValue = (node: TSESTree.Node) =>
+  node.type === 'Literal'
+  || (node.type === 'Identifier' && node.name === 'undefined')
+  || (node.type === 'TemplateLiteral' && node.expressions.length === 0);
+
+// `copied = false`, `el.style.outline = ''`, `delete el.dataset.copied`, `setCopied(false)`.
+const isReset = (node: TSESTree.Node) =>
+  (node.type === 'AssignmentExpression'
+    && node.operator === '='
+    && isFixedValue(node.right))
+  || (node.type === 'UnaryExpression' && node.operator === 'delete')
+  || (node.type === 'CallExpression'
+    && node.arguments.length > 0
+    && node.arguments.every(isFixedValue));
+
+// A timer whose callback only puts transient state back (a "Copied!" flag, a highlight) is
+// restarted on purpose, not debouncing a call.
+const onlyResetsState = (callback: TSESTree.Node | undefined) => {
+  if (
+    (callback?.type !== 'ArrowFunctionExpression'
+      && callback?.type !== 'FunctionExpression')
+    || callback.params.length > 0
+  )
+    return false;
+  if (callback.body.type !== 'BlockStatement') return isReset(callback.body);
+  return (
+    callback.body.body.length > 0
+    && callback.body.body.every(
+      statement =>
+        statement.type === 'ExpressionStatement'
+        && isReset(statement.expression),
+    )
+  );
+};
+
+// `timers[key] = setTimeout(…)` keeps one timer per key, which a single `debounce` cannot.
+const isPerKeyHandle = (handle: TSESTree.Node) =>
+  handle.type === 'MemberExpression'
+  && handle.computed
+  && handle.property.type !== 'Literal';
+
+const unrefTarget = (statement: TSESTree.Node) => {
+  if (statement.type !== 'ExpressionStatement') return undefined;
+  const expression =
+    statement.expression.type === 'ChainExpression'
+      ? statement.expression.expression
+      : statement.expression;
+  return expression.type === 'CallExpression'
+    && expression.callee.type === 'MemberExpression'
+    && expression.callee.property.type === 'Identifier'
+    && expression.callee.property.name === 'unref'
+    ? expression.callee.object
+    : undefined;
 };
 
 export const preferDebounce = createRule({
@@ -67,10 +123,31 @@ export const preferDebounce = createRule({
       clearedHandles.set(statement.parent, [...handles, handle]);
     };
 
+    // A Node timer `unref()`'d after it is armed must not keep the process alive; the timer
+    // inside `debounce` cannot be unref'd.
+    const isUnrefd = (node: TimerAssignment) => {
+      // The selector puts the statement in a `BlockStatement` or the `Program`.
+      const statements: TSESTree.Node[] = (
+        node.parent.parent as TSESTree.BlockStatement | TSESTree.Program
+      ).body;
+      return statements
+        .slice(statements.indexOf(node.parent) + 1)
+        .some(statement => {
+          const target = unrefTarget(statement);
+          return (
+            target !== undefined
+            && isSameExpression(sourceCode, target, node.left)
+          );
+        });
+    };
+
     const reportAssignment = (node: TimerAssignment) => {
       const handles = clearedHandles.get(node.parent.parent);
       if (
         handles?.some(handle => isSameExpression(sourceCode, handle, node.left))
+        && !isPerKeyHandle(node.left)
+        && !onlyResetsState(node.right.arguments[0])
+        && !isUnrefd(node)
       )
         context.report({ node, messageId: 'preferDebounce' });
     };

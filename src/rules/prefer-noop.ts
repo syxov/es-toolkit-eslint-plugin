@@ -11,7 +11,17 @@ const emptyBody = '[body.type="BlockStatement"][body.body.length=0]';
 const plainParams =
   ':not(:has(> :matches(AssignmentPattern, ObjectPattern, ArrayPattern, RestElement[argument.type!="Identifier"])))';
 
-const emptyFunction = `${syncFunction}${emptyBody}${plainParams}:not(${memberFunction})`;
+// A parameter annotation can be the only declaration of the function's type; `noop` takes no
+// arguments, so calls with one would stop type-checking. A `this` parameter is not an argument.
+const untypedParams =
+  ':not(:has(> :matches(Identifier[name!="this"], RestElement)[typeAnnotation]))';
+
+// Test doubles: `vi.spyOn(console, 'error').mockImplementation(() => {})`.
+const mockArgument =
+  'CallExpression[callee.property.name=/^mock(Implementation|ReturnValue)(Once)?$/] > .arguments';
+
+// A named function expression keeps its name observable (`fn.name`, mock names, action logs).
+const emptyFunction = `${syncFunction}${emptyBody}${plainParams}${untypedParams}:not(FunctionExpression[id], ${memberFunction}, ${mockArgument})`;
 
 export const preferNoop = createRule({
   name: 'prefer-noop',

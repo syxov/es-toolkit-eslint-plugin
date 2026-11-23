@@ -9,9 +9,28 @@ changed along the way. `cloneDeep(x)` names the intent and copies the value fait
 
 ## Rule details
 
+> **Opt-in.** This rule is `off` in every bundled config, `all` included. Enable it with
+> `'es-toolkit/prefer-clone-deep': 'error'`.
+
+It is opt-in because the JSON round-trip is often chosen for its lossy semantics: to strip
+`undefined` keys, class instances or functions, or to check that a value is serialisable.
+`cloneDeep` keeps all of those, so the rewrite changes behaviour.
+
 This rule reports — it does **not** auto-fix — a `JSON.parse` call whose only argument is
 directly a `JSON.stringify` call with exactly one non-spread argument. Both calls must be
 non-computed member accesses on the identifier `JSON`.
+
+It is not reported where the context shows the JSON semantics are the point:
+
+- inside an `expect(…)` call or a matcher argument (`expect(a).toEqual(…)`), which asserts
+  what survives JSON;
+- inside a call whose name starts with `bench` (`benchmark(…)`, `bench(…)`), which measures
+  the round-trip itself;
+- inside a function whose name mentions serialising, sanitising, JSON, detaching or plain
+  objects (`sanitizeError`, `toSerializableMeta`, `detachSnapshot`, `toPlainObject`; matched
+  by `/seriali[sz]|saniti[sz]|json|detach|plain/i`), or in the initialiser of a variable
+  whose name mentions JSON or plain data (`resultJson`; `/json|plain/i`). A variable such as
+  `serialized` only names what it holds, so a clone assigned to it is still reported.
 
 ### ❌ Incorrect
 
@@ -37,6 +56,12 @@ JSON.parse(JSON.stringify(x, null, 2));
 JSON.parse(JSON.stringify(x), reviver);
 JSON.parse(text);
 JSON.parse(JSON.stringify(x) + '');
+
+// The JSON semantics are the point — left untouched:
+expect(JSON.parse(JSON.stringify(ast))).toEqual(ast);
+function sanitizeError(error) {
+  return { ...JSON.parse(JSON.stringify(error)), message: error.message };
+}
 ```
 
 ## Limitations
@@ -45,7 +70,13 @@ JSON.parse(JSON.stringify(x) + '');
   turns a `Date` into a string, turns `Map`/`Set` into `{}`, turns `NaN`/`Infinity` into
   `null`, and throws on circular references. `cloneDeep` keeps all of these. Code that
   relies on the lossy round-trip (for example to strip `undefined` keys or to normalize
-  dates to strings) behaves differently after switching, so review each report.
+  dates to strings) behaves differently after switching, so review each report. Only the
+  contexts listed above are recognised; a deliberate round-trip elsewhere (an event turned
+  into plain data, code under an `eslint-disable` for `unicorn/prefer-structured-clone`) is
+  still reported.
+- **Names are a heuristic.** A function named `toJson` that really wants a faithful copy is
+  skipped, and a benchmark is recognised only by the name of the call that wraps it, not by
+  its file path.
 - **Syntactic match.** `JSON` is matched by name, so a shadowed local variable named `JSON`
   could produce a false positive. Computed access such as `JSON['parse']` is not reported.
 - **Direct nesting only.** The `JSON.stringify` call must be the direct argument of

@@ -41,6 +41,27 @@ const callsOnlyResolve = (callback: TSESTree.Node, resolve: string) => {
   );
 };
 
+// Puppeteer / Playwright serialise these callbacks and run them in the page, where an
+// imported `delay` is not defined.
+const browserEvaluation =
+  /^(\$\$?eval|addInitScript|evaluate|evaluateHandle|evaluateOnNewDocument|waitForFunction)$/;
+
+const isEvaluatedInBrowser = (node: TSESTree.Node) => {
+  for (let current = node.parent; current; current = current.parent) {
+    const { parent } = current;
+    if (
+      current.type.includes('Function')
+      && parent?.type === 'CallExpression'
+      && parent.arguments.includes(current as TSESTree.CallExpressionArgument)
+      && parent.callee.type === 'MemberExpression'
+      && parent.callee.property.type === 'Identifier'
+      && browserEvaluation.test(parent.callee.property.name)
+    )
+      return true;
+  }
+  return false;
+};
+
 export const preferDelay = createRule({
   name: 'prefer-delay',
   meta: {
@@ -63,6 +84,7 @@ export const preferDelay = createRule({
         resolve.type === 'Identifier'
         && timeout
         && callsOnlyResolve(timeout.arguments[0], resolve.name)
+        && !isEvaluatedInBrowser(node)
       )
         context.report({ node: node.parent, messageId: 'preferDelay' });
     };

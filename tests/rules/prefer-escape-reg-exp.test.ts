@@ -9,10 +9,13 @@ const ruleTester = new RuleTester();
 // Regex literals that escape every special character.
 const MDN = '/[.*+?^${}()|[\\]\\\\]/g'; // /[.*+?^${}()|[\]\\]/g
 const LODASH = String.raw`/[\\^$.*+?()[\]{}|]/g`;
-const WITH_DASH_AND_SLASH = String.raw`/[-\/\\^$*+?.()|[\]{}]/g`;
+const WITH_SLASH_UNESCAPED = String.raw`/[/\\^$*+?.()|[\]{}]/g`;
 const WITH_SLASH = '/[.*+?^${}()|[\\]\\\\\\/]/g'; // /[.*+?^${}()|[\]\\\/]/g
 
 // Near-miss regex literals.
+// Also escapes `-`, which `escapeRegExp` leaves alone: the results differ.
+const WITH_DASH_AND_SLASH = String.raw`/[-\/\\^$*+?.()|[\]{}]/g`;
+const WITH_ESCAPED_DASH = '/[.*+?^${}()\\-|[\\]\\\\]/g'; // /[.*+?^${}()\-|[\]\\]/g
 const NO_FLAGS = '/[.*+?^${}()|[\\]\\\\]/'; // /[.*+?^${}()|[\]\\]/
 const IGNORE_CASE_ONLY = '/[.*+?^${}()|[\\]\\\\]/i'; // /[.*+?^${}()|[\]\\]/i
 const MISSING_BACKSLASH = '/[.*+?^${}()|[\\]]/g'; // /[.*+?^${}()|[\]]/g
@@ -56,6 +59,9 @@ ruleTester.run('prefer-escape-reg-exp', preferEscapeRegExp, {
     // Not a single, non-negated character class.
     `s.replace(${NEGATED}, ${SINGLE});`,
     `s.replace(${QUANTIFIED}, ${SINGLE});`,
+    // `-` is not escaped by `escapeRegExp`.
+    `s.replace(${WITH_DASH_AND_SLASH}, ${SINGLE});`,
+    `const pattern = marker.replace(${WITH_ESCAPED_DASH}, ${SINGLE});`,
     // Not a regex literal.
     String.raw`s.replace(re, '\\$&');`,
     String.raw`s.replace(new RegExp('[.]', 'g'), '\\$&');`,
@@ -74,7 +80,7 @@ ruleTester.run('prefer-escape-reg-exp', preferEscapeRegExp, {
       errors: [{ messageId: 'preferEscapeRegExp' }],
     },
     {
-      code: `s.replace(${WITH_DASH_AND_SLASH}, ${SINGLE});`,
+      code: `s.replace(${WITH_SLASH_UNESCAPED}, ${SINGLE});`,
       errors: [{ messageId: 'preferEscapeRegExp' }],
     },
     {
@@ -122,7 +128,7 @@ ruleTester.run('prefer-escape-reg-exp', preferEscapeRegExp, {
       errors: [{ messageId: 'preferEscapeRegExp' }],
     },
     {
-      code: `function escape<T extends string>(s: T): string { return s.replaceAll(${WITH_DASH_AND_SLASH}, ${TEMPLATE}); }`,
+      code: `function escape<T extends string>(s: T): string { return s.replaceAll(${WITH_SLASH}, ${TEMPLATE}); }`,
       errors: [{ messageId: 'preferEscapeRegExp' }],
     },
     {

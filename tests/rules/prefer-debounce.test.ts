@@ -117,8 +117,110 @@ ruleTester.run('prefer-debounce', preferDebounce, {
       clearTimeout(t);
       t = timers.setTimeout(f, 100);
     `,
+    // The callback only resets transient state: a restartable "Copied!" flag, not a debounce.
+    `
+      const copy = async () => {
+        await navigator.clipboard.writeText(text);
+        setIsCopied(true);
+        clearTimeout(timeout.current);
+        timeout.current = setTimeout(() => {
+          setIsCopied(false);
+        }, 1200);
+      };
+    `,
+    `
+      clearTimeout(highlightTimeout.current);
+      rootElement.style.outline = '2px solid red';
+      highlightTimeout.current = setTimeout(() => {
+        rootElement.style.outline = '';
+      }, 1000);
+    `,
+    `
+      if (copiedTimeout !== undefined) clearTimeout(copiedTimeout);
+      copiedTimeout = setTimeout(() => {
+        delete trigger.dataset.copied;
+      }, 2000);
+    `,
+    `
+      clearTimeout(startedOutsideTimeoutRef.current!);
+      startedOutsideTimeoutRef.current = setTimeout(() => {
+        startedOutsideRef.current = false;
+        startedOutsideTimeoutRef.current = null;
+      }, 100);
+    `,
+    `
+      clearTimeout(timer);
+      timer = setTimeout(() => setChangingCollapse(false), 250);
+    `,
+    // A Node timer that is unref'd: the timer inside \`debounce\` cannot be.
+    `
+      class Project {
+        private warmupTimer?: NodeJS.Timeout;
+        schedule(): void {
+          if (this.warmupTimer) clearTimeout(this.warmupTimer);
+          this.warmupTimer = setTimeout(() => this.warmup(), 100);
+          this.warmupTimer?.unref?.();
+        }
+        warmup(): void {}
+      }
+    `,
+    `
+      clearTimeout(t);
+      t = setTimeout(flush, 100);
+      t.unref();
+    `,
+    // One timer per key: a single \`debounce\` cannot replace it.
+    `
+      clearTimeout(this._timeouts[storageKey]);
+      this._timeouts[storageKey] = setTimeout(this._flush.bind(this), 100);
+    `,
   ],
   invalid: [
+    {
+      // The callback does more than reset state to fixed values.
+      code: `
+        clearTimeout(filterTimeout.current);
+        filterTimeout.current = setTimeout(() => {
+          setIsApplying(false);
+          applyValue({ ...item, value: [lowerBound, upperBound] });
+        }, 300);
+      `,
+      errors: [{ messageId: 'preferDebounce' }],
+    },
+    {
+      code: `
+        clearTimeout(removeTimeout);
+        removeTimeout = setTimeout(() => removeHighlight(id), 3500);
+      `,
+      errors: [{ messageId: 'preferDebounce' }],
+    },
+    {
+      code: `
+        if (this.debounceTimer) clearTimeout(this.debounceTimer);
+        this.debounceTimer = setTimeout(() => {
+          this.debounceTimer = undefined;
+          void this.scan();
+        }, delayMs);
+      `,
+      errors: [{ messageId: 'preferDebounce' }],
+    },
+    {
+      // A different handle is unref'd.
+      code: `
+        clearTimeout(t);
+        t = setTimeout(flush, 100);
+        other.unref();
+      `,
+      errors: [{ messageId: 'preferDebounce' }],
+    },
+    {
+      // A literal key names one fixed timer.
+      code: `
+        clearTimeout(timers['save']);
+        timers['save'] = setTimeout(save, 100);
+      `,
+      errors: [{ messageId: 'preferDebounce' }],
+    },
     {
       code: `
         let timer;

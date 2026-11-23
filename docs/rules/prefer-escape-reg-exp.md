@@ -16,7 +16,8 @@ This rule reports — it does **not** auto-fix — a `.replace(re, repl)` or
 - `re` is a regex literal with the `g` flag whose whole pattern is a single, non-negated
   character class with no quantifier;
 - the class contains every regex special character `. * + ? ^ $ { } ( ) | [ ] \`
-  (`-` and `/` may also appear, escaped or not), and nothing else;
+  (`/` may also appear, escaped or not), and nothing else. That is es-toolkit's own set,
+  `[\\^$.*+?()[\]{}|]`;
 - `repl` is the string `'\\$&'` (cooked value `\$&`), written with single or double
   quotes or as a template literal without expressions.
 
@@ -25,7 +26,7 @@ This rule reports — it does **not** auto-fix — a `.replace(re, repl)` or
 ```js
 s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 s.replace(/[\\^$.*+?()[\]{}|]/g, '\\$&');
-s.replaceAll(/[-\/\\^$*+?.()|[\]{}]/g, `\\$&`);
+s.replaceAll(/[\/\\^$*+?.()|[\]{}]/g, `\\$&`);
 new RegExp(s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
 ```
 
@@ -41,6 +42,7 @@ new RegExp(escapeRegExp(s), 'g');
 s.replace(/[.*+?]/g, '\\$&'); // only some special characters
 s.replace(/[.*+?^${}()|[\]\\]/g, ''); // removes them instead of escaping
 s.replace(/[.*+?^${}()|[\]\\]/, '\\$&'); // no `g` flag: only the first match
+s.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&'); // also escapes `-`, unlike escapeRegExp
 ```
 
 ## Limitations
@@ -51,6 +53,10 @@ s.replace(/[.*+?^${}()|[\]\\]/, '\\$&'); // no `g` flag: only the first match
   replacement held in a variable is not detected.
 - **Every special character is required.** A class with a hand-picked subset of the
   special characters is not reported, since it does not behave like `escapeRegExp`.
+- **A class that also escapes `-` is not reported.** `escapeRegExp` leaves `-` as is, so
+  the result differs: inside a character class (`[${escaped}]`) an unescaped `-` can form a
+  range, and under the `u` flag the original `\-` outside a class is a syntax error. Review
+  such code by hand before switching.
 - **Receiver type is not checked.** Any `.replace` / `.replaceAll` call with this shape is
   reported, whatever the receiver is.
 - **No auto-fix by design.** The fix requires adding an

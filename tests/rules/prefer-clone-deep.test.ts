@@ -33,6 +33,21 @@ ruleTester.run('prefer-clone-deep', preferCloneDeep, {
     "JSON.parse(JSON['stringify'](x));",
     // Owned by prefer-is-equal.
     'JSON.stringify(a) === JSON.stringify(b);',
+    // Asserting what survives JSON: `cloneDeep` would make the assertion vacuous.
+    'expect(JSON.parse(JSON.stringify(ast))).toEqual(ast);',
+    'expect(sentData.editor).toEqual(JSON.parse(JSON.stringify(getUsageData(editor))));',
+    'expect(Reflect.ownKeys(node)).toEqual(Object.keys(JSON.parse(JSON.stringify(node))));',
+    'expect(a).not.toEqual(JSON.parse(JSON.stringify(b)));',
+    // Named after serialising, sanitising or detaching: the JSON semantics are the point.
+    'function sanitizeError(error: Error) { return { ...JSON.parse(JSON.stringify(error)), message: error.message }; }',
+    'function toSerializableMeta<T>(obj: T): Serializable<T> { return JSON.parse(JSON.stringify(obj)); }',
+    'const resultJson = JSON.parse(JSON.stringify(result));',
+    'const toPlainObject = (value) => JSON.parse(JSON.stringify(value));',
+    'function detachSnapshot<T>(value: T): T { return JSON.parse(JSON.stringify(value)) as T; }',
+    'class Model { toJSONData() { return JSON.parse(JSON.stringify(this.data)); } }',
+    // A benchmark of the round-trip itself.
+    'await benchmark(async () => { for (const p of paths) JSON.parse(JSON.stringify(p)); });',
+    "bench('json', () => { JSON.parse(JSON.stringify(data)); });",
   ],
   invalid: [
     {
@@ -92,6 +107,20 @@ ruleTester.run('prefer-clone-deep', preferCloneDeep, {
     },
     {
       code: 'function clone<T>(value: T): T { return JSON.parse(JSON.stringify(value)) as T; }',
+      errors: [{ messageId: 'preferCloneDeep' }],
+    },
+    {
+      // A clone in a test that is not itself asserted.
+      code: "it('loads', async () => { await canvas.loadFromJSON(JSON.parse(JSON.stringify(PATH_JSON))); });",
+      errors: [{ messageId: 'preferCloneDeep' }],
+    },
+    {
+      // A variable name only says what it holds: a clone of serialised data is still a clone.
+      code: "it('loads', async () => { const serialized = JSON.parse(JSON.stringify(PATH_JSON)); serialized.background = 'green'; });",
+      errors: [{ messageId: 'preferCloneDeep' }],
+    },
+    {
+      code: 'function deepClone(value) { return JSON.parse(JSON.stringify(value)); }',
       errors: [{ messageId: 'preferCloneDeep' }],
     },
   ],

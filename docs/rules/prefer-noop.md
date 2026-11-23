@@ -15,10 +15,13 @@ This rule reports — it does **not** auto-fix — an arrow function or function
 that:
 
 - is neither `async` nor a generator,
-- has an empty block body (`{}`; a comment inside does not matter), and
-- has only plain identifier parameters or a rest parameter of a plain identifier (TypeScript
-  type annotations, optional parameters and type parameters are allowed; a default value or
-  destructuring is not).
+- has an empty block body (`{}`; a comment inside does not matter),
+- has only plain identifier parameters or a rest parameter of a plain identifier, none of
+  them with a TypeScript type annotation (a default value or destructuring is not allowed
+  either; a `this` parameter is), and
+- is not a named function expression (`function onClick() {}`), and not the argument of a
+  `mockImplementation`, `mockImplementationOnce`, `mockReturnValue` or `mockReturnValueOnce`
+  call.
 
 An empty-bodied `async () => {}` is not reported: it returns a Promise, while `noop` returns
 `undefined`. Generators return an iterator, so they are not reported either.
@@ -33,7 +36,7 @@ function run(cb = () => {}) {}
 ```
 
 ```ts
-const onError = (e: Error) => {};
+const onClick: () => void = () => {};
 ```
 
 ### ✅ Correct
@@ -52,6 +55,16 @@ const log = () => {
 };
 const ready = async () => {};
 const fallback = () => undefined;
+
+// Kept on purpose — left untouched:
+el.addEventListener('click', function onClick() {}); // the name is observable
+vi.spyOn(console, 'error').mockImplementation(() => {}); // a test double
+```
+
+```ts
+// The annotation declares the signature; `noop` takes no arguments, so `update(1)` would
+// stop type-checking:
+let update = (count: number) => {};
 ```
 
 ## Limitations
@@ -64,13 +77,22 @@ const fallback = () => undefined;
 - **Shared identity.** Every `noop` is the same function. Registering it twice with
   `addEventListener` adds a single listener, `removeEventListener(type, noop)` removes it
   wherever it was added, and properties assigned to it are shared.
-- **TypeScript signatures.** A parameter annotation can be the only place a variable's type
-  is declared: after `const f = (value: string) => {}` becomes `const f = noop`, calling
-  `f('x')` no longer type-checks. Annotate the variable instead. A function with only a
-  TypeScript `this` parameter (`function (this: T) {}`) is reported.
+- **TypeScript signatures.** A function with a type-annotated parameter is not reported: the
+  annotation can be the only place the signature is declared, and after
+  `const f = (value: string) => {}` becomes `const f = noop`, calling `f('x')` fails with
+  TS2554. Where the type comes from context instead (`const f: Handler = (value: string) =>
+{}`), the rewrite would be safe but is not suggested. A function with only a TypeScript
+  `this` parameter (`function (this: T) {}`) is reported.
 - **Comments.** `() => { /* ignore */ }` is reported; move the comment next to `noop`.
-- **Named function expressions** (`function onClick() {}`) are reported. The name only shows
-  up in stack traces, so it is dropped by the rewrite.
+- **Named function expressions** (`function onClick() {}`) are not reported. The name is
+  observable: `fn.name` returns it, so mock names (`fn(function save() {}).getMockName()`),
+  Storybook action logs and anything else that reads it would change.
+- **Test doubles.** Only the argument of a `mockImplementation`/`mockReturnValue` call (and
+  their `Once` forms) is skipped. Other empty functions in tests, such as `vi.fn(() => {})` or
+  a fake `preventDefault: () => {}`, are reported.
+- **Fixture files.** Codemod and parser fixtures (`__testfixtures__`, `test-cases/actual.js`,
+  …) are data, not code to rewrite. Exclude them with an `ignores` entry in your ESLint
+  config.
 - **Not reported:** function declarations (`function f() {}`), class and object methods,
   constructors, getters and setters, TypeScript signatures without a body, functions with a
   default or destructured parameter, and blocks that hold anything (a `'use strict'`
