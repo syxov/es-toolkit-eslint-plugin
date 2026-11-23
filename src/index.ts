@@ -56,10 +56,12 @@ import { preferSumBy } from './rules/prefer-sum-by.js';
 import { preferTail } from './rules/prefer-tail.js';
 import { preferTake } from './rules/prefer-take.js';
 import { preferTakeRight } from './rules/prefer-take-right.js';
+import { preferTimeout } from './rules/prefer-timeout.js';
 import { preferUnion } from './rules/prefer-union.js';
 import { preferUniq } from './rules/prefer-uniq.js';
 import { preferUniqBy } from './rules/prefer-uniq-by.js';
 import { preferUpperFirst } from './rules/prefer-upper-first.js';
+import { preferWithTimeout } from './rules/prefer-with-timeout.js';
 import { preferWithout } from './rules/prefer-without.js';
 import { preferZip } from './rules/prefer-zip.js';
 
@@ -126,10 +128,12 @@ const rules = {
   'prefer-tail': preferTail,
   'prefer-take': preferTake,
   'prefer-take-right': preferTakeRight,
+  'prefer-timeout': preferTimeout,
   'prefer-union': preferUnion,
   'prefer-uniq': preferUniq,
   'prefer-uniq-by': preferUniqBy,
   'prefer-upper-first': preferUpperFirst,
+  'prefer-with-timeout': preferWithTimeout,
   'prefer-without': preferWithout,
   'prefer-zip': preferZip,
 };
@@ -210,6 +214,8 @@ const predicateRules = {
 
 const promiseRules = {
   'es-toolkit/prefer-delay': 'error',
+  'es-toolkit/prefer-timeout': 'error',
+  'es-toolkit/prefer-with-timeout': 'error',
 } as const;
 
 const stringRules = {

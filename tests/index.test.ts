@@ -40,6 +40,8 @@ test('exports category configs and an all config', () => {
   });
   expect(plugin.configs.promise.rules).toEqual({
     'es-toolkit/prefer-delay': 'error',
+    'es-toolkit/prefer-timeout': 'error',
+    'es-toolkit/prefer-with-timeout': 'error',
   });
   expect(plugin.configs.string.rules).toEqual({
     'es-toolkit/prefer-capitalize': 'error',

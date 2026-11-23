@@ -1,6 +1,8 @@
 import type { TSESTree } from '@typescript-eslint/utils';
 import { isIdentifierNamed } from '../utils/ast.js';
+import { isEvaluatedInBrowser } from '../utils/browser-evaluation.js';
 import { createRule } from '../utils/create-rule.js';
+import { soleCall } from '../utils/timer-promise.js';
 
 type Executor = TSESTree.ArrowFunctionExpression | TSESTree.FunctionExpression;
 
@@ -16,18 +18,6 @@ const expressionExecutor = `${executor}${timeoutCall('body')}`;
 // `resolve => { setTimeout(…, ms); }` or `function (resolve) { setTimeout(…, ms); }`
 const blockExecutor = `${executor}[body.type="BlockStatement"][body.body.length=1]${timeoutCall('body.body.0.expression')}`;
 
-// The call a function body consists of: `f()` or `{ f(); }`.
-const soleCall = (body: TSESTree.BlockStatement | TSESTree.Expression) => {
-  let expression: TSESTree.Node = body;
-  if (body.type === 'BlockStatement') {
-    const [statement] = body.body;
-    if (body.body.length !== 1 || statement.type !== 'ExpressionStatement')
-      return null;
-    expression = statement.expression;
-  }
-  return expression.type === 'CallExpression' ? expression : null;
-};
-
 // `resolve` itself, or `() => resolve()` / `() => { resolve(); }`.
 const callsOnlyResolve = (callback: TSESTree.Node, resolve: string) => {
   if (isIdentifierNamed(callback, resolve)) return true;
@@ -39,27 +29,6 @@ const callsOnlyResolve = (callback: TSESTree.Node, resolve: string) => {
     && call.arguments.length === 0
     && isIdentifierNamed(call.callee, resolve)
   );
-};
-
-// Puppeteer / Playwright serialise these callbacks and run them in the page, where an
-// imported `delay` is not defined.
-const browserEvaluation =
-  /^(\$\$?eval|addInitScript|evaluate|evaluateHandle|evaluateOnNewDocument|waitForFunction)$/;
-
-const isEvaluatedInBrowser = (node: TSESTree.Node) => {
-  for (let current = node.parent; current; current = current.parent) {
-    const { parent } = current;
-    if (
-      current.type.includes('Function')
-      && parent?.type === 'CallExpression'
-      && parent.arguments.includes(current as TSESTree.CallExpressionArgument)
-      && parent.callee.type === 'MemberExpression'
-      && parent.callee.property.type === 'Identifier'
-      && browserEvaluation.test(parent.callee.property.name)
-    )
-      return true;
-  }
-  return false;
 };
 
 export const preferDelay = createRule({
